@@ -1,0 +1,12 @@
+{{- $orbit := . -}}
+{{- if or (eq $orbit nil) (and (reflect.IsSlice $orbit) (eq (len $orbit) 0)) -}}
+—
+{{- else if reflect.IsSlice $orbit -}}
+{{- $wrapped := slice -}}
+{{- range $orbit }}
+{{- $wrapped = $wrapped | append (printf "(%s)" .) -}}
+{{- end -}}
+{{- delimit $wrapped " " -}}
+{{- else -}}
+{{- $orbit -}}
+{{- end -}}

@@ -1,0 +1,59 @@
+{{ define "main" }}
+  {{ .Content }}
+  <section id="table-view" class="view is-active" aria-label="Spacegroup list view">
+    <div class="panel toolbar">
+      <div class="search-wrap">
+        <label for="search-input">Search</label>
+        <input
+          id="search-input"
+          type="search"
+          autocomplete="off"
+          placeholder="Hall symbol, HM symbol, ITA, n:c, crystal system..."
+        />
+      </div>
+      <div class="toolbar-meta">
+        <span id="search-summary">Showing all spacegroups</span>
+      </div>
+    </div>
+
+    <div class="panel table-panel">
+      <div class="table-scroll">
+        <table class="sg-table" aria-label="Spacegroup table">
+          <thead>
+            <tr>
+              <th><button class="sort-btn" data-sort="hall_key">Hall Symbol</button></th>
+              <th><button class="sort-btn" data-sort="ita_number">ITA #</button></th>
+              <th><button class="sort-btn" data-sort="short_hm_symbol">Hermann-Mauguin</button></th>
+              <th><button class="sort-btn" data-sort="crystal_system">Crystal System</button></th>
+              <th><button class="sort-btn" data-sort="point_group">Point Group</button></th>
+              <th><button class="sort-btn" data-sort="n_c">n:c</button></th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+      <p class="empty-state" id="empty-state" hidden>No matching spacegroups found.</p>
+    </div>
+  </section>
+
+  <section id="detail-view" class="view" aria-label="Spacegroup detail view">
+    <div class="detail-header panel">
+      <div class="detail-meta">
+        <div class="detail-meta-item">
+          <p class="kicker">Hall</p>
+          <select id="detail-hall-select" class="detail-select" aria-label="Select Hall symbol"></select>
+        </div>
+        <div class="detail-meta-item">
+          <p class="kicker">HM</p>
+          <select id="detail-hm-select" class="detail-select" aria-label="Select HM symbol"></select>
+        </div>
+        <div class="detail-meta-item">
+          <p class="kicker">ITA#</p>
+          <select id="detail-ita-select" class="detail-select" aria-label="Select ITA number"></select>
+        </div>
+      </div>
+    </div>
+
+    <div id="detail-content" class="detail-grid"></div>
+  </section>
+{{ end }}

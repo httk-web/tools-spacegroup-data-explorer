@@ -1,0 +1,15 @@
+{{- $v := . -}}
+{{- $t := printf "%T" $v -}}
+{{- if or (eq $v nil) (and (eq $t "string") (eq $v "")) -}}
+—
+{{- else if reflect.IsSlice $v -}}
+{{- if gt (len $v) 0 -}}
+{{- delimit $v ", " -}}
+{{- else -}}
+—
+{{- end -}}
+{{- else if eq $t "bool" -}}
+{{- if $v -}}Yes{{- else -}}No{{- end -}}
+{{- else -}}
+{{- $v -}}
+{{- end -}}

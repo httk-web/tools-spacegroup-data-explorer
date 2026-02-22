@@ -1,0 +1,512 @@
+---
+asym_unit: -1/4<=x<1/4; 0<=y<1/2; 0<=z<=3/4
+crystal_system: cubic
+grid_factors:
+  euclidean:
+  - 4
+  - 4
+  - 4
+  seminvariant:
+  - 2
+  - 2
+  - 2
+  space_group:
+  - 2
+  - 2
+  - 2
+hall_key: p_2ac_2ab_3
+hall_latex: \mathrm{P}\,2ac\,2ab\,3
+harker_planes:
+- algebraic: x+z,-x-y,y-z
+  normal:
+  - 1
+  - 1
+  - 1
+  point:
+  - 0.0
+  - 0.0
+  - 0.0
+- algebraic: x+y+1/2,y-z,-x-z+1/2
+  normal:
+  - 1
+  - -1
+  - 1
+  point:
+  - 0.5
+  - 0.0
+  - 0.5
+- algebraic: x+y,y-z+1/2,x+z+1/2
+  normal:
+  - -1
+  - 1
+  - 1
+  point:
+  - 0.0
+  - 0.5
+  - 0.5
+- algebraic: x+z,-x-y+1/2,-y+z+1/2
+  normal:
+  - -1
+  - -1
+  - 1
+  point:
+  - 0.0
+  - 0.5
+  - 0.5
+- algebraic: 1/2,2*y+1/2,2*z
+  normal:
+  - 1
+  - 0
+  - 0
+  point:
+  - 0.5
+  - 0.5
+  - 0.0
+- algebraic: 2*x,1/2,2*z+1/2
+  normal:
+  - 0
+  - 1
+  - 0
+  point:
+  - 0.0
+  - 0.5
+  - 0.5
+- algebraic: 2*x+1/2,2*y,1/2
+  normal:
+  - 0
+  - 0
+  - 1
+  point:
+  - 0.5
+  - 0.0
+  - 0.5
+is_centric: false
+is_chiral: true
+is_enantiomorphic: false
+is_reference_setting: true
+ita_number: 198
+laue_class: m-3
+n_c: '198'
+n_ltr: 1
+n_smx: 12
+order_z: 12
+point_group: '23'
+qualifier: ''
+related_settings:
+- hall_key: p_2ac_2ab_3
+  is_reference_setting: true
+schoenflies: T^4
+short_hm_symbol: P213
+slug: p_2ac_2ab_3
+structure_seminvariants:
+- modulus: 2
+  vector:
+  - 1
+  - 1
+  - 1
+symops:
+- axis:
+  - 0
+  - 0
+  - 0
+  origin_shift: 0,0,0
+  rot_type: '1'
+  screw_glide: 0,0,0
+  sense: 0
+  xyz: x,y,z
+- axis:
+  - 1
+  - 1
+  - 1
+  origin_shift: 0,0,0
+  rot_type: '3'
+  screw_glide: 0,0,0
+  sense: 1
+  xyz: z,x,y
+- axis:
+  - 1
+  - 1
+  - 1
+  origin_shift: 0,0,0
+  rot_type: '3'
+  screw_glide: 0,0,0
+  sense: -1
+  xyz: y,z,x
+- axis:
+  - 1
+  - -1
+  - 1
+  origin_shift: -1/6,1/3,0
+  rot_type: '3'
+  screw_glide: 1/3,-1/3,1/3
+  sense: 1
+  xyz: -y+1/2,-z,x+1/2
+- axis:
+  - 1
+  - -1
+  - 1
+  origin_shift: 1/2,0,0
+  rot_type: '3'
+  screw_glide: 0,0,0
+  sense: -1
+  xyz: z+1/2,-x+1/2,-y
+- axis:
+  - -1
+  - 1
+  - 1
+  origin_shift: 1/6,1/6,0
+  rot_type: '3'
+  screw_glide: -1/3,1/3,1/3
+  sense: 1
+  xyz: -y,z+1/2,-x+1/2
+- axis:
+  - -1
+  - 1
+  - 1
+  origin_shift: 1/2,-1/2,0
+  rot_type: '3'
+  screw_glide: 0,0,0
+  sense: -1
+  xyz: -z+1/2,-x,y+1/2
+- axis:
+  - -1
+  - -1
+  - 1
+  origin_shift: 0,1/2,0
+  rot_type: '3'
+  screw_glide: 0,0,0
+  sense: 1
+  xyz: -z,x+1/2,-y+1/2
+- axis:
+  - -1
+  - -1
+  - 1
+  origin_shift: 1/3,1/6,0
+  rot_type: '3'
+  screw_glide: 1/3,1/3,-1/3
+  sense: -1
+  xyz: y+1/2,-z+1/2,-x
+- axis:
+  - 1
+  - 0
+  - 0
+  origin_shift: 0,1/4,0
+  rot_type: '2'
+  screw_glide: 1/2,0,0
+  sense: 0
+  xyz: x+1/2,-y+1/2,-z
+- axis:
+  - 0
+  - 1
+  - 0
+  origin_shift: 0,0,1/4
+  rot_type: '2'
+  screw_glide: 0,1/2,0
+  sense: 0
+  xyz: -x,y+1/2,-z+1/2
+- axis:
+  - 0
+  - 0
+  - 1
+  origin_shift: 1/4,0,0
+  rot_type: '2'
+  screw_glide: 0,0,1/2
+  sense: 0
+  xyz: -x+1/2,-y,z+1/2
+title: Spacegroup p_2ac_2ab_3
+universal_hm: P 21 3
+url: /hall/p_2ac_2ab_3/
+wyckoff:
+  a:
+    first_orbit: x,x,x
+    hasfreedom:
+    - true
+    - false
+    - false
+    multiplicity: 4
+    orbit_affine:
+    - - - 1.0
+        - 0.0
+        - 0.0
+        - 0.0
+      - - 1.0
+        - 0.0
+        - 0.0
+        - 0.0
+      - - 1.0
+        - 0.0
+        - 0.0
+        - 0.0
+      - - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+    - - - -1.0
+        - 0.0
+        - 0.0
+        - 0.0
+      - - 1.0
+        - 0.0
+        - 0.0
+        - 0.5
+      - - -1.0
+        - 0.0
+        - 0.0
+        - 0.5
+      - - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+    - - - -1.0
+        - 0.0
+        - 0.0
+        - 0.5
+      - - -1.0
+        - 0.0
+        - 0.0
+        - 0.0
+      - - 1.0
+        - 0.0
+        - 0.0
+        - 0.5
+      - - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+    - - - 1.0
+        - 0.0
+        - 0.0
+        - 0.5
+      - - -1.0
+        - 0.0
+        - 0.0
+        - 0.5
+      - - -1.0
+        - 0.0
+        - 0.0
+        - 0.0
+      - - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+    orbit_xyz:
+    - x,x,x
+    - -x,x+1/2,-x+1/2
+    - -x+1/2,-x,x+1/2
+    - x+1/2,-x+1/2,-x
+    sitesym: .3.
+  b:
+    first_orbit: x,y,z
+    hasfreedom:
+    - true
+    - true
+    - true
+    multiplicity: 12
+    orbit_affine:
+    - - - 1.0
+        - 0.0
+        - 0.0
+        - 0.0
+      - - 0.0
+        - 1.0
+        - 0.0
+        - 0.0
+      - - 0.0
+        - 0.0
+        - 1.0
+        - 0.0
+      - - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+    - - - -1.0
+        - 0.0
+        - 0.0
+        - 0.0
+      - - 0.0
+        - 1.0
+        - 0.0
+        - 0.5
+      - - 0.0
+        - 0.0
+        - -1.0
+        - 0.5
+      - - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+    - - - -1.0
+        - 0.0
+        - 0.0
+        - 0.5
+      - - 0.0
+        - -1.0
+        - 0.0
+        - 0.0
+      - - 0.0
+        - 0.0
+        - 1.0
+        - 0.5
+      - - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+    - - - 0.0
+        - -1.0
+        - 0.0
+        - 0.0
+      - - 0.0
+        - 0.0
+        - 1.0
+        - 0.5
+      - - -1.0
+        - 0.0
+        - 0.0
+        - 0.5
+      - - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+    - - - 0.0
+        - -1.0
+        - 0.0
+        - 0.5
+      - - 0.0
+        - 0.0
+        - -1.0
+        - 0.0
+      - - 1.0
+        - 0.0
+        - 0.0
+        - 0.5
+      - - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+    - - - 0.0
+        - 0.0
+        - -1.0
+        - 0.0
+      - - 1.0
+        - 0.0
+        - 0.0
+        - 0.5
+      - - 0.0
+        - -1.0
+        - 0.0
+        - 0.5
+      - - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+    - - - 0.0
+        - 0.0
+        - -1.0
+        - 0.5
+      - - -1.0
+        - 0.0
+        - 0.0
+        - 0.0
+      - - 0.0
+        - 1.0
+        - 0.0
+        - 0.5
+      - - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+    - - - 0.0
+        - 0.0
+        - 1.0
+        - 0.0
+      - - 1.0
+        - 0.0
+        - 0.0
+        - 0.0
+      - - 0.0
+        - 1.0
+        - 0.0
+        - 0.0
+      - - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+    - - - 0.0
+        - 0.0
+        - 1.0
+        - 0.5
+      - - -1.0
+        - 0.0
+        - 0.0
+        - 0.5
+      - - 0.0
+        - -1.0
+        - 0.0
+        - 0.0
+      - - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+    - - - 0.0
+        - 1.0
+        - 0.0
+        - 0.0
+      - - 0.0
+        - 0.0
+        - 1.0
+        - 0.0
+      - - 1.0
+        - 0.0
+        - 0.0
+        - 0.0
+      - - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+    - - - 0.0
+        - 1.0
+        - 0.0
+        - 0.5
+      - - 0.0
+        - 0.0
+        - -1.0
+        - 0.5
+      - - -1.0
+        - 0.0
+        - 0.0
+        - 0.0
+      - - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+    - - - 1.0
+        - 0.0
+        - 0.0
+        - 0.5
+      - - 0.0
+        - -1.0
+        - 0.0
+        - 0.5
+      - - 0.0
+        - 0.0
+        - -1.0
+        - 0.0
+      - - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+    orbit_xyz:
+    - x,y,z
+    - -x,y+1/2,-z+1/2
+    - -x+1/2,-y,z+1/2
+    - -y,z+1/2,-x+1/2
+    - -y+1/2,-z,x+1/2
+    - -z,x+1/2,-y+1/2
+    - -z+1/2,-x,y+1/2
+    - z,x,y
+    - z+1/2,-x+1/2,-y
+    - y,z,x
+    - y+1/2,-z+1/2,-x
+    - x+1/2,-y+1/2,-z
+    sitesym: '1'
+---
