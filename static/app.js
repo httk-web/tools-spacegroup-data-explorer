@@ -77,8 +77,32 @@ const updateSummary = () => {
 };
 
 const resolveBase = () => {
-  const base = typeof window.SPACEGROUP_BASE_URL === "string" ? window.SPACEGROUP_BASE_URL : "/";
-  return base.endsWith("/") ? base : `${base}/`;
+  const explicit = typeof window.SPACEGROUP_BASE_URL === "string" ? window.SPACEGROUP_BASE_URL : "";
+  if (explicit) {
+    try {
+      const url = new URL(explicit, window.location.origin);
+      const basePath = url.pathname || "/";
+      return basePath.endsWith("/") ? basePath : `${basePath}/`;
+    } catch {
+      return explicit.endsWith("/") ? explicit : `${explicit}/`;
+    }
+  }
+
+  if (document.currentScript && document.currentScript.src) {
+    try {
+      const url = new URL(document.currentScript.src, window.location.origin);
+      const basePath = url.pathname.replace(/app\\.js(?:\\?.*)?$/, "");
+      return basePath.endsWith("/") ? basePath : `${basePath}/`;
+    } catch {
+      // Ignore and fall through.
+    }
+  }
+
+  const path = window.location.pathname || "/";
+  if (path.includes("/hall/")) {
+    return path.split("/hall/")[0] + "/";
+  }
+  return path.endsWith("/") ? path : path.replace(/[^/]+$/, "");
 };
 
 const renderTable = () => {
