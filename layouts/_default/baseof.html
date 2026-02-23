@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="math-pending">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -22,12 +22,22 @@
     <script>
       window.MathJax = {
         tex: { inlineMath: [["\\(", "\\)"], ["$", "$"]] },
-        options: { skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"] }
+        options: { skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"] },
+        startup: {
+          pageReady: () => {
+            return MathJax.startup.defaultPageReady().then(() => {
+              document.documentElement.classList.remove("math-pending");
+            });
+          }
+        }
       };
     </script>
     <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>
       window.SPACEGROUP_BASE_URL = "{{ .Site.BaseURL }}";
+      window.setTimeout(() => {
+        document.documentElement.classList.remove("math-pending");
+      }, 2000);
     </script>
     <script src="{{ "app.js" | relURL }}"></script>
   </body>

@@ -105,14 +105,26 @@ const resolveBase = () => {
   return path.endsWith("/") ? path : path.replace(/[^/]+$/, "");
 };
 
+const isLikelyLatex = (value) => {
+  return typeof value === "string" && (value.includes("\\(") || value.includes("$"));
+};
+
+const renderMaybeMath = (value) => {
+  const text = escapeHtml(formatValue(value));
+  if (isLikelyLatex(value)) {
+    return `<span class="math-content">${text}</span>`;
+  }
+  return text;
+};
+
 const renderTable = () => {
   const baseUrl = resolveBase();
   const rows = sortRows(filteredRows);
   tableBody.innerHTML = rows
     .map((row) => {
-      const hallLabel = escapeHtml(formatValue(row.hall_latex || row.hall_key));
+      const hallLabel = renderMaybeMath(row.hall_latex || row.hall_key);
       const hallUrl = `${baseUrl}hall/${encodeURIComponent(row.hall_key)}/`;
-      const shortHmLabel = escapeHtml(formatValue(row.short_hm_symbol_latex || row.short_hm_symbol));
+      const shortHmLabel = renderMaybeMath(row.short_hm_symbol_latex || row.short_hm_symbol);
       return `
       <tr class="sg-row" data-active="false">
         <td><a class="hall-link" href="${hallUrl}">${hallLabel}</a></td>
@@ -129,9 +141,14 @@ const renderTable = () => {
   updateSummary();
 
   if (window.MathJax && typeof window.MathJax.typesetPromise === "function") {
-    window.MathJax.typesetPromise([tableBody]).catch((err) => {
-      console.warn("MathJax typeset failed", err);
-    });
+    tableBody.classList.add("math-pending");
+    window.MathJax.typesetPromise([tableBody])
+      .catch((err) => {
+        console.warn("MathJax typeset failed", err);
+      })
+      .finally(() => {
+        tableBody.classList.remove("math-pending");
+      });
   }
 };
 

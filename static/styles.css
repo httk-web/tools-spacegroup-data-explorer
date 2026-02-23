@@ -25,6 +25,10 @@ body {
     linear-gradient(145deg, #f8f3eb, #efe8d9 70%);
 }
 
+.math-pending .math-content {
+  visibility: hidden;
+}
+
 .noise {
   position: fixed;
   inset: 0;

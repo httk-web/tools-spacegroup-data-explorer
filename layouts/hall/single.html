@@ -46,7 +46,9 @@
               {{ if .is_reference_setting }}{{ $classes = $classes | append "is-standard" }}{{ end }}
               {{ if eq $.Params.hall_key .hall_key }}{{ $classes = $classes | append "is-active" }}{{ end }}
               {{ $label := default .hall_key (index $.Site.Data.spacegroup_lists.hall_latex .hall_key) }}
-              <a class="{{ delimit $classes " " }}" href="{{ printf "hall/%s/" .hall_key | relURL }}">{{ $label }}</a>
+              <a class="{{ delimit $classes " " }}" href="{{ printf "hall/%s/" .hall_key | relURL }}">
+                <span class="math-content">{{ $label }}</span>
+              </a>
             {{ end }}
           </div>
           <p class="note">Bold border: ITA reference setting.</p>
@@ -61,17 +63,17 @@
           <div class="metric">
             <label>Hall Symbol</label>
             {{ $hallSymbol := default .Params.hall_key .Params.hall_latex }}
-            <strong>{{ partial "value.html" $hallSymbol }}</strong>
+            <strong><span class="math-content">{{ partial "value.html" $hallSymbol }}</span></strong>
           </div>
           <div class="metric">
             <label>Short HM <span tabindex="0" class="info-dot" data-tip="Short Hermann-Mauguin symbol, a compact notation for symmetry elements.">i</span></label>
             {{ $shortHM := default .Params.short_hm_symbol .Params.short_hm_symbol_latex }}
-            <strong>{{ partial "value.html" $shortHM }}</strong>
+            <strong><span class="math-content">{{ partial "value.html" $shortHM }}</span></strong>
           </div>
           <div class="metric">
             <label>Universal HM</label>
             {{ $universalHM := default .Params.universal_hm .Params.universal_hm_latex }}
-            <strong>{{ partial "value.html" $universalHM }}</strong>
+            <strong><span class="math-content">{{ partial "value.html" $universalHM }}</span></strong>
           </div>
           <div class="metric">
             <label>n:c <span tabindex="0" class="info-dot" data-tip="Conventional setting label used in the source dataset.">i</span></label>
