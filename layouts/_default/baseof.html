@@ -10,7 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Instrument+Sans:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="{{ .Site.BaseURL }}/styles.css" />
   </head>
   <body>
     <div class="noise"></div>
@@ -19,6 +19,6 @@
       {{ block "main" . }}{{ end }}
       {{ partial "footer.html" . }}
     </main>
-    <script src="/app.js"></script>
+    <script src="{{ .Site.BaseURL }}/app.js"></script>
   </body>
 </html>
