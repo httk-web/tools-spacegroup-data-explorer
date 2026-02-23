@@ -1,4 +1,4 @@
-baseURL = "https://httk.org/tools-spacegroup-data-explorer/"
+baseURL = "//httk.org/tools-spacegroup-data-explorer/"
 languageCode = "en-us"
 title = "Spacegroup Data Explorer"
 
