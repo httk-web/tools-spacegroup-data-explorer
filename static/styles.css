@@ -111,6 +111,7 @@ h2 {
   display: inline-grid;
   place-content: center;
   cursor: pointer;
+  text-decoration: none;
   visibility: hidden;
   opacity: 0;
   pointer-events: none;
