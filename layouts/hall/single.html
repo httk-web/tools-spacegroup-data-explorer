@@ -7,8 +7,7 @@
           <select class="detail-select" aria-label="Select Hall symbol" onchange="if (this.value) window.location = this.value;">
             {{ range .Site.Data.spacegroup_lists.halls }}
               {{ $url := printf "hall/%s/" . | relURL }}
-              {{ $label := default . (index $.Site.Data.spacegroup_lists.hall_latex .) }}
-              <option value="{{ $url }}" {{ if eq $.Params.hall_key . }}selected{{ end }}>{{ $label }}</option>
+              <option value="{{ $url }}" {{ if eq $.Params.hall_key . }}selected{{ end }}>{{ . }}</option>
             {{ end }}
           </select>
         </div>
@@ -18,8 +17,7 @@
             {{ range .Site.Data.spacegroup_lists.hm_values }}
               {{ $hall := index $.Site.Data.spacegroup_lists.hm_to_hall . }}
               {{ $url := printf "hall/%s/" $hall | relURL }}
-              {{ $label := default . (index $.Site.Data.spacegroup_lists.hm_latex .) }}
-              <option value="{{ $url }}" {{ if eq $.Params.universal_hm . }}selected{{ end }}>{{ $label }}</option>
+              <option value="{{ $url }}" {{ if eq $.Params.universal_hm . }}selected{{ end }}>{{ . }}</option>
             {{ end }}
           </select>
         </div>
@@ -60,6 +58,11 @@
       <article class="detail-card panel section-half">
         <h3>Identity</h3>
         <div class="identity-grid">
+          <div class="metric">
+            <label>Hall Symbol</label>
+            {{ $hallSymbol := default .Params.hall_key .Params.hall_latex }}
+            <strong>{{ partial "value.html" $hallSymbol }}</strong>
+          </div>
           <div class="metric">
             <label>Short HM <span tabindex="0" class="info-dot" data-tip="Short Hermann-Mauguin symbol, a compact notation for symmetry elements.">i</span></label>
             {{ $shortHM := default .Params.short_hm_symbol .Params.short_hm_symbol_latex }}
