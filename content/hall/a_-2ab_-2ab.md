@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 2
 hall_key: a_-2ab_-2ab
-hall_latex: \mathrm{A}\,\bar{2}ab\,\bar{2}ab
+hall_latex: \(\mathrm{A}\ \overline{2}_{\mathrm{ab}}\ \overline{2}_{\mathrm{ab}}\)
 harker_planes:
 - algebraic: 2*x,0,2*z
   normal:
@@ -53,6 +53,7 @@ related_settings:
   is_reference_setting: false
 schoenflies: C2v^17
 short_hm_symbol: Ac2a
+short_hm_symbol_latex: ${\mathrm{Ac}2\mathrm{a}}$
 slug: a_-2ab_-2ab
 structure_seminvariants:
 - modulus: 2
@@ -104,6 +105,7 @@ symops:
   xyz: x+1/2,y+1/2,-z
 title: Spacegroup a_-2ab_-2ab
 universal_hm: A b a 2 (-a,c,b)
+universal_hm_latex: ${\mathrm{A} \mathrm{b} \mathrm{a} 2}$ (-a,c,b)
 url: /hall/a_-2ab_-2ab/
 wyckoff:
   a:

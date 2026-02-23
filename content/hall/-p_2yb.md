@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 1
 hall_key: -p_2yb
-hall_latex: -\mathrm{P}\,2yb
+hall_latex: \(\overline{\mathrm{P}}\ 2_{\mathrm{yb}}\)
 harker_planes:
 - algebraic: 2*x,1/2,2*z
   normal:
@@ -47,6 +47,7 @@ related_settings:
   is_reference_setting: true
 schoenflies: C2h^2
 short_hm_symbol: P21/m
+short_hm_symbol_latex: ${\mathrm{P}21/\mathrm{m}}$
 slug: -p_2yb
 structure_seminvariants:
 - modulus: 2
@@ -85,6 +86,7 @@ symops:
   xyz: -x,y+1/2,-z
 title: Spacegroup -p_2yb
 universal_hm: P 1 21/m 1
+universal_hm_latex: ${\mathrm{P} 1 21/\mathrm{m} 1}$
 url: /hall/-p_2yb/
 wyckoff:
   a:

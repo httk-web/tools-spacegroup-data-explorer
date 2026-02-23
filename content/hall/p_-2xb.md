@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 1
 hall_key: p_-2xb
-hall_latex: \mathrm{P}\,\bar{2}xb
+hall_latex: \(\mathrm{P}\ \overline{2}_{\mathrm{xb}}\)
 harker_planes: []
 is_centric: false
 is_chiral: false
@@ -50,6 +50,7 @@ related_settings:
   is_reference_setting: true
 schoenflies: Cs^2
 short_hm_symbol: Pb
+short_hm_symbol_latex: ${\mathrm{Pb}}$
 slug: p_-2xb
 structure_seminvariants:
 - modulus: 2
@@ -88,6 +89,7 @@ symops:
   xyz: -x,y+1/2,z
 title: Spacegroup p_-2xb
 universal_hm: P 1 c 1 (b,c,a)
+universal_hm_latex: ${\mathrm{P} 1 \mathrm{c} 1}$ (b,c,a)
 url: /hall/p_-2xb/
 wyckoff:
   a:

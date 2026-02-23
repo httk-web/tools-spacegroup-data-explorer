@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 1
 hall_key: p_-4_-2ab
-hall_latex: \mathrm{P}\,\bar{4}\,\bar{2}ab
+hall_latex: \(\mathrm{P}\ \overline{4}\ \overline{2}_{\mathrm{ab}}\)
 harker_planes:
 - algebraic: 2*x,2*y,0
   normal:
@@ -61,6 +61,7 @@ related_settings:
   is_reference_setting: true
 schoenflies: D2d^7
 short_hm_symbol: P-4b2
+short_hm_symbol_latex: ${\mathrm{P}\overline{4}\mathrm{b}2}$
 slug: p_-4_-2ab
 structure_seminvariants:
 - modulus: 2
@@ -148,6 +149,7 @@ symops:
   xyz: x+1/2,-y+1/2,z
 title: Spacegroup p_-4_-2ab
 universal_hm: P -4 b 2
+universal_hm_latex: ${\mathrm{P} \overline{4} \mathrm{b} 2}$
 url: /hall/p_-4_-2ab/
 wyckoff:
   a:

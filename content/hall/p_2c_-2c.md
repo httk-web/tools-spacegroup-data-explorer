@@ -15,7 +15,7 @@ grid_factors:
   - 1
   - 2
 hall_key: p_2c_-2c
-hall_latex: \mathrm{P}\,2c\,\bar{2}c
+hall_latex: \(\mathrm{P}\ 2_{\mathrm{c}}\ \overline{2}_{\mathrm{c}}\)
 harker_planes:
 - algebraic: 2*x,2*y,1/2
   normal:
@@ -53,6 +53,7 @@ related_settings:
   is_reference_setting: false
 schoenflies: C2v^2
 short_hm_symbol: Pcm21
+short_hm_symbol_latex: ${\mathrm{Pcm}21}$
 slug: p_2c_-2c
 structure_seminvariants:
 - modulus: 2
@@ -109,6 +110,7 @@ symops:
   xyz: x,-y,z
 title: Spacegroup p_2c_-2c
 universal_hm: P m c 21 (b,-a,c)
+universal_hm_latex: ${\mathrm{P} \mathrm{m} \mathrm{c} 21}$ (b,-a,c)
 url: /hall/p_2c_-2c/
 wyckoff:
   a:

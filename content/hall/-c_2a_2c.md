@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 2
 hall_key: -c_2a_2c
-hall_latex: -\mathrm{C}\,2a\,2c
+hall_latex: \(\overline{\mathrm{C}}\ 2_{\mathrm{a}}\ 2_{\mathrm{c}}\)
 harker_planes:
 - algebraic: 0,2*y,2*z+1/2
   normal:
@@ -77,6 +77,7 @@ related_settings:
   is_reference_setting: false
 schoenflies: D2h^22
 short_hm_symbol: Cccb
+short_hm_symbol_latex: ${\mathrm{Cccb}}$
 slug: -c_2a_2c
 structure_seminvariants:
 - modulus: 2
@@ -128,6 +129,7 @@ symops:
   xyz: -x+1/2,-y,z
 title: Spacegroup -c_2a_2c
 universal_hm: C c c a :2 (a+1/4,b+1/4,c)
+universal_hm_latex: ${\mathrm{C} \mathrm{c} \mathrm{c} \mathrm{a} :2}$ (a+1/4,b+1/4,c)
 url: /hall/-c_2a_2c/
 wyckoff:
   a:

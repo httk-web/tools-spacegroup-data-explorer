@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 2
 hall_key: -p_2n_2bc
-hall_latex: -\mathrm{P}\,2n\,2bc
+hall_latex: \(\overline{\mathrm{P}}\ 2_{\mathrm{n}}\ 2_{\mathrm{bc}}\)
 harker_planes:
 - algebraic: 0,2*y+1/2,2*z+1/2
   normal:
@@ -71,6 +71,7 @@ related_settings:
   is_reference_setting: false
 schoenflies: D2h^6
 short_hm_symbol: Pnan
+short_hm_symbol_latex: ${\mathrm{Pnan}}$
 slug: -p_2n_2bc
 structure_seminvariants:
 - modulus: 2
@@ -127,6 +128,7 @@ symops:
   xyz: -x+1/2,-y+1/2,z+1/2
 title: Spacegroup -p_2n_2bc
 universal_hm: P n n a (-a,c,b)
+universal_hm_latex: ${\mathrm{P} \mathrm{n} \mathrm{n} \mathrm{a}}$ (-a,c,b)
 url: /hall/-p_2n_2bc/
 wyckoff:
   a:

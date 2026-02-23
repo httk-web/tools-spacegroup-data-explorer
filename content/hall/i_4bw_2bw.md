@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 4
 hall_key: i_4bw_2bw
-hall_latex: \mathrm{I}\,4bw\,2bw
+hall_latex: \(\mathrm{I}\ 4_{\mathrm{bw}}\ 2_{\mathrm{bw}}\)
 harker_planes:
 - algebraic: x-y+1/2,-x-y,3/4
   normal:
@@ -88,6 +88,7 @@ related_settings:
   is_reference_setting: true
 schoenflies: D4^10
 short_hm_symbol: I4122
+short_hm_symbol_latex: ${\mathrm{I}4122}$
 slug: i_4bw_2bw
 structure_seminvariants:
 - modulus: 2
@@ -170,6 +171,7 @@ symops:
   xyz: -y,-x,-z
 title: Spacegroup i_4bw_2bw
 universal_hm: I 41 2 2
+universal_hm_latex: ${\mathrm{I} 41 2 2}$
 url: /hall/i_4bw_2bw/
 wyckoff:
   a:

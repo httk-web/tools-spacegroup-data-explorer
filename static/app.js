@@ -6,9 +6,12 @@ const emptyState = document.getElementById("empty-state");
 
 const INDEX_FIELDS = [
   "hall_key",
+  "hall_latex",
   "ita_number",
   "short_hm_symbol",
+  "short_hm_symbol_latex",
   "universal_hm",
+  "universal_hm_latex",
   "n_c",
   "crystal_system",
   "point_group",
@@ -73,17 +76,24 @@ const updateSummary = () => {
   searchSummary.textContent = `Query "${query}" returned ${filteredRows.length} result${filteredRows.length === 1 ? "" : "s"}`;
 };
 
+const resolveBase = () => {
+  const base = typeof window.SPACEGROUP_BASE_URL === "string" ? window.SPACEGROUP_BASE_URL : "/";
+  return base.endsWith("/") ? base : `${base}/`;
+};
+
 const renderTable = () => {
+  const baseUrl = resolveBase();
   const rows = sortRows(filteredRows);
   tableBody.innerHTML = rows
     .map((row) => {
-      const hallKey = escapeHtml(row.hall_key);
-      const hallUrl = `/hall/${encodeURIComponent(row.hall_key)}/`;
+      const hallLabel = escapeHtml(formatValue(row.hall_latex || row.hall_key));
+      const hallUrl = `${baseUrl}hall/${encodeURIComponent(row.hall_key)}/`;
+      const shortHmLabel = escapeHtml(formatValue(row.short_hm_symbol_latex || row.short_hm_symbol));
       return `
       <tr class="sg-row" data-active="false">
-        <td><a class="hall-link" href="${hallUrl}">${hallKey}</a></td>
+        <td><a class="hall-link" href="${hallUrl}">${hallLabel}</a></td>
         <td>${escapeHtml(formatValue(row.ita_number))}</td>
-        <td>${escapeHtml(formatValue(row.short_hm_symbol))}</td>
+        <td>${shortHmLabel}</td>
         <td class="td-muted">${escapeHtml(formatValue(row.crystal_system))}</td>
         <td class="td-muted">${escapeHtml(formatValue(row.point_group))}</td>
         <td class="td-muted">${escapeHtml(formatValue(row.n_c))}</td>
@@ -93,6 +103,12 @@ const renderTable = () => {
 
   emptyState.hidden = rows.length > 0;
   updateSummary();
+
+  if (window.MathJax && typeof window.MathJax.typesetPromise === "function") {
+    window.MathJax.typesetPromise([tableBody]).catch((err) => {
+      console.warn("MathJax typeset failed", err);
+    });
+  }
 };
 
 const filterIndex = (rows, query) => {
@@ -104,8 +120,11 @@ const filterIndex = (rows, query) => {
   return rows.filter((item) => {
     const haystack = [
       item.hall_key,
+      item.hall_latex,
       item.short_hm_symbol,
+      item.short_hm_symbol_latex,
       item.universal_hm,
+      item.universal_hm_latex,
       item.ita_number,
       Array.isArray(item.n_c) ? item.n_c.join(" ") : item.n_c,
       item.crystal_system,

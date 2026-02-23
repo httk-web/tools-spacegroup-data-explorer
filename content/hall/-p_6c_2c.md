@@ -15,7 +15,7 @@ grid_factors:
   - 1
   - 2
 hall_key: -p_6c_2c
-hall_latex: -\mathrm{P}\,6c\,2c
+hall_latex: \(\overline{\mathrm{P}}\ 6_{\mathrm{c}}\ 2_{\mathrm{c}}\)
 harker_planes:
 - algebraic: -y,-x-y,1/2
   normal:
@@ -106,6 +106,7 @@ related_settings:
   is_reference_setting: true
 schoenflies: D6h^4
 short_hm_symbol: P63/mmc
+short_hm_symbol_latex: ${\mathrm{P}63/\mathrm{mmc}}$
 slug: -p_6c_2c
 structure_seminvariants:
 - modulus: 2
@@ -224,6 +225,7 @@ symops:
   xyz: x,x-y,-z+1/2
 title: Spacegroup -p_6c_2c
 universal_hm: P 63/m m c
+universal_hm_latex: ${\mathrm{P} 63/\mathrm{m} \mathrm{m} \mathrm{c}}$
 url: /hall/-p_6c_2c/
 wyckoff:
   a:

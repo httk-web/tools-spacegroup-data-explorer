@@ -15,7 +15,7 @@ grid_factors:
   - 4
   - 4
 hall_key: i_-4bd_2c_3
-hall_latex: \mathrm{I}\,\bar{4}bd\,2c\,3
+hall_latex: \(\mathrm{I}\ \overline{4}_{\mathrm{bd}}\ 2_{\mathrm{c}}\ 3\)
 harker_planes:
 - algebraic: x+z,-x-y,y-z
   normal:
@@ -97,6 +97,7 @@ related_settings:
   is_reference_setting: true
 schoenflies: Td^6
 short_hm_symbol: I-43d
+short_hm_symbol_latex: ${\mathrm{I}\overline{4}3\mathrm{d}}$
 slug: i_-4bd_2c_3
 structure_seminvariants: []
 symops:
@@ -318,6 +319,7 @@ symops:
   xyz: x+1/4,z+1/4,y+1/4
 title: Spacegroup i_-4bd_2c_3
 universal_hm: I -4 3 d
+universal_hm_latex: ${\mathrm{I} \overline{4} 3 \mathrm{d}}$
 url: /hall/i_-4bd_2c_3/
 wyckoff:
   a:

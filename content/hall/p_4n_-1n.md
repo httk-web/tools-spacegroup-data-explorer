@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 2
 hall_key: p_4n_-1n
-hall_latex: \mathrm{P}\,4n\,\bar{1}n
+hall_latex: \(\mathrm{P}\ 4_{\mathrm{n}}\ \overline{1}_{\mathrm{n}}\)
 harker_planes:
 - algebraic: x-y+1/2,-x-y+1/2,1/2
   normal:
@@ -54,6 +54,7 @@ related_settings:
   is_reference_setting: false
 schoenflies: C4h^4
 short_hm_symbol: P42/n
+short_hm_symbol_latex: ${\mathrm{P}42/\mathrm{n}}$
 slug: p_4n_-1n
 structure_seminvariants:
 - modulus: 2
@@ -105,6 +106,7 @@ symops:
   xyz: -x,-y,z
 title: Spacegroup p_4n_-1n
 universal_hm: P 42/n :2 (a-1/4,b-1/4,c-1/4)
+universal_hm_latex: ${\mathrm{P} 42/\mathrm{n} :2}$ (a-1/4,b-1/4,c-1/4)
 url: /hall/p_4n_-1n/
 wyckoff:
   a:

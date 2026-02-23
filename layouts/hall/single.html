@@ -6,8 +6,9 @@
           <p class="kicker">Hall</p>
           <select class="detail-select" aria-label="Select Hall symbol" onchange="if (this.value) window.location = this.value;">
             {{ range .Site.Data.spacegroup_lists.halls }}
-              {{ $url := printf "/hall/%s/" . }}
-              <option value="{{ $url }}" {{ if eq $.Params.hall_key . }}selected{{ end }}>{{ . }}</option>
+              {{ $url := printf "hall/%s/" . | relURL }}
+              {{ $label := default . (index $.Site.Data.spacegroup_lists.hall_latex .) }}
+              <option value="{{ $url }}" {{ if eq $.Params.hall_key . }}selected{{ end }}>{{ $label }}</option>
             {{ end }}
           </select>
         </div>
@@ -16,8 +17,9 @@
           <select class="detail-select" aria-label="Select HM symbol" onchange="if (this.value) window.location = this.value;">
             {{ range .Site.Data.spacegroup_lists.hm_values }}
               {{ $hall := index $.Site.Data.spacegroup_lists.hm_to_hall . }}
-              {{ $url := printf "/hall/%s/" $hall }}
-              <option value="{{ $url }}" {{ if eq $.Params.universal_hm . }}selected{{ end }}>{{ . }}</option>
+              {{ $url := printf "hall/%s/" $hall | relURL }}
+              {{ $label := default . (index $.Site.Data.spacegroup_lists.hm_latex .) }}
+              <option value="{{ $url }}" {{ if eq $.Params.universal_hm . }}selected{{ end }}>{{ $label }}</option>
             {{ end }}
           </select>
         </div>
@@ -27,7 +29,7 @@
             {{ range .Site.Data.spacegroup_lists.ita_values }}
               {{ $key := printf "%v" . }}
               {{ $hall := index $.Site.Data.spacegroup_lists.ita_to_hall $key }}
-              {{ $url := printf "/hall/%s/" $hall }}
+              {{ $url := printf "hall/%s/" $hall | relURL }}
               <option value="{{ $url }}" {{ if eq (printf "%v" $.Params.ita_number) $key }}selected{{ end }}>#{{ . }}</option>
             {{ end }}
           </select>
@@ -45,7 +47,8 @@
               {{ $classes := slice "related-link" }}
               {{ if .is_reference_setting }}{{ $classes = $classes | append "is-standard" }}{{ end }}
               {{ if eq $.Params.hall_key .hall_key }}{{ $classes = $classes | append "is-active" }}{{ end }}
-              <a class="{{ delimit $classes " " }}" href="/hall/{{ .hall_key }}/">{{ .hall_key }}</a>
+              {{ $label := default .hall_key (index $.Site.Data.spacegroup_lists.hall_latex .hall_key) }}
+              <a class="{{ delimit $classes " " }}" href="{{ printf "hall/%s/" .hall_key | relURL }}">{{ $label }}</a>
             {{ end }}
           </div>
           <p class="note">Bold border: ITA reference setting.</p>
@@ -59,11 +62,13 @@
         <div class="identity-grid">
           <div class="metric">
             <label>Short HM <span tabindex="0" class="info-dot" data-tip="Short Hermann-Mauguin symbol, a compact notation for symmetry elements.">i</span></label>
-            <strong>{{ partial "value.html" .Params.short_hm_symbol }}</strong>
+            {{ $shortHM := default .Params.short_hm_symbol .Params.short_hm_symbol_latex }}
+            <strong>{{ partial "value.html" $shortHM }}</strong>
           </div>
           <div class="metric">
             <label>Universal HM</label>
-            <strong>{{ partial "value.html" .Params.universal_hm }}</strong>
+            {{ $universalHM := default .Params.universal_hm .Params.universal_hm_latex }}
+            <strong>{{ partial "value.html" $universalHM }}</strong>
           </div>
           <div class="metric">
             <label>n:c <span tabindex="0" class="info-dot" data-tip="Conventional setting label used in the source dataset.">i</span></label>

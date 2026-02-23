@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 2
 hall_key: -p_4a_2bc_3
-hall_latex: -\mathrm{P}\,4a\,2bc\,3
+hall_latex: \(\overline{\mathrm{P}}\ 4_{\mathrm{a}}\ 2_{\mathrm{bc}}\ 3\)
 harker_planes:
 - algebraic: 0,y-z+1/2,-y-z
   normal:
@@ -153,6 +153,7 @@ related_settings:
   is_reference_setting: false
 schoenflies: Oh^2
 short_hm_symbol: Pn-3n
+short_hm_symbol_latex: ${\mathrm{Pn}\overline{3}\mathrm{n}}$
 slug: -p_4a_2bc_3
 structure_seminvariants:
 - modulus: 2
@@ -379,6 +380,7 @@ symops:
   xyz: -x+1/2,-z+1/2,-y+1/2
 title: Spacegroup -p_4a_2bc_3
 universal_hm: P n -3 n :2
+universal_hm_latex: ${\mathrm{P} \mathrm{n} \overline{3} \mathrm{n} :2}$
 url: /hall/-p_4a_2bc_3/
 wyckoff:
   a:

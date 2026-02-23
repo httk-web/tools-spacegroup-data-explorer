@@ -15,7 +15,7 @@ grid_factors:
   - 1
   - 2
 hall_key: -p_2xc
-hall_latex: -\mathrm{P}\,2xc
+hall_latex: \(\overline{\mathrm{P}}\ 2_{\mathrm{xc}}\)
 harker_planes:
 - algebraic: 0,2*y,2*z+1/2
   normal:
@@ -59,6 +59,7 @@ related_settings:
   is_reference_setting: true
 schoenflies: C2h^4
 short_hm_symbol: P2/c
+short_hm_symbol_latex: ${\mathrm{P}2/\mathrm{c}}$
 slug: -p_2xc
 structure_seminvariants:
 - modulus: 2
@@ -97,6 +98,7 @@ symops:
   xyz: x,-y,-z+1/2
 title: Spacegroup -p_2xc
 universal_hm: P 1 2/c 1 (b,-a,c)
+universal_hm_latex: ${\mathrm{P} 1 2/\mathrm{c} 1}$ (b,-a,c)
 url: /hall/-p_2xc/
 wyckoff:
   a:

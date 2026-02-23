@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 2
 hall_key: -i_2c_2c
-hall_latex: -\mathrm{I}\,2c\,2c
+hall_latex: \(\overline{\mathrm{I}}\ 2_{\mathrm{c}}\ 2_{\mathrm{c}}\)
 harker_planes:
 - algebraic: 0,2*y,2*z+1/2
   normal:
@@ -71,6 +71,7 @@ related_settings:
   is_reference_setting: false
 schoenflies: D2h^28
 short_hm_symbol: Ibmm
+short_hm_symbol_latex: ${\mathrm{Ibmm}}$
 slug: -i_2c_2c
 structure_seminvariants:
 - modulus: 2
@@ -122,6 +123,7 @@ symops:
   xyz: -x,-y,z+1/2
 title: Spacegroup -i_2c_2c
 universal_hm: I m m a (c,a,b)
+universal_hm_latex: ${\mathrm{I} \mathrm{m} \mathrm{m} \mathrm{a}}$ (c,a,b)
 url: /hall/-i_2c_2c/
 wyckoff:
   a:

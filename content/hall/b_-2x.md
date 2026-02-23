@@ -15,7 +15,7 @@ grid_factors:
   - 1
   - 2
 hall_key: b_-2x
-hall_latex: \mathrm{B}\,\bar{2}x
+hall_latex: \(\mathrm{B}\ \overline{2}_{\mathrm{x}}\)
 harker_planes: []
 is_centric: false
 is_chiral: false
@@ -50,6 +50,7 @@ related_settings:
   is_reference_setting: false
 schoenflies: Cs^3
 short_hm_symbol: Bm
+short_hm_symbol_latex: ${\mathrm{Bm}}$
 slug: b_-2x
 structure_seminvariants:
 - modulus: 0
@@ -83,6 +84,7 @@ symops:
   xyz: -x,y,z
 title: Spacegroup b_-2x
 universal_hm: C 1 m 1 (b,c,a)
+universal_hm_latex: ${\mathrm{C} 1 \mathrm{m} 1}$ (b,c,a)
 url: /hall/b_-2x/
 wyckoff:
   a:

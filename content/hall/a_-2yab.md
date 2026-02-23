@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 2
 hall_key: a_-2yab
-hall_latex: \mathrm{A}\,\bar{2}yab
+hall_latex: \(\mathrm{A}\ \overline{2}_{\mathrm{yab}}\)
 harker_planes: []
 is_centric: false
 is_chiral: false
@@ -68,6 +68,7 @@ related_settings:
   is_reference_setting: false
 schoenflies: Cs^4
 short_hm_symbol: An
+short_hm_symbol_latex: ${\mathrm{An}}$
 slug: a_-2yab
 structure_seminvariants:
 - modulus: 0
@@ -101,6 +102,7 @@ symops:
   xyz: x+1/2,-y+1/2,z
 title: Spacegroup a_-2yab
 universal_hm: C 1 c 1 (a+c,b,-a)
+universal_hm_latex: ${\mathrm{C} 1 \mathrm{c} 1}$ (a+c,b,-a)
 url: /hall/a_-2yab/
 wyckoff:
   a:

@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 2
 hall_key: a_2y
-hall_latex: \mathrm{A}\,2y
+hall_latex: \(\mathrm{A}\ 2_{\mathrm{y}}\)
 harker_planes:
 - algebraic: 2*x,0,2*z
   normal:
@@ -59,6 +59,7 @@ related_settings:
   is_reference_setting: false
 schoenflies: C2^3
 short_hm_symbol: A2
+short_hm_symbol_latex: ${\mathrm{A}2}$
 slug: a_2y
 structure_seminvariants:
 - modulus: 2
@@ -92,6 +93,7 @@ symops:
   xyz: -x,y,-z
 title: Spacegroup a_2y
 universal_hm: C 1 2 1 (c,b,-a)
+universal_hm_latex: ${\mathrm{C} 1 2 1}$ (c,b,-a)
 url: /hall/a_2y/
 wyckoff:
   a:

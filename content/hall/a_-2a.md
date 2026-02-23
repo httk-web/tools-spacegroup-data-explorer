@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 2
 hall_key: a_-2a
-hall_latex: \mathrm{A}\,\bar{2}a
+hall_latex: \(\mathrm{A}\ \overline{2}_{\mathrm{a}}\)
 harker_planes: []
 is_centric: false
 is_chiral: false
@@ -68,6 +68,7 @@ related_settings:
   is_reference_setting: false
 schoenflies: Cs^4
 short_hm_symbol: Aa
+short_hm_symbol_latex: ${\mathrm{Aa}}$
 slug: a_-2a
 structure_seminvariants:
 - modulus: 0
@@ -101,6 +102,7 @@ symops:
   xyz: x+1/2,y,-z
 title: Spacegroup a_-2a
 universal_hm: C 1 c 1 (c,a,b)
+universal_hm_latex: ${\mathrm{C} 1 \mathrm{c} 1}$ (c,a,b)
 url: /hall/a_-2a/
 wyckoff:
   a:

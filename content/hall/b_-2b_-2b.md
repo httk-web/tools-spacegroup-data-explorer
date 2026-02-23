@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 2
 hall_key: b_-2b_-2b
-hall_latex: \mathrm{B}\,\bar{2}b\,\bar{2}b
+hall_latex: \(\mathrm{B}\ \overline{2}_{\mathrm{b}}\ \overline{2}_{\mathrm{b}}\)
 harker_planes:
 - algebraic: 2*x,0,2*z
   normal:
@@ -47,6 +47,7 @@ related_settings:
   is_reference_setting: true
 schoenflies: C2v^13
 short_hm_symbol: Bb2b
+short_hm_symbol_latex: ${\mathrm{Bb}2\mathrm{b}}$
 slug: b_-2b_-2b
 structure_seminvariants:
 - modulus: 2
@@ -98,6 +99,7 @@ symops:
   xyz: x,y+1/2,-z
 title: Spacegroup b_-2b_-2b
 universal_hm: C c c 2 (b,c,a)
+universal_hm_latex: ${\mathrm{C} \mathrm{c} \mathrm{c} 2}$ (b,c,a)
 url: /hall/b_-2b_-2b/
 wyckoff:
   a:

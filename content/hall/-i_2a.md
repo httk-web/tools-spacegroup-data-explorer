@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 2
 hall_key: -i_2a
-hall_latex: -\mathrm{I}\,2a
+hall_latex: \(\overline{\mathrm{I}}\ 2_{\mathrm{a}}\)
 harker_planes:
 - algebraic: 2*x+1/2,2*y,0
   normal:
@@ -77,6 +77,7 @@ related_settings:
   is_reference_setting: false
 schoenflies: C2h^6
 short_hm_symbol: I2/a
+short_hm_symbol_latex: ${\mathrm{I}2/\mathrm{a}}$
 slug: -i_2a
 structure_seminvariants:
 - modulus: 2
@@ -110,6 +111,7 @@ symops:
   xyz: -x+1/2,-y,z
 title: Spacegroup -i_2a
 universal_hm: C 1 2/c 1 (c,a+c,b)
+universal_hm_latex: ${\mathrm{C} 1 2/\mathrm{c} 1}$ (c,a+c,b)
 url: /hall/-i_2a/
 wyckoff:
   a:

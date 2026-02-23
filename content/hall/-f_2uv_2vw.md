@@ -15,7 +15,7 @@ grid_factors:
   - 4
   - 4
 hall_key: -f_2uv_2vw
-hall_latex: -\mathrm{F}\,2uv\,2vw
+hall_latex: \(\overline{\mathrm{F}}\ 2_{\mathrm{uv}}\ 2_{\mathrm{vw}}\)
 harker_planes:
 - algebraic: 0,2*y+1/4,2*z+1/4
   normal:
@@ -63,6 +63,7 @@ related_settings:
   is_reference_setting: false
 schoenflies: D2h^24
 short_hm_symbol: Fddd
+short_hm_symbol_latex: ${\mathrm{Fddd}}$
 slug: -f_2uv_2vw
 structure_seminvariants:
 - modulus: 2
@@ -109,6 +110,7 @@ symops:
   xyz: -x+1/4,-y+1/4,z
 title: Spacegroup -f_2uv_2vw
 universal_hm: F d d d :2
+universal_hm_latex: ${\mathrm{F} \mathrm{d} \mathrm{d} \mathrm{d} :2}$
 url: /hall/-f_2uv_2vw/
 wyckoff:
   a:

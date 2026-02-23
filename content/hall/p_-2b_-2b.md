@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 1
 hall_key: p_-2b_-2b
-hall_latex: \mathrm{P}\,\bar{2}b\,\bar{2}b
+hall_latex: \(\mathrm{P}\ \overline{2}_{\mathrm{b}}\ \overline{2}_{\mathrm{b}}\)
 harker_planes:
 - algebraic: 2*x,0,2*z
   normal:
@@ -47,6 +47,7 @@ related_settings:
   is_reference_setting: true
 schoenflies: C2v^3
 short_hm_symbol: Pb2b
+short_hm_symbol_latex: ${\mathrm{Pb}2\mathrm{b}}$
 slug: p_-2b_-2b
 structure_seminvariants:
 - modulus: 2
@@ -103,6 +104,7 @@ symops:
   xyz: x,y+1/2,-z
 title: Spacegroup p_-2b_-2b
 universal_hm: P c c 2 (b,c,a)
+universal_hm_latex: ${\mathrm{P} \mathrm{c} \mathrm{c} 2}$ (b,c,a)
 url: /hall/p_-2b_-2b/
 wyckoff:
   a:

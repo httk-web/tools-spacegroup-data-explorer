@@ -15,7 +15,7 @@ grid_factors:
   - 1
   - 4
 hall_key: p_4w
-hall_latex: \mathrm{P}\,4w
+hall_latex: \(\mathrm{P}\ 4_{\mathrm{w}}\)
 harker_planes:
 - algebraic: x-y,-x-y,1/4
   normal:
@@ -52,6 +52,7 @@ related_settings:
   is_reference_setting: true
 schoenflies: C4^2
 short_hm_symbol: P41
+short_hm_symbol_latex: ${\mathrm{P}41}$
 slug: p_4w
 structure_seminvariants:
 - modulus: 0
@@ -103,6 +104,7 @@ symops:
   xyz: -x,-y,z+1/2
 title: Spacegroup p_4w
 universal_hm: P 41
+universal_hm_latex: ${\mathrm{P} 41}$
 url: /hall/p_4w/
 wyckoff:
   a:

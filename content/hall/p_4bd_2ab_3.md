@@ -15,7 +15,7 @@ grid_factors:
   - 4
   - 4
 hall_key: p_4bd_2ab_3
-hall_latex: \mathrm{P}\,4bd\,2ab\,3
+hall_latex: \(\mathrm{P}\ 4_{\mathrm{bd}}\ 2_{\mathrm{ab}}\ 3\)
 harker_planes:
 - algebraic: 1/4,y-z+1/4,-y-z+3/4
   normal:
@@ -178,6 +178,7 @@ related_settings:
   is_reference_setting: true
 schoenflies: O^7
 short_hm_symbol: P4132
+short_hm_symbol_latex: ${\mathrm{P}4132}$
 slug: p_4bd_2ab_3
 structure_seminvariants:
 - modulus: 2
@@ -404,6 +405,7 @@ symops:
   xyz: -x+3/4,-z+3/4,-y+3/4
 title: Spacegroup p_4bd_2ab_3
 universal_hm: P 41 3 2
+universal_hm_latex: ${\mathrm{P} 41 3 2}$
 url: /hall/p_4bd_2ab_3/
 wyckoff:
   a:

@@ -15,7 +15,7 @@ grid_factors:
   - 1
   - 4
 hall_key: p_4cw_2c
-hall_latex: \mathrm{P}\,4cw\,2c
+hall_latex: \(\mathrm{P}\ 4_{\mathrm{cw}}\ 2_{\mathrm{c}}\)
 harker_planes:
 - algebraic: x-y,-x-y,3/4
   normal:
@@ -88,6 +88,7 @@ related_settings:
   is_reference_setting: true
 schoenflies: D4^7
 short_hm_symbol: P4322
+short_hm_symbol_latex: ${\mathrm{P}4322}$
 slug: p_4cw_2c
 structure_seminvariants:
 - modulus: 2
@@ -175,6 +176,7 @@ symops:
   xyz: -y,-x,-z+3/4
 title: Spacegroup p_4cw_2c
 universal_hm: P 43 2 2
+universal_hm_latex: ${\mathrm{P} 43 2 2}$
 url: /hall/p_4cw_2c/
 wyckoff:
   a:

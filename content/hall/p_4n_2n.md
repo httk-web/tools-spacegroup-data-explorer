@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 2
 hall_key: p_4n_2n
-hall_latex: \mathrm{P}\,4n\,2n
+hall_latex: \(\mathrm{P}\ 4_{\mathrm{n}}\ 2_{\mathrm{n}}\)
 harker_planes:
 - algebraic: x-y+1/2,-x-y+1/2,1/2
   normal:
@@ -88,6 +88,7 @@ related_settings:
   is_reference_setting: true
 schoenflies: D4^6
 short_hm_symbol: P42212
+short_hm_symbol_latex: ${\mathrm{P}42212}$
 slug: p_4n_2n
 structure_seminvariants:
 - modulus: 2
@@ -175,6 +176,7 @@ symops:
   xyz: -y,-x,-z
 title: Spacegroup p_4n_2n
 universal_hm: P 42 21 2
+universal_hm_latex: ${\mathrm{P} 42 21 2}$
 url: /hall/p_4n_2n/
 wyckoff:
   a:

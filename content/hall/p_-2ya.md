@@ -15,7 +15,7 @@ grid_factors:
   - 1
   - 1
 hall_key: p_-2ya
-hall_latex: \mathrm{P}\,\bar{2}ya
+hall_latex: \(\mathrm{P}\ \overline{2}_{\mathrm{ya}}\)
 harker_planes: []
 is_centric: false
 is_chiral: false
@@ -50,6 +50,7 @@ related_settings:
   is_reference_setting: true
 schoenflies: Cs^2
 short_hm_symbol: Pa
+short_hm_symbol_latex: ${\mathrm{Pa}}$
 slug: p_-2ya
 structure_seminvariants:
 - modulus: 0
@@ -88,6 +89,7 @@ symops:
   xyz: x+1/2,-y,z
 title: Spacegroup p_-2ya
 universal_hm: P 1 c 1 (c,b,-a)
+universal_hm_latex: ${\mathrm{P} 1 \mathrm{c} 1}$ (c,b,-a)
 url: /hall/p_-2ya/
 wyckoff:
   a:

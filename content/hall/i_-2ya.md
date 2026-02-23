@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 2
 hall_key: i_-2ya
-hall_latex: \mathrm{I}\,\bar{2}ya
+hall_latex: \(\mathrm{I}\ \overline{2}_{\mathrm{ya}}\)
 harker_planes: []
 is_centric: false
 is_chiral: false
@@ -68,6 +68,7 @@ related_settings:
   is_reference_setting: false
 schoenflies: Cs^4
 short_hm_symbol: Ia
+short_hm_symbol_latex: ${\mathrm{Ia}}$
 slug: i_-2ya
 structure_seminvariants:
 - modulus: 0
@@ -101,6 +102,7 @@ symops:
   xyz: x+1/2,-y,z
 title: Spacegroup i_-2ya
 universal_hm: C 1 c 1 (c,b,-a+c)
+universal_hm_latex: ${\mathrm{C} 1 \mathrm{c} 1}$ (c,b,-a+c)
 url: /hall/i_-2ya/
 wyckoff:
   a:

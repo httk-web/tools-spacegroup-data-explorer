@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 2
 hall_key: p_4n_2ab_-1n
-hall_latex: \mathrm{P}\,4n\,2ab\,\bar{1}n
+hall_latex: \(\mathrm{P}\ 4_{\mathrm{n}}\ 2_{\mathrm{ab}}\ \overline{1}_{\mathrm{n}}\)
 harker_planes:
 - algebraic: x-y+1/2,-x-y+1/2,1/2
   normal:
@@ -90,6 +90,7 @@ related_settings:
   is_reference_setting: false
 schoenflies: D4h^16
 short_hm_symbol: P42/ncm
+short_hm_symbol_latex: ${\mathrm{P}42/\mathrm{ncm}}$
 slug: p_4n_2ab_-1n
 structure_seminvariants:
 - modulus: 2
@@ -177,6 +178,7 @@ symops:
   xyz: -y,-x,-z+1/2
 title: Spacegroup p_4n_2ab_-1n
 universal_hm: P 42/n c m :2 (a+1/4,b-1/4,c+1/4)
+universal_hm_latex: ${\mathrm{P} 42/\mathrm{n} \mathrm{c} \mathrm{m} :2}$ (a+1/4,b-1/4,c+1/4)
 url: /hall/p_4n_2ab_-1n/
 wyckoff:
   a:

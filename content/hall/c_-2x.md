@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 1
 hall_key: c_-2x
-hall_latex: \mathrm{C}\,\bar{2}x
+hall_latex: \(\mathrm{C}\ \overline{2}_{\mathrm{x}}\)
 harker_planes: []
 is_centric: false
 is_chiral: false
@@ -50,6 +50,7 @@ related_settings:
   is_reference_setting: false
 schoenflies: Cs^3
 short_hm_symbol: Cm
+short_hm_symbol_latex: ${\mathrm{Cm}}$
 slug: c_-2x
 structure_seminvariants:
 - modulus: 0
@@ -83,6 +84,7 @@ symops:
   xyz: -x,y,z
 title: Spacegroup c_-2x
 universal_hm: C 1 m 1 (b,-a,c)
+universal_hm_latex: ${\mathrm{C} 1 \mathrm{m} 1}$ (b,-a,c)
 url: /hall/c_-2x/
 wyckoff:
   a:

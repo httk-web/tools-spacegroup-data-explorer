@@ -15,7 +15,7 @@ grid_factors:
   - 1
   - 1
 hall_key: p_-2x
-hall_latex: \mathrm{P}\,\bar{2}x
+hall_latex: \(\mathrm{P}\ \overline{2}_{\mathrm{x}}\)
 harker_planes: []
 is_centric: false
 is_chiral: false
@@ -38,6 +38,7 @@ related_settings:
   is_reference_setting: true
 schoenflies: Cs^1
 short_hm_symbol: Pm
+short_hm_symbol_latex: ${\mathrm{Pm}}$
 slug: p_-2x
 structure_seminvariants:
 - modulus: 2
@@ -76,6 +77,7 @@ symops:
   xyz: -x,y,z
 title: Spacegroup p_-2x
 universal_hm: P 1 m 1 (b,c,a)
+universal_hm_latex: ${\mathrm{P} 1 \mathrm{m} 1}$ (b,c,a)
 url: /hall/p_-2x/
 wyckoff:
   a:

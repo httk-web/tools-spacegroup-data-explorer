@@ -15,7 +15,7 @@ grid_factors:
   - 2
   - 4
 hall_key: p_4abw_2nw
-hall_latex: \mathrm{P}\,4abw\,2nw
+hall_latex: \(\mathrm{P}\ 4_{\mathrm{abw}}\ 2_{\mathrm{nw}}\)
 harker_planes:
 - algebraic: x-y+1/2,-x-y+1/2,1/4
   normal:
@@ -88,6 +88,7 @@ related_settings:
   is_reference_setting: true
 schoenflies: D4^4
 short_hm_symbol: P41212
+short_hm_symbol_latex: ${\mathrm{P}41212}$
 slug: p_4abw_2nw
 structure_seminvariants:
 - modulus: 2
@@ -175,6 +176,7 @@ symops:
   xyz: -y,-x,-z+1/2
 title: Spacegroup p_4abw_2nw
 universal_hm: P 41 21 2
+universal_hm_latex: ${\mathrm{P} 41 21 2}$
 url: /hall/p_4abw_2nw/
 wyckoff:
   a:
