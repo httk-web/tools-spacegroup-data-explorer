@@ -1,514 +1,808 @@
----
-asym_unit: 0<=x<1; 0<=y<=1/4; 1/4<=z<=3/4
-crystal_system: orthorhombic
-grid_factors:
-  euclidean:
-  - 2
-  - 2
-  - 2
-  seminvariant:
-  - 2
-  - 2
-  - 2
-  space_group:
-  - 2
-  - 2
-  - 2
-hall_key: -p_2c_2n
-hall_latex: \(\overline{\mathrm{P}}\ 2_{\mathrm{c}}\ 2_{\mathrm{n}}\)
-harker_planes:
-- algebraic: 1/2,2*y+1/2,2*z+1/2
-  normal:
-  - 1
-  - 0
-  - 0
-  point:
-  - 0.5
-  - 0.5
-  - 0.5
-- algebraic: 2*x+1/2,1/2,2*z
-  normal:
-  - 0
-  - 1
-  - 0
-  point:
-  - 0.5
-  - 0.5
-  - 0.0
-- algebraic: 2*x,2*y,1/2
-  normal:
-  - 0
-  - 0
-  - 1
-  point:
-  - 0.0
-  - 0.0
-  - 0.5
-is_centric: true
-is_chiral: false
-is_enantiomorphic: false
-is_reference_setting: false
-ita_number: 62
-laue_class: mmm
-n_c: 62:a-cb
-n_ltr: 1
-n_smx: 4
-order_z: 8
-point_group: mmm
-qualifier: a-cb
-related_settings:
-- hall_key: -p_2ac_2n
-  is_reference_setting: true
-- hall_key: -p_2bc_2a
-  is_reference_setting: false
-- hall_key: -p_2c_2ab
-  is_reference_setting: false
-- hall_key: -p_2c_2n
-  is_reference_setting: false
-- hall_key: -p_2n_2a
-  is_reference_setting: false
-- hall_key: -p_2n_2ac
-  is_reference_setting: false
-schoenflies: D2h^16
-short_hm_symbol: Pnam
-short_hm_symbol_latex: ${\mathrm{Pnam}}$
-slug: -p_2c_2n
-structure_seminvariants:
-- modulus: 2
-  vector:
-  - 1
-  - 0
-  - 0
-- modulus: 2
-  vector:
-  - 0
-  - 1
-  - 0
-- modulus: 2
-  vector:
-  - 0
-  - 0
-  - 1
-symops:
-- axis:
-  - 0
-  - 0
-  - 0
-  origin_shift: 0,0,0
-  rot_type: '1'
-  screw_glide: 0,0,0
-  sense: 0
-  xyz: x,y,z
-- axis:
-  - 1
-  - 0
-  - 0
-  origin_shift: 0,1/4,1/4
-  rot_type: '2'
-  screw_glide: 1/2,0,0
-  sense: 0
-  xyz: x+1/2,-y+1/2,-z+1/2
-- axis:
-  - 0
-  - 1
-  - 0
-  origin_shift: 1/4,0,0
-  rot_type: '2'
-  screw_glide: 0,1/2,0
-  sense: 0
-  xyz: -x+1/2,y+1/2,-z
-- axis:
-  - 0
-  - 0
-  - 1
-  origin_shift: 0,0,0
-  rot_type: '2'
-  screw_glide: 0,0,1/2
-  sense: 0
-  xyz: -x,-y,z+1/2
-title: Spacegroup -p_2c_2n
-universal_hm: P n m a (-a,c,b)
-universal_hm_latex: ${\mathrm{P} \mathrm{n} \mathrm{m} \mathrm{a}}$ (-a,c,b)
-url: /hall/-p_2c_2n/
-wyckoff:
-  a:
-    first_orbit: 0,0,0
-    hasfreedom:
-    - false
-    - false
-    - false
-    multiplicity: 4
-    orbit_affine:
-    - - - 0.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    - - - 0.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    - - - 0.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    - - - 0.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    orbit_xyz:
-    - 0,0,0
-    - 0,0,1/2
-    - 1/2,1/2,0
-    - 1/2,1/2,1/2
-    sitesym: '-1'
-  b:
-    first_orbit: 0,1/2,0
-    hasfreedom:
-    - false
-    - false
-    - false
-    multiplicity: 4
-    orbit_affine:
-    - - - 0.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    - - - 0.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    - - - 0.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    - - - 0.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    orbit_xyz:
-    - 0,1/2,0
-    - 0,1/2,1/2
-    - 1/2,0,0
-    - 1/2,0,1/2
-    sitesym: '-1'
-  c:
-    first_orbit: x,y,1/4
-    hasfreedom:
-    - true
-    - true
-    - false
-    multiplicity: 4
-    orbit_affine:
-    - - - 1.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 1.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.25
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    - - - -1.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - -1.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.75
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    - - - -1.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 1.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.75
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    - - - 1.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - -1.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.25
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    orbit_xyz:
-    - x,y,1/4
-    - -x,-y,3/4
-    - -x+1/2,y+1/2,3/4
-    - x+1/2,-y+1/2,1/4
-    sitesym: ..m
-  d:
-    first_orbit: x,y,z
-    hasfreedom:
-    - true
-    - true
-    - true
-    multiplicity: 8
-    orbit_affine:
-    - - - 1.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 1.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 1.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    - - - -1.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - -1.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - -1.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    - - - -1.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - -1.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 1.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    - - - -1.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 1.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - -1.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    - - - -1.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 1.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 1.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    - - - 1.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 1.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - -1.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    - - - 1.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - -1.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - -1.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    - - - 1.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - -1.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 1.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    orbit_xyz:
-    - x,y,z
-    - -x,-y,-z
-    - -x,-y,z+1/2
-    - -x+1/2,y+1/2,-z
-    - -x+1/2,y+1/2,z+1/2
-    - x,y,-z+1/2
-    - x+1/2,-y+1/2,-z+1/2
-    - x+1/2,-y+1/2,z
-    sitesym: '1'
----
+{
+  "asym_unit": "0<=x<1; 0<=y<=1/4; 1/4<=z<=3/4",
+  "crystal_system": "orthorhombic",
+  "grid_factors": {
+    "euclidean": [
+      2,
+      2,
+      2
+    ],
+    "seminvariant": [
+      2,
+      2,
+      2
+    ],
+    "space_group": [
+      2,
+      2,
+      2
+    ]
+  },
+  "hall_key": "-p_2c_2n",
+  "hall_latex": "\\(\\overline{\\mathrm{P}}\\ 2_{\\mathrm{c}}\\ 2_{\\mathrm{n}}\\)",
+  "harker_planes": [
+    {
+      "algebraic": "1/2,2*y+1/2,2*z+1/2",
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "point": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "algebraic": "2*x+1/2,1/2,2*z",
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "point": [
+        0.5,
+        0.5,
+        0.0
+      ]
+    },
+    {
+      "algebraic": "2*x,2*y,1/2",
+      "normal": [
+        0,
+        0,
+        1
+      ],
+      "point": [
+        0.0,
+        0.0,
+        0.5
+      ]
+    }
+  ],
+  "is_centric": true,
+  "is_chiral": false,
+  "is_enantiomorphic": false,
+  "is_reference_setting": false,
+  "ita_number": 62,
+  "laue_class": "mmm",
+  "n_c": "62:a-cb",
+  "n_ltr": 1,
+  "n_smx": 4,
+  "order_z": 8,
+  "point_group": "mmm",
+  "qualifier": "a-cb",
+  "related_settings": [
+    {
+      "hall_key": "-p_2ac_2n",
+      "hall_latex": "\\(\\overline{\\mathrm{P}}\\ 2_{\\mathrm{ac}}\\ 2_{\\mathrm{n}}\\)",
+      "is_reference_setting": true,
+      "qualifier": null,
+      "universal_hm": "P n m a",
+      "universal_hm_latex": "${\\mathrm{P} \\mathrm{n} \\mathrm{m} \\mathrm{a}}$"
+    },
+    {
+      "hall_key": "-p_2bc_2a",
+      "hall_latex": "\\(\\overline{\\mathrm{P}}\\ 2_{\\mathrm{bc}}\\ 2_{\\mathrm{a}}\\)",
+      "is_reference_setting": false,
+      "qualifier": null,
+      "universal_hm": "P n m a (b,-a,c)",
+      "universal_hm_latex": "${\\mathrm{P} \\mathrm{n} \\mathrm{m} \\mathrm{a}}$ (b,-a,c)"
+    },
+    {
+      "hall_key": "-p_2c_2ab",
+      "hall_latex": "\\(\\overline{\\mathrm{P}}\\ 2_{\\mathrm{c}}\\ 2_{\\mathrm{ab}}\\)",
+      "is_reference_setting": false,
+      "qualifier": null,
+      "universal_hm": "P n m a (c,a,b)",
+      "universal_hm_latex": "${\\mathrm{P} \\mathrm{n} \\mathrm{m} \\mathrm{a}}$ (c,a,b)"
+    },
+    {
+      "hall_key": "-p_2c_2n",
+      "hall_latex": "\\(\\overline{\\mathrm{P}}\\ 2_{\\mathrm{c}}\\ 2_{\\mathrm{n}}\\)",
+      "is_reference_setting": false,
+      "qualifier": null,
+      "universal_hm": "P n m a (-a,c,b)",
+      "universal_hm_latex": "${\\mathrm{P} \\mathrm{n} \\mathrm{m} \\mathrm{a}}$ (-a,c,b)"
+    },
+    {
+      "hall_key": "-p_2n_2a",
+      "hall_latex": "\\(\\overline{\\mathrm{P}}\\ 2_{\\mathrm{n}}\\ 2_{\\mathrm{a}}\\)",
+      "is_reference_setting": false,
+      "qualifier": null,
+      "universal_hm": "P n m a (b,c,a)",
+      "universal_hm_latex": "${\\mathrm{P} \\mathrm{n} \\mathrm{m} \\mathrm{a}}$ (b,c,a)"
+    },
+    {
+      "hall_key": "-p_2n_2ac",
+      "hall_latex": "\\(\\overline{\\mathrm{P}}\\ 2_{\\mathrm{n}}\\ 2_{\\mathrm{ac}}\\)",
+      "is_reference_setting": false,
+      "qualifier": null,
+      "universal_hm": "P n m a (c,b,-a)",
+      "universal_hm_latex": "${\\mathrm{P} \\mathrm{n} \\mathrm{m} \\mathrm{a}}$ (c,b,-a)"
+    }
+  ],
+  "schoenflies": "D2h^16",
+  "short_hm_symbol": "Pnam",
+  "short_hm_symbol_latex": "${\\mathrm{Pnam}}$",
+  "slug": "-p_2c_2n",
+  "structure_seminvariants": [
+    {
+      "modulus": 2,
+      "vector": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "modulus": 2,
+      "vector": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "modulus": 2,
+      "vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  ],
+  "symops": [
+    {
+      "axis": [
+        0,
+        0,
+        0
+      ],
+      "origin_shift": "0,0,0",
+      "rot_type": "1",
+      "screw_glide": "0,0,0",
+      "sense": 0,
+      "xyz": "x,y,z"
+    },
+    {
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "origin_shift": "0,1/4,1/4",
+      "rot_type": "2",
+      "screw_glide": "1/2,0,0",
+      "sense": 0,
+      "xyz": "x+1/2,-y+1/2,-z+1/2"
+    },
+    {
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "origin_shift": "1/4,0,0",
+      "rot_type": "2",
+      "screw_glide": "0,1/2,0",
+      "sense": 0,
+      "xyz": "-x+1/2,y+1/2,-z"
+    },
+    {
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "origin_shift": "0,0,0",
+      "rot_type": "2",
+      "screw_glide": "0,0,1/2",
+      "sense": 0,
+      "xyz": "-x,-y,z+1/2"
+    }
+  ],
+  "title": "Spacegroup -p_2c_2n",
+  "universal_hm": "P n m a (-a,c,b)",
+  "universal_hm_latex": "${\\mathrm{P} \\mathrm{n} \\mathrm{m} \\mathrm{a}}$ (-a,c,b)",
+  "url": "/hall/-p_2c_2n/",
+  "wyckoff": {
+    "a": {
+      "first_orbit": "0,0,0",
+      "hasfreedom": [
+        false,
+        false,
+        false
+      ],
+      "multiplicity": 4,
+      "orbit_affine": [
+        [
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      ],
+      "orbit_xyz": [
+        "0,0,0",
+        "0,0,1/2",
+        "1/2,1/2,0",
+        "1/2,1/2,1/2"
+      ],
+      "sitesym": "-1"
+    },
+    "b": {
+      "first_orbit": "0,1/2,0",
+      "hasfreedom": [
+        false,
+        false,
+        false
+      ],
+      "multiplicity": 4,
+      "orbit_affine": [
+        [
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      ],
+      "orbit_xyz": [
+        "0,1/2,0",
+        "0,1/2,1/2",
+        "1/2,0,0",
+        "1/2,0,1/2"
+      ],
+      "sitesym": "-1"
+    },
+    "c": {
+      "first_orbit": "x,y,1/4",
+      "hasfreedom": [
+        true,
+        true,
+        false
+      ],
+      "multiplicity": 4,
+      "orbit_affine": [
+        [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.25
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            -1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.75
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            -1.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.75
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.25
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      ],
+      "orbit_xyz": [
+        "x,y,1/4",
+        "-x,-y,3/4",
+        "-x+1/2,y+1/2,3/4",
+        "x+1/2,-y+1/2,1/4"
+      ],
+      "sitesym": "..m"
+    },
+    "d": {
+      "first_orbit": "x,y,z",
+      "hasfreedom": [
+        true,
+        true,
+        true
+      ],
+      "multiplicity": 8,
+      "orbit_affine": [
+        [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            -1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            -1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            -1.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            -1.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      ],
+      "orbit_xyz": [
+        "x,y,z",
+        "-x,-y,-z",
+        "-x,-y,z+1/2",
+        "-x+1/2,y+1/2,-z",
+        "-x+1/2,y+1/2,z+1/2",
+        "x,y,-z+1/2",
+        "x+1/2,-y+1/2,-z+1/2",
+        "x+1/2,-y+1/2,z"
+      ],
+      "sitesym": "1"
+    }
+  }
+}

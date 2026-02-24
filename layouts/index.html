@@ -12,7 +12,20 @@
         />
       </div>
       <div class="toolbar-meta">
-        <span id="search-summary">Showing all spacegroups</span>
+        <div class="detail-meta-item settings-meta-item">
+          <p class="kicker">Show settings</p>
+          <button
+            id="settings-toggle-index"
+            class="settings-toggle"
+            type="button"
+            data-settings-toggle
+            aria-label="Toggle settings mode"
+          >
+            <span class="settings-label settings-label-ita" aria-hidden="true">ITA</span>
+            <span class="settings-toggle-track" aria-hidden="true"><span class="settings-toggle-thumb"></span></span>
+            <span class="settings-label settings-label-all" aria-hidden="true">ALL</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -21,15 +34,33 @@
         <table class="sg-table" aria-label="Spacegroup table">
           <thead>
             <tr>
-              <th><button class="sort-btn" data-sort="hall_key">Hall Symbol</button></th>
-              <th><button class="sort-btn" data-sort="ita_number">ITA #</button></th>
               <th><button class="sort-btn" data-sort="short_hm_symbol">Hermann-Mauguin</button></th>
+              <th><button class="sort-btn" data-sort="ita_number">ITA #</button></th>
+              <th><button class="sort-btn" data-sort="hall_key">Hall Symbol</button></th>
               <th><button class="sort-btn" data-sort="crystal_system">Crystal System</button></th>
               <th><button class="sort-btn" data-sort="point_group">Point Group</button></th>
               <th><button class="sort-btn" data-sort="n_c">n:c</button></th>
             </tr>
           </thead>
-          <tbody id="table-body"></tbody>
+          <tbody id="table-body">
+            {{ $rows := .Site.Data.spacegroup_index }}
+            {{ if $rows }}
+              {{ range $rows }}
+                {{ $hallUrl := printf "hall/%s/" .hall_key | relURL }}
+                <tr class="sg-row" data-active="false">
+                  <td>
+                    {{ .short_hm_symbol }}
+                    {{ if .short_hm_symbol_aliases }} ({{ delimit .short_hm_symbol_aliases ", " }}){{ end }}
+                  </td>
+                  <td>{{ .ita_number }}</td>
+                  <td><a class="hall-link" href="{{ $hallUrl }}">{{ .hall_key }}</a></td>
+                  <td class="td-muted">{{ .crystal_system }}</td>
+                  <td class="td-muted">{{ .point_group }}</td>
+                  <td class="td-muted">{{ .n_c }}</td>
+                </tr>
+              {{ end }}
+            {{ end }}
+          </tbody>
         </table>
       </div>
       <p class="empty-state" id="empty-state" hidden>No matching spacegroups found.</p>
@@ -40,16 +71,24 @@
     <div class="detail-header panel">
       <div class="detail-meta">
         <div class="detail-meta-item">
-          <p class="kicker">Hall</p>
-          <select id="detail-hall-select" class="detail-select" aria-label="Select Hall symbol"></select>
-        </div>
-        <div class="detail-meta-item">
           <p class="kicker">HM</p>
-          <select id="detail-hm-select" class="detail-select" aria-label="Select HM symbol"></select>
+          <select id="detail-hm-select" class="detail-select" aria-label="Select HM symbol" data-selected=""></select>
         </div>
         <div class="detail-meta-item">
           <p class="kicker">ITA#</p>
-          <select id="detail-ita-select" class="detail-select" aria-label="Select ITA number"></select>
+          <select id="detail-ita-select" class="detail-select" aria-label="Select ITA number" data-selected=""></select>
+        </div>
+        <div class="detail-meta-item">
+          <p class="kicker">Hall</p>
+          <select id="detail-hall-select" class="detail-select" aria-label="Select Hall symbol" data-selected=""></select>
+        </div>
+        <div class="detail-meta-item settings-meta-item">
+          <p class="kicker">Show settings</p>
+          <button class="settings-toggle" type="button" data-settings-toggle aria-label="Toggle settings mode">
+            <span class="settings-label settings-label-ita" aria-hidden="true">ITA</span>
+            <span class="settings-toggle-track" aria-hidden="true"><span class="settings-toggle-thumb"></span></span>
+            <span class="settings-label settings-label-all" aria-hidden="true">ALL</span>
+          </button>
         </div>
       </div>
     </div>

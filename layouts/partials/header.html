@@ -2,7 +2,7 @@
   <div class="brand-row">
     {{ $showBack := not .IsHome }}
     <a
-      href="{{ .Site.BaseURL }}"
+      href="{{ "" | relURL }}"
       class="header-back-btn{{ if $showBack }} is-visible{{ end }}"
       aria-label="Back to table"
       title="Back to table"

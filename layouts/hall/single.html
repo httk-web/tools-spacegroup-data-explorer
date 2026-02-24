@@ -3,34 +3,39 @@
     <div class="detail-header panel">
       <div class="detail-meta">
         <div class="detail-meta-item">
-          <p class="kicker">Hall</p>
-          <select class="detail-select" aria-label="Select Hall symbol" onchange="if (this.value) window.location = this.value;">
-            {{ range .Site.Data.spacegroup_lists.halls }}
-              {{ $url := printf "hall/%s/" . | relURL }}
-              <option value="{{ $url }}" {{ if eq $.Params.hall_key . }}selected{{ end }}>{{ . }}</option>
-            {{ end }}
-          </select>
-        </div>
-        <div class="detail-meta-item">
           <p class="kicker">HM</p>
-          <select class="detail-select" aria-label="Select HM symbol" onchange="if (this.value) window.location = this.value;">
-            {{ range .Site.Data.spacegroup_lists.hm_values }}
-              {{ $hall := index $.Site.Data.spacegroup_lists.hm_to_hall . }}
-              {{ $url := printf "hall/%s/" $hall | relURL }}
-              <option value="{{ $url }}" {{ if eq $.Params.universal_hm . }}selected{{ end }}>{{ . }}</option>
-            {{ end }}
-          </select>
+          <select
+            class="detail-select"
+            aria-label="Select HM symbol"
+            data-selected="{{ .Params.universal_hm }}"
+            onchange="if (this.value) window.location = this.value;"
+          ></select>
         </div>
         <div class="detail-meta-item">
           <p class="kicker">ITA#</p>
-          <select class="detail-select" aria-label="Select ITA number" onchange="if (this.value) window.location = this.value;">
-            {{ range .Site.Data.spacegroup_lists.ita_values }}
-              {{ $key := printf "%v" . }}
-              {{ $hall := index $.Site.Data.spacegroup_lists.ita_to_hall $key }}
-              {{ $url := printf "hall/%s/" $hall | relURL }}
-              <option value="{{ $url }}" {{ if eq (printf "%v" $.Params.ita_number) $key }}selected{{ end }}>#{{ . }}</option>
-            {{ end }}
-          </select>
+          <select
+            class="detail-select"
+            aria-label="Select ITA number"
+            data-selected="{{ .Params.ita_number }}"
+            onchange="if (this.value) window.location = this.value;"
+          ></select>
+        </div>
+        <div class="detail-meta-item">
+          <p class="kicker">Hall</p>
+          <select
+            class="detail-select"
+            aria-label="Select Hall symbol"
+            data-selected="{{ .Params.hall_key }}"
+            onchange="if (this.value) window.location = this.value;"
+          ></select>
+        </div>
+        <div class="detail-meta-item settings-meta-item">
+          <p class="kicker">Show settings</p>
+          <button class="settings-toggle" type="button" data-settings-toggle aria-label="Toggle settings mode">
+            <span class="settings-label settings-label-ita" aria-hidden="true">ITA</span>
+            <span class="settings-toggle-track" aria-hidden="true"><span class="settings-toggle-thumb"></span></span>
+            <span class="settings-label settings-label-all" aria-hidden="true">ALL</span>
+          </button>
         </div>
       </div>
     </div>
@@ -45,13 +50,21 @@
               {{ $classes := slice "related-link" }}
               {{ if .is_reference_setting }}{{ $classes = $classes | append "is-standard" }}{{ end }}
               {{ if eq $.Params.hall_key .hall_key }}{{ $classes = $classes | append "is-active" }}{{ end }}
-              {{ $label := default .hall_key (index $.Site.Data.spacegroup_lists.hall_latex .hall_key) }}
-              <a class="{{ delimit $classes " " }}" href="{{ printf "hall/%s/" .hall_key | relURL }}">
+              {{ $label := "—" }}
+              {{ if .is_reference_setting }}
+                {{ $label = "ITA" }}
+              {{ else }}
+                {{ $hm := string (default "" .universal_hm) }}
+                {{ $suffix := findRE "\\([^)]*\\)\\s*$" $hm 1 }}
+                {{ if gt (len $suffix) 0 }}
+                  {{ $label = index $suffix 0 }}
+                {{ end }}
+              {{ end }}
+              <a class="{{ delimit $classes " " }}" href="{{ printf "hall/%s/?settings=all" .hall_key | relURL }}">
                 <span class="math-content">{{ $label }}</span>
               </a>
             {{ end }}
           </div>
-          <p class="note">Bold border: ITA reference setting.</p>
         {{ else }}
           <p class="note">No related Hall settings available.</p>
         {{ end }}
@@ -68,7 +81,12 @@
           <div class="metric">
             <label>Short HM <span tabindex="0" class="info-dot" data-tip="Short Hermann-Mauguin symbol, a compact notation for symmetry elements.">i</span></label>
             {{ $shortHM := default .Params.short_hm_symbol .Params.short_hm_symbol_latex }}
-            <strong><span class="math-content">{{ partial "value.html" $shortHM }}</span></strong>
+            {{ $shortHMAliases := .Params.short_hm_symbol_aliases_latex }}
+            {{ if not $shortHMAliases }}{{ $shortHMAliases = .Params.short_hm_symbol_aliases }}{{ end }}
+            <strong>
+              <span class="math-content">{{ partial "value.html" $shortHM }}</span>
+              {{ if $shortHMAliases }}<span class="hm-aliases-inline math-content">({{ partial "value.html" $shortHMAliases }})</span>{{ end }}
+            </strong>
           </div>
           <div class="metric">
             <label>Universal HM</label>
@@ -77,7 +95,12 @@
           </div>
           <div class="metric">
             <label>n:c <span tabindex="0" class="info-dot" data-tip="Conventional setting label used in the source dataset.">i</span></label>
-            <strong>{{ partial "value.html" .Params.n_c }}</strong>
+            {{ $nCAliases := .Params.n_c_aliases }}
+            {{ if not $nCAliases }}{{ $nCAliases = .Params.n_c_alias }}{{ end }}
+            <strong>
+              {{ partial "value.html" .Params.n_c }}
+              {{ if $nCAliases }}<span class="hm-aliases-inline">({{ partial "value.html" $nCAliases }})</span>{{ end }}
+            </strong>
           </div>
           <div class="metric">
             <label>Point Group <span tabindex="0" class="info-dot" data-tip="Point group describing rotational/reflection symmetry without translations.">i</span></label>
@@ -112,75 +135,85 @@
       </article>
 
       <article class="detail-card panel section-wide">
-        <h3>Symmetry Operations <span tabindex="0" class="info-dot" data-tip="Symmetry operations represented in coordinate form x,y,z with optional origin shifts.">i</span></h3>
-        {{ $symops := .Params.symops }}
-        {{ if $symops }}
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>xyz</th>
-                <th>rot_type</th>
-                <th>screw/glide</th>
-              </tr>
-            </thead>
-            <tbody>
-              {{ range $index, $op := $symops }}
-                <tr>
-                  <td>{{ add $index 1 }}</td>
-                  <td>{{ partial "value.html" $op.xyz }}</td>
-                  <td>{{ partial "value.html" $op.rot_type }}</td>
-                  <td>{{ partial "value.html" $op.screw_glide }}</td>
-                </tr>
-              {{ end }}
-            </tbody>
-          </table>
-          <p class="note">Showing all {{ len $symops }} operations.</p>
-        {{ else }}
-          <p class="note">No symmetry operations in this entry.</p>
-        {{ end }}
-      </article>
-
-      <article class="detail-card panel section-wide">
-        <h3>Wyckoff Positions <span tabindex="0" class="info-dot" data-tip="Wyckoff positions grouped by multiplicity and site symmetry.">i</span></h3>
-        {{ $wyckoff := .Params.wyckoff }}
-        {{ if $wyckoff }}
-          {{ $labels := slice }}
-          {{ range $label, $_ := $wyckoff }}
-            {{ $labels = $labels | append $label }}
-          {{ end }}
-          {{ $labels = sort $labels }}
-          {{ if gt (len $labels) 0 }}
+        <div class="detail-card-head">
+          <button class="section-toggle-btn" type="button" data-section-toggle="symops" aria-expanded="true" aria-label="Collapse section">▼</button>
+          <h3>Symmetry Operations <span tabindex="0" class="info-dot" data-tip="Symmetry operations represented in coordinate form x,y,z with optional origin shifts.">i</span></h3>
+        </div>
+        <div data-section-body="symops">
+          {{ $symops := .Params.symops }}
+          {{ if $symops }}
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Label</th>
-                  <th>Multiplicity</th>
-                  <th>Site Symmetry</th>
-                  <th>Full Orbit (xyz)</th>
+                  <th>#</th>
+                  <th>xyz</th>
+                  <th>rot_type</th>
+                  <th>screw/glide</th>
                 </tr>
               </thead>
               <tbody>
-                {{ range $labels }}
-                  {{ $item := index $wyckoff . }}
-                  {{ $orbit := $item.orbit_xyz }}
-                  {{ $orbitText := partial "orbit.html" $orbit }}
+                {{ range $index, $op := $symops }}
                   <tr>
-                    <td>{{ . }}</td>
-                    <td>{{ partial "value.html" $item.multiplicity }}</td>
-                    <td>{{ partial "value.html" $item.sitesym }}</td>
-                    <td class="orbit-cell">{{ $orbitText }}</td>
+                    <td>{{ add $index 1 }}</td>
+                    <td>{{ partial "value.html" $op.xyz }}</td>
+                    <td>{{ partial "value.html" $op.rot_type }}</td>
+                    <td>{{ partial "value.html" $op.screw_glide }}</td>
                   </tr>
                 {{ end }}
               </tbody>
             </table>
-            <p class="note">{{ len $labels }} Wyckoff position{{ if ne (len $labels) 1 }}s{{ end }} listed.</p>
+            <p class="note">Showing all {{ len $symops }} operations.</p>
           {{ else }}
-            <p class="note">No Wyckoff labels present.</p>
+            <p class="note">No symmetry operations in this entry.</p>
           {{ end }}
-        {{ else }}
-          <p class="note">No Wyckoff data available.</p>
-        {{ end }}
+        </div>
+      </article>
+
+      <article class="detail-card panel section-wide">
+        <div class="detail-card-head">
+          <button class="section-toggle-btn" type="button" data-section-toggle="wyckoff" aria-expanded="true" aria-label="Collapse section">▼</button>
+          <h3>Wyckoff Positions <span tabindex="0" class="info-dot" data-tip="Wyckoff positions grouped by multiplicity and site symmetry.">i</span></h3>
+        </div>
+        <div data-section-body="wyckoff">
+          {{ $wyckoff := .Params.wyckoff }}
+          {{ if $wyckoff }}
+            {{ $labels := slice }}
+            {{ range $label, $_ := $wyckoff }}
+              {{ $labels = $labels | append $label }}
+            {{ end }}
+            {{ $labels = sort $labels }}
+            {{ if gt (len $labels) 0 }}
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Label</th>
+                    <th>Multiplicity</th>
+                    <th>Site Symmetry</th>
+                    <th>Full Orbit (xyz)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{ range $labels }}
+                    {{ $item := index $wyckoff . }}
+                    {{ $orbit := $item.orbit_xyz }}
+                    {{ $orbitText := partial "orbit.html" $orbit }}
+                    <tr>
+                      <td>{{ . }}</td>
+                      <td>{{ partial "value.html" $item.multiplicity }}</td>
+                      <td>{{ partial "value.html" $item.sitesym }}</td>
+                      <td class="orbit-cell">{{ $orbitText }}</td>
+                    </tr>
+                  {{ end }}
+                </tbody>
+              </table>
+              <p class="note">{{ len $labels }} Wyckoff position{{ if ne (len $labels) 1 }}s{{ end }} listed.</p>
+            {{ else }}
+              <p class="note">No Wyckoff labels present.</p>
+            {{ end }}
+          {{ else }}
+            <p class="note">No Wyckoff data available.</p>
+          {{ end }}
+        </div>
       </article>
     </div>
   </section>

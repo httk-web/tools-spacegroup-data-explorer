@@ -1,244 +1,370 @@
----
-asym_unit: 0<=x<=1/2; 0<=y<1; 0<=z<1
-crystal_system: monoclinic
-grid_factors:
-  euclidean:
-  - 2
-  - 1
-  - 2
-  seminvariant:
-  - 2
-  - 1
-  - 2
-  space_group:
-  - 1
-  - 1
-  - 1
-hall_key: p_2y
-hall_latex: \(\mathrm{P}\ 2_{\mathrm{y}}\)
-harker_planes:
-- algebraic: 2*x,0,2*z
-  normal:
-  - 0
-  - 1
-  - 0
-  point:
-  - 0.0
-  - 0.0
-  - 0.0
-is_centric: false
-is_chiral: true
-is_enantiomorphic: false
-is_reference_setting: true
-ita_number: 3
-laue_class: 2/m
-n_c: 3:b
-n_ltr: 1
-n_smx: 2
-order_z: 2
-point_group: '2'
-qualifier: b
-related_settings:
-- hall_key: p_2
-  is_reference_setting: false
-- hall_key: p_2x
-  is_reference_setting: false
-- hall_key: p_2y
-  is_reference_setting: true
-schoenflies: C2^1
-short_hm_symbol: P2
-short_hm_symbol_latex: ${\mathrm{P}2}$
-slug: p_2y
-structure_seminvariants:
-- modulus: 2
-  vector:
-  - 1
-  - 0
-  - 0
-- modulus: 0
-  vector:
-  - 0
-  - 1
-  - 0
-- modulus: 2
-  vector:
-  - 0
-  - 0
-  - 1
-symops:
-- axis:
-  - 0
-  - 0
-  - 0
-  origin_shift: 0,0,0
-  rot_type: '1'
-  screw_glide: 0,0,0
-  sense: 0
-  xyz: x,y,z
-- axis:
-  - 0
-  - 1
-  - 0
-  origin_shift: 0,0,0
-  rot_type: '2'
-  screw_glide: 0,0,0
-  sense: 0
-  xyz: -x,y,-z
-title: Spacegroup p_2y
-universal_hm: P 1 2 1
-universal_hm_latex: ${\mathrm{P} 1 2 1}$
-url: /hall/p_2y/
-wyckoff:
-  a:
-    first_orbit: 0,y,0
-    hasfreedom:
-    - false
-    - true
-    - false
-    multiplicity: 1
-    orbit_affine:
-    - - - 0.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 1.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    orbit_xyz:
-    - 0,y,0
-    sitesym: '2'
-  b:
-    first_orbit: 0,y,1/2
-    hasfreedom:
-    - false
-    - true
-    - false
-    multiplicity: 1
-    orbit_affine:
-    - - - 0.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 1.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    orbit_xyz:
-    - 0,y,1/2
-    sitesym: '2'
-  c:
-    first_orbit: 1/2,y,0
-    hasfreedom:
-    - false
-    - true
-    - false
-    multiplicity: 1
-    orbit_affine:
-    - - - 0.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 1.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    orbit_xyz:
-    - 1/2,y,0
-    sitesym: '2'
-  d:
-    first_orbit: 1/2,y,1/2
-    hasfreedom:
-    - false
-    - true
-    - false
-    multiplicity: 1
-    orbit_affine:
-    - - - 0.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 1.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 0.5
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    orbit_xyz:
-    - 1/2,y,1/2
-    sitesym: '2'
-  e:
-    first_orbit: x,y,z
-    hasfreedom:
-    - true
-    - true
-    - true
-    multiplicity: 2
-    orbit_affine:
-    - - - 1.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 1.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 1.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    - - - -1.0
-        - 0.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 1.0
-        - 0.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - -1.0
-        - 0.0
-      - - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-    orbit_xyz:
-    - x,y,z
-    - -x,y,-z
-    sitesym: '1'
----
+{
+  "asym_unit": "0<=x<=1/2; 0<=y<1; 0<=z<1",
+  "crystal_system": "monoclinic",
+  "grid_factors": {
+    "euclidean": [
+      2,
+      1,
+      2
+    ],
+    "seminvariant": [
+      2,
+      1,
+      2
+    ],
+    "space_group": [
+      1,
+      1,
+      1
+    ]
+  },
+  "hall_key": "p_2y",
+  "hall_latex": "\\(\\mathrm{P}\\ 2_{\\mathrm{y}}\\)",
+  "harker_planes": [
+    {
+      "algebraic": "2*x,0,2*z",
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "point": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "is_centric": false,
+  "is_chiral": true,
+  "is_enantiomorphic": false,
+  "is_reference_setting": true,
+  "ita_number": 3,
+  "laue_class": "2/m",
+  "n_c": "3:b",
+  "n_ltr": 1,
+  "n_smx": 2,
+  "order_z": 2,
+  "point_group": "2",
+  "qualifier": "b",
+  "related_settings": [
+    {
+      "hall_key": "p_2y",
+      "hall_latex": "\\(\\mathrm{P}\\ 2_{\\mathrm{y}}\\)",
+      "is_reference_setting": true,
+      "qualifier": null,
+      "universal_hm": "P 1 2 1",
+      "universal_hm_latex": "${\\mathrm{P} 1 2 1}$"
+    },
+    {
+      "hall_key": "p_2",
+      "hall_latex": "\\(\\mathrm{P}\\ 2\\)",
+      "is_reference_setting": false,
+      "qualifier": null,
+      "universal_hm": "P 1 2 1 (c,a,b)",
+      "universal_hm_latex": "${\\mathrm{P} 1 2 1}$ (c,a,b)"
+    },
+    {
+      "hall_key": "p_2x",
+      "hall_latex": "\\(\\mathrm{P}\\ 2_{\\mathrm{x}}\\)",
+      "is_reference_setting": false,
+      "qualifier": null,
+      "universal_hm": "P 1 2 1 (b,c,a)",
+      "universal_hm_latex": "${\\mathrm{P} 1 2 1}$ (b,c,a)"
+    }
+  ],
+  "schoenflies": "C2^1",
+  "short_hm_symbol": "P2",
+  "short_hm_symbol_latex": "${\\mathrm{P}2}$",
+  "slug": "p_2y",
+  "structure_seminvariants": [
+    {
+      "modulus": 2,
+      "vector": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "modulus": 0,
+      "vector": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "modulus": 2,
+      "vector": [
+        0,
+        0,
+        1
+      ]
+    }
+  ],
+  "symops": [
+    {
+      "axis": [
+        0,
+        0,
+        0
+      ],
+      "origin_shift": "0,0,0",
+      "rot_type": "1",
+      "screw_glide": "0,0,0",
+      "sense": 0,
+      "xyz": "x,y,z"
+    },
+    {
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "origin_shift": "0,0,0",
+      "rot_type": "2",
+      "screw_glide": "0,0,0",
+      "sense": 0,
+      "xyz": "-x,y,-z"
+    }
+  ],
+  "title": "Spacegroup p_2y",
+  "universal_hm": "P 1 2 1",
+  "universal_hm_latex": "${\\mathrm{P} 1 2 1}$",
+  "url": "/hall/p_2y/",
+  "wyckoff": {
+    "a": {
+      "first_orbit": "0,y,0",
+      "hasfreedom": [
+        false,
+        true,
+        false
+      ],
+      "multiplicity": 1,
+      "orbit_affine": [
+        [
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      ],
+      "orbit_xyz": [
+        "0,y,0"
+      ],
+      "sitesym": "2"
+    },
+    "b": {
+      "first_orbit": "0,y,1/2",
+      "hasfreedom": [
+        false,
+        true,
+        false
+      ],
+      "multiplicity": 1,
+      "orbit_affine": [
+        [
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      ],
+      "orbit_xyz": [
+        "0,y,1/2"
+      ],
+      "sitesym": "2"
+    },
+    "c": {
+      "first_orbit": "1/2,y,0",
+      "hasfreedom": [
+        false,
+        true,
+        false
+      ],
+      "multiplicity": 1,
+      "orbit_affine": [
+        [
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      ],
+      "orbit_xyz": [
+        "1/2,y,0"
+      ],
+      "sitesym": "2"
+    },
+    "d": {
+      "first_orbit": "1/2,y,1/2",
+      "hasfreedom": [
+        false,
+        true,
+        false
+      ],
+      "multiplicity": 1,
+      "orbit_affine": [
+        [
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      ],
+      "orbit_xyz": [
+        "1/2,y,1/2"
+      ],
+      "sitesym": "2"
+    },
+    "e": {
+      "first_orbit": "x,y,z",
+      "hasfreedom": [
+        true,
+        true,
+        true
+      ],
+      "multiplicity": 2,
+      "orbit_affine": [
+        [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        [
+          [
+            -1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      ],
+      "orbit_xyz": [
+        "x,y,z",
+        "-x,y,-z"
+      ],
+      "sitesym": "1"
+    }
+  }
+}
