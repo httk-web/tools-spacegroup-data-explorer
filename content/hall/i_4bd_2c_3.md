@@ -236,6 +236,632 @@
   "is_reference_setting": true,
   "ita_number": 214,
   "laue_class": "m-3m",
+  "maximal_subgroup_mappings": [
+    {
+      "hall_key": "i_2b_2c_3",
+      "hall_latex": "\\(\\mathrm{I}\\ 2_{\\mathrm{b}}\\ 2_{\\mathrm{c}}\\ 3\\)",
+      "index": 2,
+      "is_reference_setting": true,
+      "ita_number": 199,
+      "origin_shift": [
+        "0",
+        "0",
+        "0"
+      ],
+      "transformation_matrix": [
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ]
+      ],
+      "universal_hm": "I 21 3",
+      "universal_hm_latex": "${\\mathrm{I} 21 3}$",
+      "wyckoff_rows": [
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "x,x,x",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "x,x,x",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "x,0,1/4",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "d",
+          "h_first_orbit_xyz": "x,0,1/4",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "e",
+          "h_first_orbit_xyz": "x,x,x",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "-y + 1/4",
+            "-x + 1/4",
+            "-z + 1/4"
+          ],
+          "g_wp": "e",
+          "h_first_orbit_xyz": "x,x,x",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "f",
+          "h_first_orbit_xyz": "x,0,1/4",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "-x + 1/4",
+            "-z + 1/4",
+            "-y + 1/4"
+          ],
+          "g_wp": "f",
+          "h_first_orbit_xyz": "x,0,1/4",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "g",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "c"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "h",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "c"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "i",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "c"
+        },
+        {
+          "affine_xyz": [
+            "x + 1/4",
+            "-z + 1/4",
+            "y + 3/4"
+          ],
+          "g_wp": "i",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "c"
+        }
+      ]
+    },
+    {
+      "hall_key": "p_4acd_2ab_3",
+      "hall_latex": "\\(\\mathrm{P}\\ 4_{\\mathrm{acd}}\\ 2_{\\mathrm{ab}}\\ 3\\)",
+      "index": 2,
+      "is_reference_setting": true,
+      "ita_number": 212,
+      "origin_shift": [
+        "0",
+        "0",
+        "0"
+      ],
+      "transformation_matrix": [
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ]
+      ],
+      "universal_hm": "P 43 3 2",
+      "universal_hm_latex": "${\\mathrm{P} 43 3 2}$",
+      "wyckoff_rows": [
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "1/8,1/8,1/8",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "x + 1/2",
+            "y + 1/2",
+            "z + 1/2"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "5/8,5/8,5/8",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "x,x,x",
+          "h_wp": "c"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "1/8,y,-y+1/4",
+          "h_wp": "d"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "e",
+          "h_first_orbit_xyz": "x,x,x",
+          "h_wp": "c"
+        },
+        {
+          "affine_xyz": [
+            "x + 1/2",
+            "y + 1/2",
+            "z + 1/2"
+          ],
+          "g_wp": "e",
+          "h_first_orbit_xyz": "x,x,x",
+          "h_wp": "c"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "f",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "e"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "g",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "e"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "h",
+          "h_first_orbit_xyz": "1/8,y,-y+1/4",
+          "h_wp": "d"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "i",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "e"
+        },
+        {
+          "affine_xyz": [
+            "x + 1/4",
+            "-z + 1/4",
+            "y + 3/4"
+          ],
+          "g_wp": "i",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "e"
+        }
+      ]
+    },
+    {
+      "hall_key": "p_4bd_2ab_3",
+      "hall_latex": "\\(\\mathrm{P}\\ 4_{\\mathrm{bd}}\\ 2_{\\mathrm{ab}}\\ 3\\)",
+      "index": 2,
+      "is_reference_setting": true,
+      "ita_number": 213,
+      "origin_shift": [
+        "0",
+        "0",
+        "0"
+      ],
+      "transformation_matrix": [
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ]
+      ],
+      "universal_hm": "P 41 3 2",
+      "universal_hm_latex": "${\\mathrm{P} 41 3 2}$",
+      "wyckoff_rows": [
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "x,x,x",
+          "h_wp": "c"
+        },
+        {
+          "affine_xyz": [
+            "x + 1/2",
+            "y + 1/2",
+            "z + 1/2"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "3/8,3/8,3/8",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "7/8,7/8,7/8",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "1/8,y,y+1/4",
+          "h_wp": "d"
+        },
+        {
+          "affine_xyz": [
+            "x + 1/2",
+            "-y + 1/2",
+            "-z"
+          ],
+          "g_wp": "d",
+          "h_first_orbit_xyz": "1/8,y,y+1/4",
+          "h_wp": "d"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "e",
+          "h_first_orbit_xyz": "x,x,x",
+          "h_wp": "c"
+        },
+        {
+          "affine_xyz": [
+            "x + 1/2",
+            "y + 1/2",
+            "z + 1/2"
+          ],
+          "g_wp": "e",
+          "h_first_orbit_xyz": "x,x,x",
+          "h_wp": "c"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "f",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "e"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "g",
+          "h_first_orbit_xyz": "1/8,y,y+1/4",
+          "h_wp": "d"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "h",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "e"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "i",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "e"
+        },
+        {
+          "affine_xyz": [
+            "x + 1/4",
+            "-z + 1/4",
+            "y + 3/4"
+          ],
+          "g_wp": "i",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "e"
+        }
+      ]
+    }
+  ],
+  "minimal_supergroup_mappings": [
+    {
+      "hall_key": "-i_4bd_2c_3",
+      "hall_latex": "\\(\\overline{\\mathrm{I}}\\ 4_{\\mathrm{bd}}\\ 2_{\\mathrm{c}}\\ 3\\)",
+      "index": 2,
+      "is_reference_setting": true,
+      "ita_number": 230,
+      "origin_shift": [
+        "0",
+        "0",
+        "0"
+      ],
+      "transformation_matrix": [
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ]
+      ],
+      "universal_hm": "I a -3 d",
+      "universal_hm_latex": "${\\mathrm{I} \\mathrm{a} \\overline{3} \\mathrm{d}}$",
+      "wyckoff_rows": [
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "x,x,x",
+          "h_wp": "e"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "1/8,1/8,1/8",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "-x",
+            "-y",
+            "-z"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "7/8,7/8,7/8",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "1/8,0,1/4",
+          "h_wp": "c"
+        },
+        {
+          "affine_xyz": [
+            "x + 1/2",
+            "-y",
+            "z"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "5/8,0,1/4",
+          "h_wp": "d"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "d",
+          "h_first_orbit_xyz": "x,0,1/4",
+          "h_wp": "f"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "e",
+          "h_first_orbit_xyz": "x,x,x",
+          "h_wp": "e"
+        },
+        {
+          "affine_xyz": [
+            "x + 1/2",
+            "y + 1/2",
+            "z + 1/2"
+          ],
+          "g_wp": "e",
+          "h_first_orbit_xyz": "x,x,x",
+          "h_wp": "e"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "f",
+          "h_first_orbit_xyz": "x,0,1/4",
+          "h_wp": "f"
+        },
+        {
+          "affine_xyz": [
+            "-x + 1/4",
+            "-z + 1/4",
+            "-y + 1/4"
+          ],
+          "g_wp": "f",
+          "h_first_orbit_xyz": "x,0,1/4",
+          "h_wp": "f"
+        },
+        {
+          "affine_xyz": [
+            "-x + 1/4",
+            "z + 1/4",
+            "-y + 3/4"
+          ],
+          "g_wp": "g",
+          "h_first_orbit_xyz": "1/8,y,y+1/4",
+          "h_wp": "g"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "g",
+          "h_first_orbit_xyz": "1/8,y,-y+1/4",
+          "h_wp": "h"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y",
+            "z"
+          ],
+          "g_wp": "h",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "i"
+        },
+        {
+          "affine_xyz": [
+            "x + 1/4",
+            "-z + 1/4",
+            "y + 3/4"
+          ],
+          "g_wp": "h",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "i"
+        }
+      ]
+    }
+  ],
   "n_c": "214",
   "n_ltr": 2,
   "n_smx": 24,
@@ -5430,5 +6056,246 @@
       ],
       "sitesym": "1"
     }
-  }
+  },
+  "wyckoff_items": [
+    {
+      "label": "a",
+      "multiplicity": 8,
+      "orbit_xyz": [
+        "1/8,1/8,1/8",
+        "1/8,7/8,3/8",
+        "3/8,1/8,7/8",
+        "3/8,7/8,5/8",
+        "5/8,3/8,7/8",
+        "5/8,5/8,5/8",
+        "7/8,3/8,1/8",
+        "7/8,5/8,3/8"
+      ],
+      "sitesym": ".32"
+    },
+    {
+      "label": "b",
+      "multiplicity": 8,
+      "orbit_xyz": [
+        "7/8,7/8,7/8",
+        "1/8,3/8,5/8",
+        "1/8,5/8,7/8",
+        "3/8,3/8,3/8",
+        "3/8,5/8,1/8",
+        "5/8,1/8,3/8",
+        "5/8,7/8,1/8",
+        "7/8,1/8,5/8"
+      ],
+      "sitesym": ".32"
+    },
+    {
+      "label": "c",
+      "multiplicity": 12,
+      "orbit_xyz": [
+        "1/8,0,1/4",
+        "0,1/4,1/8",
+        "0,3/4,3/8",
+        "1/4,1/8,0",
+        "1/4,7/8,1/2",
+        "3/8,0,3/4",
+        "1/2,1/4,7/8",
+        "1/2,3/4,5/8",
+        "5/8,1/2,3/4",
+        "3/4,3/8,0",
+        "3/4,5/8,1/2",
+        "7/8,1/2,1/4"
+      ],
+      "sitesym": "2.22"
+    },
+    {
+      "label": "d",
+      "multiplicity": 12,
+      "orbit_xyz": [
+        "5/8,0,1/4",
+        "0,1/4,5/8",
+        "0,3/4,7/8",
+        "1/8,1/2,3/4",
+        "1/4,3/8,1/2",
+        "1/4,5/8,0",
+        "3/8,1/2,1/4",
+        "1/2,1/4,3/8",
+        "1/2,3/4,1/8",
+        "3/4,1/8,1/2",
+        "3/4,7/8,0",
+        "7/8,0,3/4"
+      ],
+      "sitesym": "2.22"
+    },
+    {
+      "label": "e",
+      "multiplicity": 16,
+      "orbit_xyz": [
+        "x,x,x",
+        "-x,-x+1/2,x",
+        "-x,x+1/2,-x+1/2",
+        "-x+1/4,-x+1/4,-x+1/4",
+        "-x+1/4,x+3/4,x+1/4",
+        "-x+1/2,-x,x+1/2",
+        "-x+1/2,x,-x",
+        "-x+3/4,-x+3/4,-x+3/4",
+        "-x+3/4,x+1/4,x+3/4",
+        "x,-x,-x+1/2",
+        "x+1/4,-x+1/4,x+3/4",
+        "x+1/4,x+3/4,-x+3/4",
+        "x+1/2,-x+1/2,-x",
+        "x+1/2,x+1/2,x+1/2",
+        "x+3/4,-x+3/4,x+1/4",
+        "x+3/4,x+1/4,-x+1/4"
+      ],
+      "sitesym": ".3."
+    },
+    {
+      "label": "f",
+      "multiplicity": 24,
+      "orbit_xyz": [
+        "x,0,1/4",
+        "-x,1/2,1/4",
+        "-x+1/4,0,1/4",
+        "-x+1/2,0,3/4",
+        "-x+3/4,1/2,3/4",
+        "0,1/4,-x+1/4",
+        "0,1/4,x",
+        "0,3/4,-x+1/2",
+        "0,3/4,x+1/4",
+        "1/4,-x,1/2",
+        "1/4,-x+1/4,0",
+        "1/4,x,0",
+        "1/4,x+3/4,1/2",
+        "1/2,1/4,-x",
+        "1/2,1/4,x+3/4",
+        "1/2,3/4,-x+3/4",
+        "1/2,3/4,x+1/2",
+        "3/4,-x+1/2,0",
+        "3/4,-x+3/4,1/2",
+        "3/4,x+1/4,0",
+        "3/4,x+1/2,1/2",
+        "x+1/4,0,3/4",
+        "x+1/2,1/2,3/4",
+        "x+3/4,1/2,1/4"
+      ],
+      "sitesym": "2.."
+    },
+    {
+      "label": "g",
+      "multiplicity": 24,
+      "orbit_xyz": [
+        "1/8,y,y+1/4",
+        "-y,-y+1/4,1/8",
+        "-y,y+3/4,3/8",
+        "-y+1/4,1/8,-y",
+        "-y+1/4,7/8,y+1/2",
+        "-y+1/2,-y+3/4,5/8",
+        "-y+1/2,y+1/4,7/8",
+        "-y+3/4,3/8,y",
+        "-y+3/4,5/8,-y+1/2",
+        "1/8,-y,-y+1/4",
+        "3/8,-y,y+3/4",
+        "3/8,y,-y+3/4",
+        "5/8,-y+1/2,-y+3/4",
+        "5/8,y+1/2,y+3/4",
+        "7/8,-y+1/2,y+1/4",
+        "7/8,y+1/2,-y+1/4",
+        "y,-y+3/4,3/8",
+        "y,y+1/4,1/8",
+        "y+1/4,1/8,y",
+        "y+1/4,7/8,-y+1/2",
+        "y+1/2,-y+1/4,7/8",
+        "y+1/2,y+3/4,5/8",
+        "y+3/4,3/8,-y",
+        "y+3/4,5/8,y+1/2"
+      ],
+      "sitesym": "..2"
+    },
+    {
+      "label": "h",
+      "multiplicity": 24,
+      "orbit_xyz": [
+        "1/8,y,-y+1/4",
+        "-y,-y+3/4,3/8",
+        "-y,y+1/4,1/8",
+        "-y+1/4,1/8,y",
+        "-y+1/4,7/8,-y+1/2",
+        "-y+1/2,-y+1/4,7/8",
+        "-y+1/2,y+3/4,5/8",
+        "-y+3/4,3/8,-y",
+        "-y+3/4,5/8,y+1/2",
+        "1/8,-y,y+1/4",
+        "3/8,-y,-y+3/4",
+        "3/8,y,y+3/4",
+        "5/8,-y+1/2,y+3/4",
+        "5/8,y+1/2,-y+3/4",
+        "7/8,-y+1/2,-y+1/4",
+        "7/8,y+1/2,y+1/4",
+        "y,-y+1/4,1/8",
+        "y,y+3/4,3/8",
+        "y+1/4,1/8,-y",
+        "y+1/4,7/8,y+1/2",
+        "y+1/2,-y+3/4,5/8",
+        "y+1/2,y+1/4,7/8",
+        "y+3/4,3/8,y",
+        "y+3/4,5/8,-y+1/2"
+      ],
+      "sitesym": "..2"
+    },
+    {
+      "label": "i",
+      "multiplicity": 48,
+      "orbit_xyz": [
+        "x,y,z",
+        "-x,-y+1/2,z",
+        "-x,y+1/2,-z+1/2",
+        "-x+1/4,-z+1/4,-y+1/4",
+        "-x+1/4,z+3/4,y+1/4",
+        "-x+1/2,-y,z+1/2",
+        "-x+1/2,y,-z",
+        "-x+3/4,-z+3/4,-y+3/4",
+        "-x+3/4,z+1/4,y+3/4",
+        "-y,-z+1/2,x",
+        "-y,z+1/2,-x+1/2",
+        "-y+1/4,-x+1/4,-z+1/4",
+        "-y+1/4,x+3/4,z+1/4",
+        "-y+1/2,-z,x+1/2",
+        "-y+1/2,z,-x",
+        "-y+3/4,-x+3/4,-z+3/4",
+        "-y+3/4,x+1/4,z+3/4",
+        "-z,-x+1/2,y",
+        "-z,x+1/2,-y+1/2",
+        "-z+1/4,-y+1/4,-x+1/4",
+        "-z+1/4,y+3/4,x+1/4",
+        "-z+1/2,-x,y+1/2",
+        "-z+1/2,x,-y",
+        "-z+3/4,-y+3/4,-x+3/4",
+        "-z+3/4,y+1/4,x+3/4",
+        "z,-x,-y+1/2",
+        "z,x,y",
+        "z+1/4,-y+1/4,x+3/4",
+        "z+1/4,y+3/4,-x+3/4",
+        "z+1/2,-x+1/2,-y",
+        "z+1/2,x+1/2,y+1/2",
+        "z+3/4,-y+3/4,x+1/4",
+        "z+3/4,y+1/4,-x+1/4",
+        "y,-z,-x+1/2",
+        "y,z,x",
+        "y+1/4,-x+1/4,z+3/4",
+        "y+1/4,x+3/4,-z+3/4",
+        "y+1/2,-z+1/2,-x",
+        "y+1/2,z+1/2,x+1/2",
+        "y+3/4,-x+3/4,z+1/4",
+        "y+3/4,x+1/4,-z+1/4",
+        "x,-y,-z+1/2",
+        "x+1/4,-z+1/4,y+3/4",
+        "x+1/4,z+3/4,-y+3/4",
+        "x+1/2,-y+1/2,-z",
+        "x+1/2,y+1/2,z+1/2",
+        "x+3/4,-z+3/4,y+1/4",
+        "x+3/4,z+1/4,-y+1/4"
+      ],
+      "sitesym": "1"
+    }
+  ]
 }

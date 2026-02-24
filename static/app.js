@@ -385,6 +385,56 @@ const updateStaticHallLinks = () => {
   });
 };
 
+const updateMappingVisibility = () => {
+  document.querySelectorAll("[data-mapping-box]").forEach((box) => {
+    const tabs = Array.from(box.querySelectorAll("[data-mapping-tab]"));
+    const panels = Array.from(box.querySelectorAll("[data-mapping-panel]"));
+
+    const visibleTabs = tabs.filter((tab) => {
+      const isReference = tab.getAttribute("data-is-reference-setting") === "true";
+      const visible = settingsMode !== SETTINGS_ITA || isReference;
+      tab.hidden = !visible;
+      tab.style.display = visible ? "" : "none";
+      return visible;
+    });
+
+    const visiblePanelIds = new Set(
+      visibleTabs.map((tab) => tab.getAttribute("data-target-id")).filter(Boolean)
+    );
+
+    let activeTargetId = box.getAttribute("data-active-target-id");
+    if (!activeTargetId || !visiblePanelIds.has(activeTargetId)) {
+      activeTargetId = visibleTabs.length > 0 ? visibleTabs[0].getAttribute("data-target-id") : null;
+      if (activeTargetId) {
+        box.setAttribute("data-active-target-id", activeTargetId);
+      } else {
+        box.removeAttribute("data-active-target-id");
+      }
+    }
+
+    tabs.forEach((tab) => {
+      const targetId = tab.getAttribute("data-target-id");
+      const isActive = Boolean(targetId) && targetId === activeTargetId && !tab.hidden;
+      tab.classList.toggle("is-active", isActive);
+      tab.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+
+    panels.forEach((panel) => {
+      const panelId = panel.getAttribute("id");
+      const isReference = panel.getAttribute("data-is-reference-setting") === "true";
+      const allowedByMode = settingsMode !== SETTINGS_ITA || isReference;
+      const isVisiblePanel = Boolean(panelId) && panelId === activeTargetId && visiblePanelIds.has(panelId) && allowedByMode;
+      panel.hidden = !isVisiblePanel;
+      panel.style.display = isVisiblePanel ? "" : "none";
+    });
+
+    const emptyNote = box.querySelector("[data-mapping-empty]");
+    if (emptyNote) {
+      emptyNote.hidden = !(settingsMode === SETTINGS_ITA && visibleTabs.length === 0);
+    }
+  });
+};
+
 const updateBackButtonHref = () => {
   const backButton = document.querySelector(".header-back-btn");
   if (!backButton) {
@@ -461,6 +511,18 @@ const setupEvents = () => {
       updateSectionToggles();
       updateStaticHallLinks();
       updateBackButtonHref();
+    });
+  });
+
+  document.querySelectorAll("[data-mapping-tab]").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const box = tab.closest("[data-mapping-box]");
+      const targetId = tab.getAttribute("data-target-id");
+      if (!box || !targetId || tab.hidden) {
+        return;
+      }
+      box.setAttribute("data-active-target-id", targetId);
+      updateMappingVisibility();
     });
   });
 
@@ -669,6 +731,7 @@ const refreshUiState = () => {
 
   updateSettingsButtons();
   updateSectionToggles();
+  updateMappingVisibility();
   updateStaticHallLinks();
   updateBackButtonHref();
 };

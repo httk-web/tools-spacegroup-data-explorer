@@ -632,6 +632,56 @@ h2 {
   margin-top: 10px;
 }
 
+.mapping-box {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.mapping-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.mapping-tab-btn {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fffdfa;
+  color: var(--ink);
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 13px;
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.mapping-tab-btn:hover,
+.mapping-tab-btn:focus-visible {
+  border-color: rgba(207, 90, 47, 0.55);
+  outline: none;
+}
+
+.mapping-tab-btn.is-active {
+  border-color: rgba(207, 90, 47, 0.8);
+  box-shadow: inset 0 0 0 1px rgba(207, 90, 47, 0.18);
+  background: rgba(207, 90, 47, 0.1);
+}
+
+.mapping-panel {
+  margin-top: 8px;
+}
+
+.mapping-meta {
+  color: var(--ink-soft);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
 .section-wide {
   grid-column: span 12;
 }

@@ -41,6 +41,1018 @@
   "is_reference_setting": false,
   "ita_number": 5,
   "laue_class": "2/m",
+  "maximal_subgroup_mappings": [
+    {
+      "hall_key": "a_2",
+      "hall_latex": "\\(\\mathrm{A}\\ 2\\)",
+      "index": 1,
+      "is_reference_setting": false,
+      "ita_number": 5,
+      "origin_shift": [
+        "0",
+        "0",
+        "0"
+      ],
+      "transformation_matrix": [
+        [
+          "0",
+          "0",
+          "1"
+        ],
+        [
+          "1",
+          "-1",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "0"
+        ]
+      ],
+      "universal_hm": "C 1 2 1 (c,a,b)",
+      "universal_hm_latex": "${\\mathrm{C} 1 2 1}$ (c,a,b)",
+      "wyckoff_rows": [
+        {
+          "affine_xyz": [
+            "y + z",
+            "z",
+            "x"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "0,0,z",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "y + z",
+            "z",
+            "x"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "1/2,0,z",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "y + z",
+            "z",
+            "x"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "c"
+        }
+      ]
+    },
+    {
+      "hall_key": "a_2y",
+      "hall_latex": "\\(\\mathrm{A}\\ 2_{\\mathrm{y}}\\)",
+      "index": 1,
+      "is_reference_setting": false,
+      "ita_number": 5,
+      "origin_shift": [
+        "0",
+        "0",
+        "0"
+      ],
+      "transformation_matrix": [
+        [
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "1",
+          "0",
+          "1"
+        ],
+        [
+          "0",
+          "0",
+          "-1"
+        ]
+      ],
+      "universal_hm": "C 1 2 1 (c,b,-a)",
+      "universal_hm_latex": "${\\mathrm{C} 1 2 1}$ (c,b,-a)",
+      "wyckoff_rows": [
+        {
+          "affine_xyz": [
+            "y + z",
+            "x",
+            "-z"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "0,y,0",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "y + z",
+            "x",
+            "-z"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "1/2,y,0",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "y + z",
+            "x",
+            "-z"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "c"
+        }
+      ]
+    },
+    {
+      "hall_key": "b_2",
+      "hall_latex": "\\(\\mathrm{B}\\ 2\\)",
+      "index": 1,
+      "is_reference_setting": false,
+      "ita_number": 5,
+      "origin_shift": [
+        "0",
+        "0",
+        "0"
+      ],
+      "transformation_matrix": [
+        [
+          "0",
+          "0",
+          "1"
+        ],
+        [
+          "1",
+          "1",
+          "0"
+        ],
+        [
+          "-1",
+          "0",
+          "0"
+        ]
+      ],
+      "universal_hm": "C 1 2 1 (-a,c,b)",
+      "universal_hm_latex": "${\\mathrm{C} 1 2 1}$ (-a,c,b)",
+      "wyckoff_rows": [
+        {
+          "affine_xyz": [
+            "-z",
+            "y + z",
+            "x"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "0,0,z",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "-z",
+            "y + z",
+            "x"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "0,1/2,z",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "-z",
+            "y + z",
+            "x"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "c"
+        }
+      ]
+    },
+    {
+      "hall_key": "b_2x",
+      "hall_latex": "\\(\\mathrm{B}\\ 2_{\\mathrm{x}}\\)",
+      "index": 1,
+      "is_reference_setting": false,
+      "ita_number": 5,
+      "origin_shift": [
+        "0",
+        "0",
+        "0"
+      ],
+      "transformation_matrix": [
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "-1"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ]
+      ],
+      "universal_hm": "C 1 2 1 (b,c,a)",
+      "universal_hm_latex": "${\\mathrm{C} 1 2 1}$ (b,c,a)",
+      "wyckoff_rows": [
+        {
+          "affine_xyz": [
+            "x",
+            "y + z",
+            "z"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "x,0,0",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y + z",
+            "z"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "x,1/2,0",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y + z",
+            "z"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "c"
+        }
+      ]
+    },
+    {
+      "hall_key": "c_2x",
+      "hall_latex": "\\(\\mathrm{C}\\ 2_{\\mathrm{x}}\\)",
+      "index": 1,
+      "is_reference_setting": false,
+      "ita_number": 5,
+      "origin_shift": [
+        "0",
+        "0",
+        "0"
+      ],
+      "transformation_matrix": [
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "1"
+        ],
+        [
+          "0",
+          "-1",
+          "0"
+        ]
+      ],
+      "universal_hm": "C 1 2 1 (b,-a,c)",
+      "universal_hm_latex": "${\\mathrm{C} 1 2 1}$ (b,-a,c)",
+      "wyckoff_rows": [
+        {
+          "affine_xyz": [
+            "x",
+            "-z",
+            "y + z"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "x,0,0",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "-z",
+            "y + z"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "x,0,1/2",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "-z",
+            "y + z"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "c"
+        }
+      ]
+    },
+    {
+      "hall_key": "c_2y",
+      "hall_latex": "\\(\\mathrm{C}\\ 2_{\\mathrm{y}}\\)",
+      "index": 1,
+      "is_reference_setting": true,
+      "ita_number": 5,
+      "origin_shift": [
+        "0",
+        "0",
+        "0"
+      ],
+      "transformation_matrix": [
+        [
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "-1",
+          "0",
+          "1"
+        ],
+        [
+          "1",
+          "0",
+          "0"
+        ]
+      ],
+      "universal_hm": "C 1 2 1",
+      "universal_hm_latex": "${\\mathrm{C} 1 2 1}$",
+      "wyckoff_rows": [
+        {
+          "affine_xyz": [
+            "z",
+            "x",
+            "y + z"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "0,y,0",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "z",
+            "x",
+            "y + z"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "0,y,1/2",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "z",
+            "x",
+            "y + z"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "c"
+        }
+      ]
+    },
+    {
+      "hall_key": "i_2",
+      "hall_latex": "\\(\\mathrm{I}\\ 2\\)",
+      "index": 1,
+      "is_reference_setting": false,
+      "ita_number": 5,
+      "origin_shift": [
+        "0",
+        "0",
+        "0"
+      ],
+      "transformation_matrix": [
+        [
+          "0",
+          "0",
+          "1"
+        ],
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "0"
+        ]
+      ],
+      "universal_hm": "C 1 2 1 (c,a+c,b)",
+      "universal_hm_latex": "${\\mathrm{C} 1 2 1}$ (c,a+c,b)",
+      "wyckoff_rows": [
+        {
+          "affine_xyz": [
+            "y",
+            "z",
+            "x"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "0,0,z",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "y",
+            "z",
+            "x"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "1/2,0,z",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "y",
+            "z",
+            "x"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "c"
+        }
+      ]
+    },
+    {
+      "hall_key": "i_2y",
+      "hall_latex": "\\(\\mathrm{I}\\ 2_{\\mathrm{y}}\\)",
+      "index": 1,
+      "is_reference_setting": false,
+      "ita_number": 5,
+      "origin_shift": [
+        "0",
+        "0",
+        "0"
+      ],
+      "transformation_matrix": [
+        [
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ],
+        [
+          "1",
+          "0",
+          "0"
+        ]
+      ],
+      "universal_hm": "C 1 2 1 (a+c,b,c)",
+      "universal_hm_latex": "${\\mathrm{C} 1 2 1}$ (a+c,b,c)",
+      "wyckoff_rows": [
+        {
+          "affine_xyz": [
+            "z",
+            "x",
+            "y"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "0,y,0",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "z",
+            "x",
+            "y"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "0,y,1/2",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "z",
+            "x",
+            "y"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "c"
+        }
+      ]
+    }
+  ],
+  "minimal_supergroup_mappings": [
+    {
+      "hall_key": "a_2",
+      "hall_latex": "\\(\\mathrm{A}\\ 2\\)",
+      "index": 1,
+      "is_reference_setting": false,
+      "ita_number": 5,
+      "origin_shift": [
+        "0",
+        "0",
+        "0"
+      ],
+      "transformation_matrix": [
+        [
+          "0",
+          "1",
+          "1"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ],
+        [
+          "1",
+          "0",
+          "0"
+        ]
+      ],
+      "universal_hm": "C 1 2 1 (c,a,b)",
+      "universal_hm_latex": "${\\mathrm{C} 1 2 1}$ (c,a,b)",
+      "wyckoff_rows": [
+        {
+          "affine_xyz": [
+            "z",
+            "x - y",
+            "y"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "x,0,0",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "z",
+            "x - y",
+            "y"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "x,1/2,0",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "z",
+            "x - y",
+            "y"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "c"
+        }
+      ]
+    },
+    {
+      "hall_key": "a_2y",
+      "hall_latex": "\\(\\mathrm{A}\\ 2_{\\mathrm{y}}\\)",
+      "index": 1,
+      "is_reference_setting": false,
+      "ita_number": 5,
+      "origin_shift": [
+        "0",
+        "0",
+        "0"
+      ],
+      "transformation_matrix": [
+        [
+          "0",
+          "1",
+          "1"
+        ],
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "-1"
+        ]
+      ],
+      "universal_hm": "C 1 2 1 (c,b,-a)",
+      "universal_hm_latex": "${\\mathrm{C} 1 2 1}$ (c,b,-a)",
+      "wyckoff_rows": [
+        {
+          "affine_xyz": [
+            "y",
+            "x + z",
+            "-z"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "x,0,0",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "y",
+            "x + z",
+            "-z"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "x,1/2,0",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "y",
+            "x + z",
+            "-z"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "c"
+        }
+      ]
+    },
+    {
+      "hall_key": "b_2",
+      "hall_latex": "\\(\\mathrm{B}\\ 2\\)",
+      "index": 1,
+      "is_reference_setting": false,
+      "ita_number": 5,
+      "origin_shift": [
+        "0",
+        "0",
+        "0"
+      ],
+      "transformation_matrix": [
+        [
+          "0",
+          "0",
+          "-1"
+        ],
+        [
+          "0",
+          "1",
+          "1"
+        ],
+        [
+          "1",
+          "0",
+          "0"
+        ]
+      ],
+      "universal_hm": "C 1 2 1 (-a,c,b)",
+      "universal_hm_latex": "${\\mathrm{C} 1 2 1}$ (-a,c,b)",
+      "wyckoff_rows": [
+        {
+          "affine_xyz": [
+            "z",
+            "x + y",
+            "-x"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "x,0,0",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "z",
+            "x + y",
+            "-x"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "x,1/2,0",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "z",
+            "x + y",
+            "-x"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "c"
+        }
+      ]
+    },
+    {
+      "hall_key": "b_2x",
+      "hall_latex": "\\(\\mathrm{B}\\ 2_{\\mathrm{x}}\\)",
+      "index": 1,
+      "is_reference_setting": false,
+      "ita_number": 5,
+      "origin_shift": [
+        "0",
+        "0",
+        "0"
+      ],
+      "transformation_matrix": [
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "1"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ]
+      ],
+      "universal_hm": "C 1 2 1 (b,c,a)",
+      "universal_hm_latex": "${\\mathrm{C} 1 2 1}$ (b,c,a)",
+      "wyckoff_rows": [
+        {
+          "affine_xyz": [
+            "x",
+            "y - z",
+            "z"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "x,0,0",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y - z",
+            "z"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "x,1/2,0",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y - z",
+            "z"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "c"
+        }
+      ]
+    },
+    {
+      "hall_key": "c_2x",
+      "hall_latex": "\\(\\mathrm{C}\\ 2_{\\mathrm{x}}\\)",
+      "index": 1,
+      "is_reference_setting": false,
+      "ita_number": 5,
+      "origin_shift": [
+        "0",
+        "0",
+        "0"
+      ],
+      "transformation_matrix": [
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "-1"
+        ],
+        [
+          "0",
+          "1",
+          "1"
+        ]
+      ],
+      "universal_hm": "C 1 2 1 (b,-a,c)",
+      "universal_hm_latex": "${\\mathrm{C} 1 2 1}$ (b,-a,c)",
+      "wyckoff_rows": [
+        {
+          "affine_xyz": [
+            "x",
+            "y + z",
+            "-y"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "x,0,0",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y + z",
+            "-y"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "x,1/2,0",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "x",
+            "y + z",
+            "-y"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "c"
+        }
+      ]
+    },
+    {
+      "hall_key": "c_2y",
+      "hall_latex": "\\(\\mathrm{C}\\ 2_{\\mathrm{y}}\\)",
+      "index": 1,
+      "is_reference_setting": true,
+      "ita_number": 5,
+      "origin_shift": [
+        "0",
+        "0",
+        "0"
+      ],
+      "transformation_matrix": [
+        [
+          "0",
+          "0",
+          "1"
+        ],
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "1"
+        ]
+      ],
+      "universal_hm": "C 1 2 1",
+      "universal_hm_latex": "${\\mathrm{C} 1 2 1}$",
+      "wyckoff_rows": [
+        {
+          "affine_xyz": [
+            "y",
+            "-x + z",
+            "x"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "x,0,0",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "y",
+            "-x + z",
+            "x"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "x,1/2,0",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "y",
+            "-x + z",
+            "x"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "c"
+        }
+      ]
+    },
+    {
+      "hall_key": "i_2",
+      "hall_latex": "\\(\\mathrm{I}\\ 2\\)",
+      "index": 1,
+      "is_reference_setting": false,
+      "ita_number": 5,
+      "origin_shift": [
+        "0",
+        "0",
+        "0"
+      ],
+      "transformation_matrix": [
+        [
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ],
+        [
+          "1",
+          "0",
+          "0"
+        ]
+      ],
+      "universal_hm": "C 1 2 1 (c,a+c,b)",
+      "universal_hm_latex": "${\\mathrm{C} 1 2 1}$ (c,a+c,b)",
+      "wyckoff_rows": [
+        {
+          "affine_xyz": [
+            "z",
+            "x",
+            "y"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "x,0,0",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "z",
+            "x",
+            "y"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "x,1/2,0",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "z",
+            "x",
+            "y"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "c"
+        }
+      ]
+    },
+    {
+      "hall_key": "i_2y",
+      "hall_latex": "\\(\\mathrm{I}\\ 2_{\\mathrm{y}}\\)",
+      "index": 1,
+      "is_reference_setting": false,
+      "ita_number": 5,
+      "origin_shift": [
+        "0",
+        "0",
+        "0"
+      ],
+      "transformation_matrix": [
+        [
+          "0",
+          "0",
+          "1"
+        ],
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "0"
+        ]
+      ],
+      "universal_hm": "C 1 2 1 (a+c,b,c)",
+      "universal_hm_latex": "${\\mathrm{C} 1 2 1}$ (a+c,b,c)",
+      "wyckoff_rows": [
+        {
+          "affine_xyz": [
+            "y",
+            "z",
+            "x"
+          ],
+          "g_wp": "a",
+          "h_first_orbit_xyz": "x,0,0",
+          "h_wp": "a"
+        },
+        {
+          "affine_xyz": [
+            "y",
+            "z",
+            "x"
+          ],
+          "g_wp": "b",
+          "h_first_orbit_xyz": "x,1/2,0",
+          "h_wp": "b"
+        },
+        {
+          "affine_xyz": [
+            "y",
+            "z",
+            "x"
+          ],
+          "g_wp": "c",
+          "h_first_orbit_xyz": "x,y,z",
+          "h_wp": "c"
+        }
+      ]
+    }
+  ],
   "n_c": "5:a3",
   "n_ltr": 2,
   "n_smx": 2,
@@ -432,5 +1444,36 @@
       ],
       "sitesym": "1"
     }
-  }
+  },
+  "wyckoff_items": [
+    {
+      "label": "a",
+      "multiplicity": 2,
+      "orbit_xyz": [
+        "x,0,0",
+        "x+1/2,1/2,1/2"
+      ],
+      "sitesym": "2"
+    },
+    {
+      "label": "b",
+      "multiplicity": 2,
+      "orbit_xyz": [
+        "x,1/2,0",
+        "x+1/2,0,1/2"
+      ],
+      "sitesym": "2"
+    },
+    {
+      "label": "c",
+      "multiplicity": 4,
+      "orbit_xyz": [
+        "x,y,z",
+        "x,-y,-z",
+        "x+1/2,-y+1/2,-z+1/2",
+        "x+1/2,y+1/2,z+1/2"
+      ],
+      "sitesym": "1"
+    }
+  ]
 }
