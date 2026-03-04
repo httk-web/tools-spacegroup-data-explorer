@@ -140,6 +140,8 @@ def _mapping_with_target_metadata(
     return {
         "hall_key": target_hall_key,
         "hall_latex": target.get("hall_latex"),
+        "short_hm_symbol": target.get("short_hm_symbol"),
+        "short_hm_symbol_latex": target.get("short_hm_symbol_latex"),
         "universal_hm": target.get("universal_hm"),
         "universal_hm_latex": target.get("universal_hm_latex"),
         "ita_number": target.get("ita_number"),

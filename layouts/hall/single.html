@@ -221,7 +221,8 @@
             <div class="mapping-box" data-mapping-box>
               <div class="mapping-tabs" role="tablist" aria-label="Maximal subgroup mappings">
                 {{ range $idx, $item := $maxSubs }}
-                  {{ $hmLabel := default $item.universal_hm $item.hall_key }}
+                  {{ $hmLabel := default $item.short_hm_symbol $item.universal_hm }}
+                  {{ $hmLabel = default $hmLabel $item.hall_key }}
                   {{ $hmLabel = replace (string $hmLabel) " " "" }}
                   {{ $tabId := printf "max-tab-%d" $idx }}
                   <button
@@ -300,7 +301,8 @@
             <div class="mapping-box" data-mapping-box>
               <div class="mapping-tabs" role="tablist" aria-label="Minimal supergroup mappings">
                 {{ range $idx, $item := $minSup }}
-                  {{ $hmLabel := default $item.universal_hm $item.hall_key }}
+                  {{ $hmLabel := default $item.short_hm_symbol $item.universal_hm }}
+                  {{ $hmLabel = default $hmLabel $item.hall_key }}
                   {{ $hmLabel = replace (string $hmLabel) " " "" }}
                   {{ $tabId := printf "min-tab-%d" $idx }}
                   <button
