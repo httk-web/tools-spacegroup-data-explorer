@@ -29,6 +29,10 @@ const SETTINGS_QUERY_KEY = "settings";
 const SETTINGS_STORAGE_KEY = "spacegroup_settings_mode";
 const SYMOPS_QUERY_KEY = "symops";
 const WYCKOFF_QUERY_KEY = "wyckoff";
+const MAX_SUBGROUPS_QUERY_KEY = "max_subgroups";
+const MIN_SUPERGROUPS_QUERY_KEY = "min_supergroups";
+const NORMALIZER_QUERY_KEY = "normalizer";
+const K_SUBGROUPS_QUERY_KEY = "k_subgroups";
 const QUERY_VALUE_OPEN = "open";
 const QUERY_VALUE_CLOSED = "closed";
 const TRIANGLE_OPEN = "\u25BE";
@@ -106,7 +110,20 @@ let filteredRows = [];
 let settingsMode = getModeFromUrl() || getModeFromStorage() || SETTINGS_ITA;
 let sectionState = {
   symops: getSectionOpenFromUrl(SYMOPS_QUERY_KEY, true),
-  wyckoff: getSectionOpenFromUrl(WYCKOFF_QUERY_KEY, true)
+  wyckoff: getSectionOpenFromUrl(WYCKOFF_QUERY_KEY, true),
+  max_subgroups: getSectionOpenFromUrl(MAX_SUBGROUPS_QUERY_KEY, true),
+  min_supergroups: getSectionOpenFromUrl(MIN_SUPERGROUPS_QUERY_KEY, true),
+  normalizer: getSectionOpenFromUrl(NORMALIZER_QUERY_KEY, true),
+  k_subgroups: getSectionOpenFromUrl(K_SUBGROUPS_QUERY_KEY, true)
+};
+
+const SECTION_QUERY_KEYS = {
+  symops: SYMOPS_QUERY_KEY,
+  wyckoff: WYCKOFF_QUERY_KEY,
+  max_subgroups: MAX_SUBGROUPS_QUERY_KEY,
+  min_supergroups: MIN_SUPERGROUPS_QUERY_KEY,
+  normalizer: NORMALIZER_QUERY_KEY,
+  k_subgroups: K_SUBGROUPS_QUERY_KEY
 };
 
 const sortRows = (rows) => {
@@ -185,8 +202,9 @@ const withNavigationQuery = (targetPath, mode) => {
   const activeMode = normalizeSettingsMode(mode) || SETTINGS_ALL;
   const url = new URL(targetPath, window.location.origin);
   url.searchParams.set(SETTINGS_QUERY_KEY, activeMode);
-  url.searchParams.set(SYMOPS_QUERY_KEY, sectionState.symops ? QUERY_VALUE_OPEN : QUERY_VALUE_CLOSED);
-  url.searchParams.set(WYCKOFF_QUERY_KEY, sectionState.wyckoff ? QUERY_VALUE_OPEN : QUERY_VALUE_CLOSED);
+  Object.entries(SECTION_QUERY_KEYS).forEach(([key, queryKey]) => {
+    url.searchParams.set(queryKey, sectionState[key] ? QUERY_VALUE_OPEN : QUERY_VALUE_CLOSED);
+  });
   return `${url.pathname}${url.search}`;
 };
 
@@ -212,8 +230,9 @@ const syncModeUrlAndStorage = () => {
   try {
     const url = new URL(window.location.href);
     url.searchParams.set(SETTINGS_QUERY_KEY, normalized);
-    url.searchParams.set(SYMOPS_QUERY_KEY, sectionState.symops ? QUERY_VALUE_OPEN : QUERY_VALUE_CLOSED);
-    url.searchParams.set(WYCKOFF_QUERY_KEY, sectionState.wyckoff ? QUERY_VALUE_OPEN : QUERY_VALUE_CLOSED);
+    Object.entries(SECTION_QUERY_KEYS).forEach(([key, queryKey]) => {
+      url.searchParams.set(queryKey, sectionState[key] ? QUERY_VALUE_OPEN : QUERY_VALUE_CLOSED);
+    });
     const next = `${url.pathname}${url.search}${url.hash}`;
     const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
     if (next !== current) {

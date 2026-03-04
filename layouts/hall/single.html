@@ -211,303 +211,336 @@
       </article>
 
       <article class="detail-card panel section-wide">
-        <h3>Maximal Subgroups</h3>
-        {{ $maxSubs := .Params.maximal_subgroup_mappings }}
-        {{ if $maxSubs }}
-          <div class="mapping-box" data-mapping-box>
-            <div class="mapping-tabs" role="tablist" aria-label="Maximal subgroup mappings">
+        <div class="detail-card-head">
+          <button class="section-toggle-btn" type="button" data-section-toggle="max_subgroups" aria-expanded="true" aria-label="Collapse section">▼</button>
+          <h3>Maximal Subgroups <span tabindex="0" class="info-dot" data-tip="A maximal subgroup is a proper subgroup with no intermediate subgroup between it and the current space group. Buttons are shown as HM #ITA (index), where HM is the target Hermann-Mauguin symbol, #ITA is its ITA number, and the final value is the subgroup index.">i</span></h3>
+        </div>
+        <div data-section-body="max_subgroups">
+          {{ $maxSubs := .Params.maximal_subgroup_mappings }}
+          {{ if $maxSubs }}
+            <div class="mapping-box" data-mapping-box>
+              <div class="mapping-tabs" role="tablist" aria-label="Maximal subgroup mappings">
+                {{ range $idx, $item := $maxSubs }}
+                  {{ $hmLabel := default $item.universal_hm $item.hall_key }}
+                  {{ $hmLabel = replace (string $hmLabel) " " "" }}
+                  {{ $tabId := printf "max-tab-%d" $idx }}
+                  <button
+                    class="mapping-tab-btn{{ if eq $idx 0 }} is-active{{ end }}"
+                    type="button"
+                    role="tab"
+                    id="{{ $tabId }}"
+                    data-mapping-tab
+                    data-target-id="{{ printf "max-panel-%d" $idx }}"
+                    data-is-reference-setting="{{ if $item.is_reference_setting }}true{{ else }}false{{ end }}"
+                    aria-controls="{{ printf "max-panel-%d" $idx }}"
+                    aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
+                  >
+                    <span>{{ $hmLabel }} #{{ partial "value.html" $item.ita_number }} ({{ partial "value.html" $item.index }})</span>
+                  </button>
+                {{ end }}
+              </div>
+              <p class="note" data-mapping-empty hidden>No ITA-reference subgroup mappings in this mode.</p>
               {{ range $idx, $item := $maxSubs }}
-                {{ $label := default $item.hall_key $item.universal_hm_latex }}
-                {{ if not $label }}{{ $label = $item.universal_hm }}{{ end }}
-                {{ $tabId := printf "max-tab-%d" $idx }}
-                <button
-                  class="mapping-tab-btn{{ if eq $idx 0 }} is-active{{ end }}"
-                  type="button"
-                  role="tab"
-                  id="{{ $tabId }}"
-                  data-mapping-tab
-                  data-target-id="{{ printf "max-panel-%d" $idx }}"
+                <div
+                  class="mapping-panel"
+                  id="{{ printf "max-panel-%d" $idx }}"
+                  role="tabpanel"
+                  data-mapping-panel
                   data-is-reference-setting="{{ if $item.is_reference_setting }}true{{ else }}false{{ end }}"
-                  aria-controls="{{ printf "max-panel-%d" $idx }}"
-                  aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
+                  {{ if ne $idx 0 }}hidden{{ end }}
                 >
-                  <span class="math-content">{{ $label }}</span>
-                  <span class="mapping-meta">index {{ partial "value.html" $item.index }}</span>
-                </button>
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>G WP</th>
+                        <th>H WP</th>
+                        <th>H Orbit</th>
+                        <th>Algebraic Map</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {{ $rows := $item.wyckoff_rows }}
+                      {{ if $rows }}
+                        {{ range $rows }}
+                          <tr>
+                            <td>{{ partial "value.html" .g_wp }}</td>
+                            <td>{{ partial "value.html" .h_wp }}</td>
+                            <td>{{ partial "value.html" .h_first_orbit_xyz }}</td>
+                            <td>
+                              {{ if and .affine_xyz (ge (len .affine_xyz) 3) }}
+                                x'={{ index .affine_xyz 0 }}; y'={{ index .affine_xyz 1 }}; z'={{ index .affine_xyz 2 }}
+                              {{ else }}
+                                —
+                              {{ end }}
+                            </td>
+                          </tr>
+                        {{ end }}
+                      {{ else }}
+                        <tr><td colspan="4">No Wyckoff splitting data available.</td></tr>
+                      {{ end }}
+                    </tbody>
+                  </table>
+                </div>
               {{ end }}
             </div>
-            <p class="note" data-mapping-empty hidden>No ITA-reference subgroup mappings in this mode.</p>
-            {{ range $idx, $item := $maxSubs }}
-              <div
-                class="mapping-panel"
-                id="{{ printf "max-panel-%d" $idx }}"
-                role="tabpanel"
-                data-mapping-panel
-                data-is-reference-setting="{{ if $item.is_reference_setting }}true{{ else }}false{{ end }}"
-                {{ if ne $idx 0 }}hidden{{ end }}
-              >
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>G WP</th>
-                      <th>H WP</th>
-                      <th>H Orbit</th>
-                      <th>Algebraic Map</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {{ $rows := $item.wyckoff_rows }}
-                    {{ if $rows }}
-                      {{ range $rows }}
-                        <tr>
-                          <td>{{ partial "value.html" .g_wp }}</td>
-                          <td>{{ partial "value.html" .h_wp }}</td>
-                          <td>{{ partial "value.html" .h_first_orbit_xyz }}</td>
-                          <td>
-                            {{ if and .affine_xyz (ge (len .affine_xyz) 3) }}
-                              x'={{ index .affine_xyz 0 }}; y'={{ index .affine_xyz 1 }}; z'={{ index .affine_xyz 2 }}
-                            {{ else }}
-                              —
-                            {{ end }}
-                          </td>
-                        </tr>
-                      {{ end }}
-                    {{ else }}
-                      <tr><td colspan="4">No Wyckoff splitting data available.</td></tr>
-                    {{ end }}
-                  </tbody>
-                </table>
-              </div>
-            {{ end }}
-          </div>
-        {{ else }}
-          <p class="note">No subgroup mappings available.</p>
-        {{ end }}
+          {{ else }}
+            <p class="note">No subgroup mappings available.</p>
+          {{ end }}
+        </div>
       </article>
 
       <article class="detail-card panel section-wide">
-        <h3>Minimal Supergroups</h3>
-        {{ $minSup := .Params.minimal_supergroup_mappings }}
-        {{ if $minSup }}
-          <div class="mapping-box" data-mapping-box>
-            <div class="mapping-tabs" role="tablist" aria-label="Minimal supergroup mappings">
+        <div class="detail-card-head">
+          <button class="section-toggle-btn" type="button" data-section-toggle="min_supergroups" aria-expanded="true" aria-label="Collapse section">▼</button>
+          <h3>Minimal Supergroups <span tabindex="0" class="info-dot" data-tip="A minimal supergroup is the smallest proper supergroup containing the current space group, with no intermediate supergroup between them. Buttons are shown as HM #ITA (index), where HM is the target Hermann-Mauguin symbol, #ITA is its ITA number, and the final value is the subgroup index relating the current group to that supergroup.">i</span></h3>
+        </div>
+        <div data-section-body="min_supergroups">
+          {{ $minSup := .Params.minimal_supergroup_mappings }}
+          {{ if $minSup }}
+            <div class="mapping-box" data-mapping-box>
+              <div class="mapping-tabs" role="tablist" aria-label="Minimal supergroup mappings">
+                {{ range $idx, $item := $minSup }}
+                  {{ $hmLabel := default $item.universal_hm $item.hall_key }}
+                  {{ $hmLabel = replace (string $hmLabel) " " "" }}
+                  {{ $tabId := printf "min-tab-%d" $idx }}
+                  <button
+                    class="mapping-tab-btn{{ if eq $idx 0 }} is-active{{ end }}"
+                    type="button"
+                    role="tab"
+                    id="{{ $tabId }}"
+                    data-mapping-tab
+                    data-target-id="{{ printf "min-panel-%d" $idx }}"
+                    data-is-reference-setting="{{ if $item.is_reference_setting }}true{{ else }}false{{ end }}"
+                    aria-controls="{{ printf "min-panel-%d" $idx }}"
+                    aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
+                  >
+                    <span>{{ $hmLabel }} #{{ partial "value.html" $item.ita_number }} ({{ partial "value.html" $item.index }})</span>
+                  </button>
+                {{ end }}
+              </div>
+              <p class="note" data-mapping-empty hidden>No ITA-reference supergroup mappings in this mode.</p>
               {{ range $idx, $item := $minSup }}
-                {{ $label := default $item.hall_key $item.universal_hm_latex }}
-                {{ if not $label }}{{ $label = $item.universal_hm }}{{ end }}
-                {{ $tabId := printf "min-tab-%d" $idx }}
-                <button
-                  class="mapping-tab-btn{{ if eq $idx 0 }} is-active{{ end }}"
-                  type="button"
-                  role="tab"
-                  id="{{ $tabId }}"
-                  data-mapping-tab
-                  data-target-id="{{ printf "min-panel-%d" $idx }}"
+                <div
+                  class="mapping-panel"
+                  id="{{ printf "min-panel-%d" $idx }}"
+                  role="tabpanel"
+                  data-mapping-panel
                   data-is-reference-setting="{{ if $item.is_reference_setting }}true{{ else }}false{{ end }}"
-                  aria-controls="{{ printf "min-panel-%d" $idx }}"
-                  aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
+                  {{ if ne $idx 0 }}hidden{{ end }}
                 >
-                  <span class="math-content">{{ $label }}</span>
-                  <span class="mapping-meta">index {{ partial "value.html" $item.index }}</span>
-                </button>
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>G WP</th>
+                        <th>H WP</th>
+                        <th>H Orbit</th>
+                        <th>Algebraic Map</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {{ $rows := $item.wyckoff_rows }}
+                      {{ if $rows }}
+                        {{ range $rows }}
+                          <tr>
+                            <td>{{ partial "value.html" .g_wp }}</td>
+                            <td>{{ partial "value.html" .h_wp }}</td>
+                            <td>{{ partial "value.html" .h_first_orbit_xyz }}</td>
+                            <td>
+                              {{ if and .affine_xyz (ge (len .affine_xyz) 3) }}
+                                x'={{ index .affine_xyz 0 }}; y'={{ index .affine_xyz 1 }}; z'={{ index .affine_xyz 2 }}
+                              {{ else }}
+                                —
+                              {{ end }}
+                            </td>
+                          </tr>
+                        {{ end }}
+                      {{ else }}
+                        <tr><td colspan="4">No Wyckoff splitting data available.</td></tr>
+                      {{ end }}
+                    </tbody>
+                  </table>
+                </div>
               {{ end }}
             </div>
-            <p class="note" data-mapping-empty hidden>No ITA-reference supergroup mappings in this mode.</p>
-            {{ range $idx, $item := $minSup }}
-              <div
-                class="mapping-panel"
-                id="{{ printf "min-panel-%d" $idx }}"
-                role="tabpanel"
-                data-mapping-panel
-                data-is-reference-setting="{{ if $item.is_reference_setting }}true{{ else }}false{{ end }}"
-                {{ if ne $idx 0 }}hidden{{ end }}
-              >
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>G WP</th>
-                      <th>H WP</th>
-                      <th>H Orbit</th>
-                      <th>Algebraic Map</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {{ $rows := $item.wyckoff_rows }}
-                    {{ if $rows }}
-                      {{ range $rows }}
-                        <tr>
-                          <td>{{ partial "value.html" .g_wp }}</td>
-                          <td>{{ partial "value.html" .h_wp }}</td>
-                          <td>{{ partial "value.html" .h_first_orbit_xyz }}</td>
-                          <td>
-                            {{ if and .affine_xyz (ge (len .affine_xyz) 3) }}
-                              x'={{ index .affine_xyz 0 }}; y'={{ index .affine_xyz 1 }}; z'={{ index .affine_xyz 2 }}
-                            {{ else }}
-                              —
-                            {{ end }}
-                          </td>
-                        </tr>
-                      {{ end }}
-                    {{ else }}
-                      <tr><td colspan="4">No Wyckoff splitting data available.</td></tr>
-                    {{ end }}
-                  </tbody>
-                </table>
-              </div>
-            {{ end }}
-          </div>
-        {{ else }}
-          <p class="note">No supergroup mappings available.</p>
-        {{ end }}
+          {{ else }}
+            <p class="note">No supergroup mappings available.</p>
+          {{ end }}
+        </div>
       </article>
 
       <article class="detail-card panel section-wide">
-        <h3>Normalizer transformations</h3>
-        {{ $normalizer := .Params.normalizer_transformations }}
-        {{ if $normalizer }}
-          <div class="mapping-box" data-mapping-box>
-            <div class="mapping-tabs" role="tablist" aria-label="Normalizer transformations">
+        <div class="detail-card-head">
+          <button class="section-toggle-btn" type="button" data-section-toggle="normalizer" aria-expanded="true" aria-label="Collapse section">▼</button>
+          <h3>Normalizer transformations</h3>
+        </div>
+        <div data-section-body="normalizer">
+          {{ $normalizer := .Params.normalizer_transformations }}
+          {{ if $normalizer }}
+            <div class="mapping-box" data-mapping-box>
+              <div class="mapping-tabs" role="tablist" aria-label="Normalizer transformations">
+                {{ range $idx, $item := $normalizer }}
+                  {{ $label := "—" }}
+                  {{ if $item.is_reference_setting }}
+                    {{ $label = "ITA" }}
+                  {{ else }}
+                    {{ $hm := string (default "" $item.universal_hm) }}
+                    {{ $suffix := findRE "\\([^)]*\\)\\s*$" $hm 1 }}
+                    {{ if gt (len $suffix) 0 }}
+                      {{ $label = index $suffix 0 }}
+                    {{ end }}
+                  {{ end }}
+                  {{ $tabId := printf "normalizer-tab-%d" $idx }}
+                  <button
+                    class="mapping-tab-btn{{ if eq $idx 0 }} is-active{{ end }}"
+                    type="button"
+                    role="tab"
+                    id="{{ $tabId }}"
+                    data-mapping-tab
+                    data-target-id="{{ printf "normalizer-panel-%d" $idx }}"
+                    data-is-reference-setting="true"
+                    aria-controls="{{ printf "normalizer-panel-%d" $idx }}"
+                    aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
+                  >
+                    <span class="math-content">{{ $label }}</span>
+                  </button>
+                {{ end }}
+              </div>
+              <p class="note" data-mapping-empty hidden>No normalizer transformations in this mode.</p>
               {{ range $idx, $item := $normalizer }}
-                {{ $label := default $item.hall_key $item.universal_hm_latex }}
-                {{ if not $label }}{{ $label = $item.universal_hm }}{{ end }}
-                {{ $tabId := printf "normalizer-tab-%d" $idx }}
-                <button
-                  class="mapping-tab-btn{{ if eq $idx 0 }} is-active{{ end }}"
-                  type="button"
-                  role="tab"
-                  id="{{ $tabId }}"
-                  data-mapping-tab
-                  data-target-id="{{ printf "normalizer-panel-%d" $idx }}"
+                <div
+                  class="mapping-panel"
+                  id="{{ printf "normalizer-panel-%d" $idx }}"
+                  role="tabpanel"
+                  data-mapping-panel
                   data-is-reference-setting="true"
-                  aria-controls="{{ printf "normalizer-panel-%d" $idx }}"
-                  aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
+                  {{ if ne $idx 0 }}hidden{{ end }}
                 >
-                  <span class="math-content">{{ $label }}</span>
-                  <span class="mapping-meta">index {{ partial "value.html" $item.index }}</span>
-                </button>
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>G WP</th>
+                        <th>H WP</th>
+                        <th>H Orbit</th>
+                        <th>Algebraic Map</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {{ $rows := $item.wyckoff_rows }}
+                      {{ if $rows }}
+                        {{ range $rows }}
+                          <tr>
+                            <td>{{ partial "value.html" .g_wp }}</td>
+                            <td>{{ partial "value.html" .h_wp }}</td>
+                            <td>{{ partial "value.html" .h_first_orbit_xyz }}</td>
+                            <td>
+                              {{ if and .affine_xyz (ge (len .affine_xyz) 3) }}
+                                x'={{ index .affine_xyz 0 }}; y'={{ index .affine_xyz 1 }}; z'={{ index .affine_xyz 2 }}
+                              {{ else }}
+                                —
+                              {{ end }}
+                            </td>
+                          </tr>
+                        {{ end }}
+                      {{ else }}
+                        <tr><td colspan="4">No Wyckoff splitting data available.</td></tr>
+                      {{ end }}
+                    </tbody>
+                  </table>
+                </div>
               {{ end }}
             </div>
-            <p class="note" data-mapping-empty hidden>No normalizer transformations in this mode.</p>
-            {{ range $idx, $item := $normalizer }}
-              <div
-                class="mapping-panel"
-                id="{{ printf "normalizer-panel-%d" $idx }}"
-                role="tabpanel"
-                data-mapping-panel
-                data-is-reference-setting="true"
-                {{ if ne $idx 0 }}hidden{{ end }}
-              >
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>G WP</th>
-                      <th>H WP</th>
-                      <th>H Orbit</th>
-                      <th>Algebraic Map</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {{ $rows := $item.wyckoff_rows }}
-                    {{ if $rows }}
-                      {{ range $rows }}
-                        <tr>
-                          <td>{{ partial "value.html" .g_wp }}</td>
-                          <td>{{ partial "value.html" .h_wp }}</td>
-                          <td>{{ partial "value.html" .h_first_orbit_xyz }}</td>
-                          <td>
-                            {{ if and .affine_xyz (ge (len .affine_xyz) 3) }}
-                              x'={{ index .affine_xyz 0 }}; y'={{ index .affine_xyz 1 }}; z'={{ index .affine_xyz 2 }}
-                            {{ else }}
-                              —
-                            {{ end }}
-                          </td>
-                        </tr>
-                      {{ end }}
-                    {{ else }}
-                      <tr><td colspan="4">No Wyckoff splitting data available.</td></tr>
-                    {{ end }}
-                  </tbody>
-                </table>
-              </div>
-            {{ end }}
-          </div>
-        {{ else }}
-          <p class="note">No normalizer transformations available.</p>
-        {{ end }}
+          {{ else }}
+            <p class="note">No normalizer transformations available.</p>
+          {{ end }}
+        </div>
       </article>
 
       <article class="detail-card panel section-wide">
-        <h3>klassengleiche (k) subgroup relation</h3>
-        {{ $kRelations := .Params.klassengleiche_subgroup_relations }}
-        {{ if $kRelations }}
-          <div class="mapping-box" data-mapping-box>
-            <div class="mapping-tabs" role="tablist" aria-label="klassengleiche subgroup relations">
+        <div class="detail-card-head">
+          <button class="section-toggle-btn" type="button" data-section-toggle="k_subgroups" aria-expanded="true" aria-label="Collapse section">▼</button>
+          <h3>Isomorphic klassengleiche (k) subgroup relations</h3>
+        </div>
+        <div data-section-body="k_subgroups">
+          {{ $kRelations := .Params.klassengleiche_subgroup_relations }}
+          {{ if $kRelations }}
+            <div class="mapping-box" data-mapping-box>
+              <div class="mapping-tabs" role="tablist" aria-label="Isomorphic klassengleiche subgroup relations">
+                {{ range $idx, $item := $kRelations }}
+                  {{ $label := "—" }}
+                  {{ if $item.is_reference_setting }}
+                    {{ $label = "ITA" }}
+                  {{ else }}
+                    {{ $hm := string (default "" $item.universal_hm) }}
+                    {{ $suffix := findRE "\\([^)]*\\)\\s*$" $hm 1 }}
+                    {{ if gt (len $suffix) 0 }}
+                      {{ $label = index $suffix 0 }}
+                    {{ end }}
+                  {{ end }}
+                  {{ $tabId := printf "k-tab-%d" $idx }}
+                  <button
+                    class="mapping-tab-btn{{ if eq $idx 0 }} is-active{{ end }}"
+                    type="button"
+                    role="tab"
+                    id="{{ $tabId }}"
+                    data-mapping-tab
+                    data-target-id="{{ printf "k-panel-%d" $idx }}"
+                    data-is-reference-setting="true"
+                    aria-controls="{{ printf "k-panel-%d" $idx }}"
+                    aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
+                  >
+                    <span class="math-content">{{ $label }}</span>
+                    <span>({{ partial "value.html" $item.index }})</span>
+                  </button>
+                {{ end }}
+              </div>
+              <p class="note" data-mapping-empty hidden>No klassengleiche subgroup relations in this mode.</p>
               {{ range $idx, $item := $kRelations }}
-                {{ $label := default $item.hall_key $item.universal_hm_latex }}
-                {{ if not $label }}{{ $label = $item.universal_hm }}{{ end }}
-                {{ $tabId := printf "k-tab-%d" $idx }}
-                <button
-                  class="mapping-tab-btn{{ if eq $idx 0 }} is-active{{ end }}"
-                  type="button"
-                  role="tab"
-                  id="{{ $tabId }}"
-                  data-mapping-tab
-                  data-target-id="{{ printf "k-panel-%d" $idx }}"
+                <div
+                  class="mapping-panel"
+                  id="{{ printf "k-panel-%d" $idx }}"
+                  role="tabpanel"
+                  data-mapping-panel
                   data-is-reference-setting="true"
-                  aria-controls="{{ printf "k-panel-%d" $idx }}"
-                  aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
+                  {{ if ne $idx 0 }}hidden{{ end }}
                 >
-                  <span class="math-content">{{ $label }}</span>
-                  <span class="mapping-meta">index {{ partial "value.html" $item.index }}</span>
-                </button>
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>G WP</th>
+                        <th>H WP</th>
+                        <th>H Orbit</th>
+                        <th>Algebraic Map</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {{ $rows := $item.wyckoff_rows }}
+                      {{ if $rows }}
+                        {{ range $rows }}
+                          <tr>
+                            <td>{{ partial "value.html" .g_wp }}</td>
+                            <td>{{ partial "value.html" .h_wp }}</td>
+                            <td>{{ partial "value.html" .h_first_orbit_xyz }}</td>
+                            <td>
+                              {{ if and .affine_xyz (ge (len .affine_xyz) 3) }}
+                                x'={{ index .affine_xyz 0 }}; y'={{ index .affine_xyz 1 }}; z'={{ index .affine_xyz 2 }}
+                              {{ else }}
+                                —
+                              {{ end }}
+                            </td>
+                          </tr>
+                        {{ end }}
+                      {{ else }}
+                        <tr><td colspan="4">No Wyckoff splitting data available.</td></tr>
+                      {{ end }}
+                    </tbody>
+                  </table>
+                </div>
               {{ end }}
             </div>
-            <p class="note" data-mapping-empty hidden>No klassengleiche subgroup relations in this mode.</p>
-            {{ range $idx, $item := $kRelations }}
-              <div
-                class="mapping-panel"
-                id="{{ printf "k-panel-%d" $idx }}"
-                role="tabpanel"
-                data-mapping-panel
-                data-is-reference-setting="true"
-                {{ if ne $idx 0 }}hidden{{ end }}
-              >
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>G WP</th>
-                      <th>H WP</th>
-                      <th>H Orbit</th>
-                      <th>Algebraic Map</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {{ $rows := $item.wyckoff_rows }}
-                    {{ if $rows }}
-                      {{ range $rows }}
-                        <tr>
-                          <td>{{ partial "value.html" .g_wp }}</td>
-                          <td>{{ partial "value.html" .h_wp }}</td>
-                          <td>{{ partial "value.html" .h_first_orbit_xyz }}</td>
-                          <td>
-                            {{ if and .affine_xyz (ge (len .affine_xyz) 3) }}
-                              x'={{ index .affine_xyz 0 }}; y'={{ index .affine_xyz 1 }}; z'={{ index .affine_xyz 2 }}
-                            {{ else }}
-                              —
-                            {{ end }}
-                          </td>
-                        </tr>
-                      {{ end }}
-                    {{ else }}
-                      <tr><td colspan="4">No Wyckoff splitting data available.</td></tr>
-                    {{ end }}
-                  </tbody>
-                </table>
-              </div>
-            {{ end }}
-          </div>
-        {{ else }}
-          <p class="note">No klassengleiche subgroup relations available.</p>
-        {{ end }}
+          {{ else }}
+            <p class="note">No klassengleiche subgroup relations available.</p>
+          {{ end }}
+        </div>
       </article>
     </div>
   </section>
