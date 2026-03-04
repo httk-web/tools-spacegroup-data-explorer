@@ -42,25 +42,7 @@
               <th><button class="sort-btn" data-sort="n_c">n:c</button></th>
             </tr>
           </thead>
-          <tbody id="table-body">
-            {{ $rows := .Site.Data.spacegroup_index }}
-            {{ if $rows }}
-              {{ range $rows }}
-                {{ $hallUrl := printf "hall/%s/" .hall_key | relURL }}
-                <tr class="sg-row" data-active="false">
-                  <td>
-                    {{ .short_hm_symbol }}
-                    {{ if .short_hm_symbol_aliases }} ({{ delimit .short_hm_symbol_aliases ", " }}){{ end }}
-                  </td>
-                  <td>{{ .ita_number }}</td>
-                  <td><a class="hall-link" href="{{ $hallUrl }}">{{ .hall_key }}</a></td>
-                  <td class="td-muted">{{ .crystal_system }}</td>
-                  <td class="td-muted">{{ .point_group }}</td>
-                  <td class="td-muted">{{ .n_c }}</td>
-                </tr>
-              {{ end }}
-            {{ end }}
-          </tbody>
+          <tbody id="table-body"></tbody>
         </table>
       </div>
       <p class="empty-state" id="empty-state" hidden>No matching spacegroups found.</p>

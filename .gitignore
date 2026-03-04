@@ -1,9 +1,11 @@
 *~
 # Generated files by hugo
 /public/
+/content/hall
 /resources/_gen/
 /assets/jsconfig.json
 hugo_stats.json
+__pycache__
 
 # Executable may be added to repository
 hugo.exe

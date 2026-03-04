@@ -20,6 +20,9 @@ const INDEX_FIELDS = [
   "is_reference_setting"
 ];
 
+const INDEX_DATA_PATH = "data/spacegroup_index.json.gz";
+const FULL_DATA_PATH = "data/spacegroup_data.json.gz";
+
 const SETTINGS_ALL = "all";
 const SETTINGS_ITA = "ita";
 const SETTINGS_QUERY_KEY = "settings";
@@ -156,6 +159,26 @@ const resolveBase = () => {
     return path.split("/hall/")[0] + "/";
   }
   return path.endsWith("/") ? path : path.replace(/[^/]+$/, "");
+};
+
+const readJsonResponse = async (response, source) => {
+  if (!response.ok) {
+    throw new Error(`Failed to load ${source} (${response.status})`);
+  }
+
+  const isGzipSource = source.endsWith(".gz");
+  const contentEncoding = String(response.headers.get("content-encoding") || "").toLowerCase();
+  if (!isGzipSource || contentEncoding.includes("gzip")) {
+    return response.json();
+  }
+
+  if (typeof DecompressionStream !== "function" || !response.body) {
+    throw new Error(`Browser cannot decompress gzip response for ${source}`);
+  }
+
+  const stream = response.body.pipeThrough(new DecompressionStream("gzip"));
+  const text = await new Response(stream).text();
+  return JSON.parse(text);
 };
 
 const withNavigationQuery = (targetPath, mode) => {
@@ -743,14 +766,15 @@ const initIndex = async () => {
 
   const baseUrl = resolveBase();
   let data = null;
-  try {
-    const response = await fetch(`${baseUrl}spacegroup_data.json`, { cache: "force-cache" });
-    if (!response.ok) {
-      throw new Error(`Failed to load spacegroup data (${response.status})`);
+  const sources = [INDEX_DATA_PATH, FULL_DATA_PATH];
+  for (const source of sources) {
+    try {
+      const response = await fetch(`${baseUrl}${source}`, { cache: "force-cache" });
+      data = await readJsonResponse(response, source);
+      break;
+    } catch (error) {
+      console.warn(`Unable to load ${source}`, error);
     }
-    data = await response.json();
-  } catch (error) {
-    console.warn("Unable to load spacegroup data JSON", error);
   }
 
   if (!data) {
@@ -758,7 +782,12 @@ const initIndex = async () => {
     return;
   }
 
-  allRows = buildIndexRows(data);
+  if (Array.isArray(data)) {
+    allRows = data;
+  } else {
+    // Fall back to deriving the index when the full dataset was loaded instead.
+    allRows = buildIndexRows(data);
+  }
   setupEvents();
   refreshUiState();
 };
