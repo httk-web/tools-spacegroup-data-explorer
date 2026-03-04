@@ -256,7 +256,12 @@ def _build_wyckoff_items(entry: Dict[str, Any]) -> List[Dict[str, Any]]:
 def build_group_mappings(
     data: Dict[str, Dict[str, Any]],
     barnighausen: Dict[str, Dict[str, Any]],
-) -> tuple[Dict[str, List[Dict[str, Any]]], Dict[str, List[Dict[str, Any]]]]:
+) -> tuple[
+    Dict[str, List[Dict[str, Any]]],
+    Dict[str, List[Dict[str, Any]]],
+    Dict[str, List[Dict[str, Any]]],
+    Dict[str, List[Dict[str, Any]]],
+]:
     outgoing: Dict[str, List[tuple[str, Dict[str, Any]]]] = {}
     incoming: Dict[str, List[tuple[str, Dict[str, Any]]]] = {}
 
@@ -264,9 +269,6 @@ def build_group_mappings(
         if not isinstance(targets, dict):
             continue
         for h_hall, raw_mapping in targets.items():
-            if g_hall == h_hall:
-                continue
-
             candidates = raw_mapping if isinstance(raw_mapping, list) else [raw_mapping]
             for mapping in candidates:
                 if not isinstance(mapping, dict):
@@ -294,11 +296,44 @@ def build_group_mappings(
                 by_other[other_hall] = mapping
         return [(other_hall, by_other[other_hall]) for other_hall in sorted(by_other.keys())]
 
+    def same_ita(hall_key: str, other_hall_key: str) -> bool:
+        hall_ita = data.get(hall_key, {}).get("ita_number")
+        other_ita = data.get(other_hall_key, {}).get("ita_number")
+        if hall_ita is None or other_ita is None:
+            return False
+        return int(hall_ita) == int(other_ita)
+
     maximal_subgroup_mappings: Dict[str, List[Dict[str, Any]]] = {}
     minimal_supergroup_mappings: Dict[str, List[Dict[str, Any]]] = {}
+    normalizer_transformations: Dict[str, List[Dict[str, Any]]] = {}
+    klassengleiche_subgroup_relations: Dict[str, List[Dict[str, Any]]] = {}
 
     for hall_key in data:
-        out_edges = dedupe_edges(outgoing.get(hall_key, []))
+        same_ita_edges = [
+            (target_hall, mapping)
+            for target_hall, mapping in outgoing.get(hall_key, [])
+            if same_ita(hall_key, target_hall)
+        ]
+        same_ita_edges.sort(key=lambda item: (item[1]["index"], item[0]))
+
+        normalizer_transformations[hall_key] = [
+            _mapping_with_target_metadata(target_hall, mapping, data)
+            for target_hall, mapping in same_ita_edges
+            if mapping["index"] == 1
+        ]
+        klassengleiche_subgroup_relations[hall_key] = [
+            _mapping_with_target_metadata(target_hall, mapping, data)
+            for target_hall, mapping in same_ita_edges
+            if mapping["index"] != 1
+        ]
+
+        out_edges = dedupe_edges(
+            [
+                (target_hall, mapping)
+                for target_hall, mapping in outgoing.get(hall_key, [])
+                if not same_ita(hall_key, target_hall)
+            ]
+        )
         if out_edges:
             min_index = min(edge[1]["index"] for edge in out_edges)
             selected = [
@@ -311,7 +346,13 @@ def build_group_mappings(
         else:
             maximal_subgroup_mappings[hall_key] = []
 
-        in_edges = dedupe_edges(incoming.get(hall_key, []))
+        in_edges = dedupe_edges(
+            [
+                (source_hall, mapping)
+                for source_hall, mapping in incoming.get(hall_key, [])
+                if not same_ita(hall_key, source_hall)
+            ]
+        )
         if in_edges:
             min_index = min(edge[1]["index"] for edge in in_edges)
             selected = [
@@ -324,7 +365,12 @@ def build_group_mappings(
         else:
             minimal_supergroup_mappings[hall_key] = []
 
-    return maximal_subgroup_mappings, minimal_supergroup_mappings
+    return (
+        maximal_subgroup_mappings,
+        minimal_supergroup_mappings,
+        normalizer_transformations,
+        klassengleiche_subgroup_relations,
+    )
 
 
 def write_index_data(index_rows: List[Dict[str, Any]]) -> None:
@@ -356,6 +402,8 @@ def write_hall_pages(
     related_settings: Dict[str, List[Dict[str, Any]]],
     maximal_subgroup_mappings: Dict[str, List[Dict[str, Any]]],
     minimal_supergroup_mappings: Dict[str, List[Dict[str, Any]]],
+    normalizer_transformations: Dict[str, List[Dict[str, Any]]],
+    klassengleiche_subgroup_relations: Dict[str, List[Dict[str, Any]]],
 ) -> None:
     HALL_ROOT.mkdir(parents=True, exist_ok=True)
 
@@ -371,6 +419,8 @@ def write_hall_pages(
         payload["related_settings"] = related_settings.get(hall_key, [])
         payload["maximal_subgroup_mappings"] = maximal_subgroup_mappings.get(hall_key, [])
         payload["minimal_supergroup_mappings"] = minimal_supergroup_mappings.get(hall_key, [])
+        payload["normalizer_transformations"] = normalizer_transformations.get(hall_key, [])
+        payload["klassengleiche_subgroup_relations"] = klassengleiche_subgroup_relations.get(hall_key, [])
 
         json_text = json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True)
         content = f"{json_text}\n"
@@ -382,7 +432,12 @@ def main() -> None:
     barnighausen = load_barnighausen_data()
     index_rows = build_index_rows(data)
     related_settings = build_related_settings(index_rows)
-    maximal_subgroup_mappings, minimal_supergroup_mappings = build_group_mappings(data, barnighausen)
+    (
+        maximal_subgroup_mappings,
+        minimal_supergroup_mappings,
+        normalizer_transformations,
+        klassengleiche_subgroup_relations,
+    ) = build_group_mappings(data, barnighausen)
 
     write_index_content(index_rows)
     write_index_data(index_rows)
@@ -391,6 +446,8 @@ def main() -> None:
         related_settings,
         maximal_subgroup_mappings,
         minimal_supergroup_mappings,
+        normalizer_transformations,
+        klassengleiche_subgroup_relations,
     )
 
 

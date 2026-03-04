@@ -359,6 +359,156 @@
           <p class="note">No supergroup mappings available.</p>
         {{ end }}
       </article>
+
+      <article class="detail-card panel section-wide">
+        <h3>Normalizer transformations</h3>
+        {{ $normalizer := .Params.normalizer_transformations }}
+        {{ if $normalizer }}
+          <div class="mapping-box" data-mapping-box>
+            <div class="mapping-tabs" role="tablist" aria-label="Normalizer transformations">
+              {{ range $idx, $item := $normalizer }}
+                {{ $label := default $item.hall_key $item.universal_hm_latex }}
+                {{ if not $label }}{{ $label = $item.universal_hm }}{{ end }}
+                {{ $tabId := printf "normalizer-tab-%d" $idx }}
+                <button
+                  class="mapping-tab-btn{{ if eq $idx 0 }} is-active{{ end }}"
+                  type="button"
+                  role="tab"
+                  id="{{ $tabId }}"
+                  data-mapping-tab
+                  data-target-id="{{ printf "normalizer-panel-%d" $idx }}"
+                  data-is-reference-setting="true"
+                  aria-controls="{{ printf "normalizer-panel-%d" $idx }}"
+                  aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
+                >
+                  <span class="math-content">{{ $label }}</span>
+                  <span class="mapping-meta">index {{ partial "value.html" $item.index }}</span>
+                </button>
+              {{ end }}
+            </div>
+            <p class="note" data-mapping-empty hidden>No normalizer transformations in this mode.</p>
+            {{ range $idx, $item := $normalizer }}
+              <div
+                class="mapping-panel"
+                id="{{ printf "normalizer-panel-%d" $idx }}"
+                role="tabpanel"
+                data-mapping-panel
+                data-is-reference-setting="true"
+                {{ if ne $idx 0 }}hidden{{ end }}
+              >
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>G WP</th>
+                      <th>H WP</th>
+                      <th>H Orbit</th>
+                      <th>Algebraic Map</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {{ $rows := $item.wyckoff_rows }}
+                    {{ if $rows }}
+                      {{ range $rows }}
+                        <tr>
+                          <td>{{ partial "value.html" .g_wp }}</td>
+                          <td>{{ partial "value.html" .h_wp }}</td>
+                          <td>{{ partial "value.html" .h_first_orbit_xyz }}</td>
+                          <td>
+                            {{ if and .affine_xyz (ge (len .affine_xyz) 3) }}
+                              x'={{ index .affine_xyz 0 }}; y'={{ index .affine_xyz 1 }}; z'={{ index .affine_xyz 2 }}
+                            {{ else }}
+                              —
+                            {{ end }}
+                          </td>
+                        </tr>
+                      {{ end }}
+                    {{ else }}
+                      <tr><td colspan="4">No Wyckoff splitting data available.</td></tr>
+                    {{ end }}
+                  </tbody>
+                </table>
+              </div>
+            {{ end }}
+          </div>
+        {{ else }}
+          <p class="note">No normalizer transformations available.</p>
+        {{ end }}
+      </article>
+
+      <article class="detail-card panel section-wide">
+        <h3>klassengleiche (k) subgroup relation</h3>
+        {{ $kRelations := .Params.klassengleiche_subgroup_relations }}
+        {{ if $kRelations }}
+          <div class="mapping-box" data-mapping-box>
+            <div class="mapping-tabs" role="tablist" aria-label="klassengleiche subgroup relations">
+              {{ range $idx, $item := $kRelations }}
+                {{ $label := default $item.hall_key $item.universal_hm_latex }}
+                {{ if not $label }}{{ $label = $item.universal_hm }}{{ end }}
+                {{ $tabId := printf "k-tab-%d" $idx }}
+                <button
+                  class="mapping-tab-btn{{ if eq $idx 0 }} is-active{{ end }}"
+                  type="button"
+                  role="tab"
+                  id="{{ $tabId }}"
+                  data-mapping-tab
+                  data-target-id="{{ printf "k-panel-%d" $idx }}"
+                  data-is-reference-setting="true"
+                  aria-controls="{{ printf "k-panel-%d" $idx }}"
+                  aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
+                >
+                  <span class="math-content">{{ $label }}</span>
+                  <span class="mapping-meta">index {{ partial "value.html" $item.index }}</span>
+                </button>
+              {{ end }}
+            </div>
+            <p class="note" data-mapping-empty hidden>No klassengleiche subgroup relations in this mode.</p>
+            {{ range $idx, $item := $kRelations }}
+              <div
+                class="mapping-panel"
+                id="{{ printf "k-panel-%d" $idx }}"
+                role="tabpanel"
+                data-mapping-panel
+                data-is-reference-setting="true"
+                {{ if ne $idx 0 }}hidden{{ end }}
+              >
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>G WP</th>
+                      <th>H WP</th>
+                      <th>H Orbit</th>
+                      <th>Algebraic Map</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {{ $rows := $item.wyckoff_rows }}
+                    {{ if $rows }}
+                      {{ range $rows }}
+                        <tr>
+                          <td>{{ partial "value.html" .g_wp }}</td>
+                          <td>{{ partial "value.html" .h_wp }}</td>
+                          <td>{{ partial "value.html" .h_first_orbit_xyz }}</td>
+                          <td>
+                            {{ if and .affine_xyz (ge (len .affine_xyz) 3) }}
+                              x'={{ index .affine_xyz 0 }}; y'={{ index .affine_xyz 1 }}; z'={{ index .affine_xyz 2 }}
+                            {{ else }}
+                              —
+                            {{ end }}
+                          </td>
+                        </tr>
+                      {{ end }}
+                    {{ else }}
+                      <tr><td colspan="4">No Wyckoff splitting data available.</td></tr>
+                    {{ end }}
+                  </tbody>
+                </table>
+              </div>
+            {{ end }}
+          </div>
+        {{ else }}
+          <p class="note">No klassengleiche subgroup relations available.</p>
+        {{ end }}
+      </article>
     </div>
   </section>
 {{ end }}
