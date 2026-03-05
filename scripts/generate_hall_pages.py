@@ -16,19 +16,51 @@ DATA_ROOT = HUGO_ROOT / "static" / "data"
 
 INDEX_FIELDS = [
     "hall_key",
+    "hall_entry",
     "hall_latex",
+    "hall_unicode",
     "ita_number",
+    "hm_short",
+    "hm_short_aliases",
+    "hm_short_aliases_latex",
+    "hm_short_aliases_unicode",
+    "hm_short_latex",
+    "hm_short_unicode",
+    "hm_full",
+    "hm_full_latex",
+    "hm_full_unicode",
+    "hm_extended",
+    "hm_extended_latex",
+    "hm_extended_unicode",
+    "hm_universal",
+    "hm_universal_aliases",
+    "hm_universal_aliases_latex",
+    "hm_universal_aliases_unicode",
+    "hm_universal_latex",
+    "hm_universal_unicode",
     "short_hm_symbol",
     "short_hm_symbol_latex",
+    "short_hm_symbol_unicode",
     "short_hm_symbol_aliases",
     "short_hm_symbol_aliases_latex",
     "universal_hm",
     "universal_hm_latex",
+    "universal_hm_unicode",
     "n_c",
     "crystal_system",
     "point_group",
     "is_reference_setting",
 ]
+
+
+def _first_non_empty(*values: Any) -> Any:
+    for value in values:
+        if value is None:
+            continue
+        if isinstance(value, str) and value.strip() == "":
+            continue
+        return value
+    return None
 
 
 def _resolve_input_path(path: Path) -> Path:
@@ -120,10 +152,16 @@ def build_related_settings(
             related[row["hall_key"]] = [
                 {
                     "hall_key": item["hall_key"],
+                    "hall_entry": item.get("hall_entry"),
                     "hall_latex": item.get("hall_latex"),
+                    "hall_unicode": item.get("hall_unicode"),
                     "qualifier": item.get("qualifier"),
-                    "universal_hm": item.get("universal_hm"),
-                    "universal_hm_latex": item.get("universal_hm_latex"),
+                    "hm_universal": _first_non_empty(item.get("hm_universal"), item.get("universal_hm")),
+                    "hm_universal_latex": _first_non_empty(item.get("hm_universal_latex"), item.get("universal_hm_latex")),
+                    "hm_universal_unicode": _first_non_empty(item.get("hm_universal_unicode"), item.get("universal_hm_unicode")),
+                    "universal_hm": _first_non_empty(item.get("universal_hm"), item.get("hm_universal")),
+                    "universal_hm_latex": _first_non_empty(item.get("universal_hm_latex"), item.get("hm_universal_latex")),
+                    "universal_hm_unicode": _first_non_empty(item.get("universal_hm_unicode"), item.get("hm_universal_unicode")),
                     "is_reference_setting": bool(item.get("is_reference_setting")),
                 }
                 for item in group
@@ -139,11 +177,37 @@ def _mapping_with_target_metadata(
     target = data.get(target_hall_key, {})
     return {
         "hall_key": target_hall_key,
+        "hall_entry": target.get("hall_entry"),
         "hall_latex": target.get("hall_latex"),
-        "short_hm_symbol": target.get("short_hm_symbol"),
-        "short_hm_symbol_latex": target.get("short_hm_symbol_latex"),
-        "universal_hm": target.get("universal_hm"),
-        "universal_hm_latex": target.get("universal_hm_latex"),
+        "hall_unicode": target.get("hall_unicode"),
+        "hm_short": _first_non_empty(target.get("hm_short"), target.get("short_hm_symbol")),
+        "hm_short_aliases": _first_non_empty(target.get("hm_short_aliases"), target.get("short_hm_symbol_aliases")),
+        "hm_short_aliases_latex": _first_non_empty(
+            target.get("hm_short_aliases_latex"), target.get("short_hm_symbol_aliases_latex")
+        ),
+        "hm_short_aliases_unicode": _first_non_empty(
+            target.get("hm_short_aliases_unicode"), target.get("hm_short_aliases"), target.get("short_hm_symbol_aliases")
+        ),
+        "hm_short_latex": _first_non_empty(target.get("hm_short_latex"), target.get("short_hm_symbol_latex")),
+        "hm_short_unicode": _first_non_empty(target.get("hm_short_unicode"), target.get("short_hm_symbol_unicode")),
+        "hm_universal": _first_non_empty(target.get("hm_universal"), target.get("universal_hm")),
+        "hm_universal_aliases": _first_non_empty(target.get("hm_universal_aliases")),
+        "hm_universal_aliases_latex": _first_non_empty(target.get("hm_universal_aliases_latex"), target.get("hm_universal_aliases")),
+        "hm_universal_aliases_unicode": _first_non_empty(
+            target.get("hm_universal_aliases_unicode"), target.get("hm_universal_aliases")
+        ),
+        "hm_universal_latex": _first_non_empty(target.get("hm_universal_latex"), target.get("universal_hm_latex")),
+        "hm_universal_unicode": _first_non_empty(target.get("hm_universal_unicode"), target.get("universal_hm_unicode")),
+        "short_hm_symbol": _first_non_empty(target.get("short_hm_symbol"), target.get("hm_short")),
+        "short_hm_symbol_aliases": _first_non_empty(target.get("short_hm_symbol_aliases"), target.get("hm_short_aliases")),
+        "short_hm_symbol_aliases_latex": _first_non_empty(
+            target.get("short_hm_symbol_aliases_latex"), target.get("hm_short_aliases_latex")
+        ),
+        "short_hm_symbol_latex": _first_non_empty(target.get("short_hm_symbol_latex"), target.get("hm_short_latex")),
+        "short_hm_symbol_unicode": _first_non_empty(target.get("short_hm_symbol_unicode"), target.get("hm_short_unicode")),
+        "universal_hm": _first_non_empty(target.get("universal_hm"), target.get("hm_universal")),
+        "universal_hm_latex": _first_non_empty(target.get("universal_hm_latex"), target.get("hm_universal_latex")),
+        "universal_hm_unicode": _first_non_empty(target.get("universal_hm_unicode"), target.get("hm_universal_unicode")),
         "ita_number": target.get("ita_number"),
         "is_reference_setting": bool(target.get("is_reference_setting")),
         "index": mapping.get("index"),

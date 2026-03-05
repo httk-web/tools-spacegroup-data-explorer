@@ -7,7 +7,7 @@
           <select
             class="detail-select"
             aria-label="Select HM symbol"
-            data-selected="{{ .Params.universal_hm }}"
+            data-selected="{{ default .Params.hm_universal .Params.universal_hm }}"
             onchange="if (this.value) window.location = this.value;"
           ></select>
         </div>
@@ -54,7 +54,7 @@
               {{ if .is_reference_setting }}
                 {{ $label = "ITA" }}
               {{ else }}
-                {{ $hm := string (default "" .universal_hm) }}
+                {{ $hm := string (default (default "" .hm_universal) .universal_hm) }}
                 {{ $suffix := findRE "\\([^)]*\\)\\s*$" $hm 1 }}
                 {{ if gt (len $suffix) 0 }}
                   {{ $label = index $suffix 0 }}
@@ -75,13 +75,15 @@
         <div class="identity-grid">
           <div class="metric">
             <label>Hall Symbol</label>
-            {{ $hallSymbol := default .Params.hall_key .Params.hall_latex }}
+            {{ $hallSymbol := default .Params.hall_latex (default .Params.hall_entry .Params.hall_key) }}
             <strong><span class="math-content">{{ partial "value.html" $hallSymbol }}</span></strong>
           </div>
           <div class="metric">
-            <label>Short HM <span tabindex="0" class="info-dot" data-tip="Short Hermann-Mauguin symbol, a compact notation for symmetry elements.">i</span></label>
-            {{ $shortHM := default .Params.short_hm_symbol .Params.short_hm_symbol_latex }}
-            {{ $shortHMAliases := .Params.short_hm_symbol_aliases_latex }}
+            <label>HM Symbol Short <span tabindex="0" class="info-dot" data-tip="Short Hermann-Mauguin symbol, a compact notation for symmetry elements.">i</span></label>
+            {{ $shortHM := default .Params.hm_short_latex (default .Params.hm_short (default .Params.short_hm_symbol_latex .Params.short_hm_symbol)) }}
+            {{ $shortHMAliases := .Params.hm_short_aliases_latex }}
+            {{ if not $shortHMAliases }}{{ $shortHMAliases = .Params.hm_short_aliases }}{{ end }}
+            {{ if not $shortHMAliases }}{{ $shortHMAliases = .Params.short_hm_symbol_aliases_latex }}{{ end }}
             {{ if not $shortHMAliases }}{{ $shortHMAliases = .Params.short_hm_symbol_aliases }}{{ end }}
             <strong>
               <span class="math-content">{{ partial "value.html" $shortHM }}</span>
@@ -89,8 +91,18 @@
             </strong>
           </div>
           <div class="metric">
-            <label>Universal HM</label>
-            {{ $universalHM := default .Params.universal_hm .Params.universal_hm_latex }}
+            <label>HM Symbol Full</label>
+            {{ $fullHM := default .Params.hm_full_latex .Params.hm_full }}
+            <strong><span class="math-content">{{ partial "value.html" $fullHM }}</span></strong>
+          </div>
+          <div class="metric">
+            <label>HM Symbol Extended</label>
+            {{ $extendedHM := default .Params.hm_extended_latex .Params.hm_extended }}
+            <strong><span class="math-content">{{ partial "value.html" $extendedHM }}</span></strong>
+          </div>
+          <div class="metric">
+            <label>HM Symbol Universal</label>
+            {{ $universalHM := default .Params.hm_universal_latex (default .Params.hm_universal (default .Params.universal_hm_latex .Params.universal_hm)) }}
             <strong><span class="math-content">{{ partial "value.html" $universalHM }}</span></strong>
           </div>
           <div class="metric">
@@ -221,7 +233,7 @@
             <div class="mapping-box" data-mapping-box>
               <div class="mapping-tabs" role="tablist" aria-label="Maximal subgroup mappings">
                 {{ range $idx, $item := $maxSubs }}
-                  {{ $hmLabel := default $item.short_hm_symbol $item.universal_hm }}
+                  {{ $hmLabel := default $item.hm_short_unicode (default $item.hm_short (default $item.short_hm_symbol_unicode (default $item.short_hm_symbol (default $item.hm_universal_unicode (default $item.hm_universal $item.universal_hm))))) }}
                   {{ $hmLabel = default $hmLabel $item.hall_key }}
                   {{ $hmLabel = replace (string $hmLabel) " " "" }}
                   {{ $tabId := printf "max-tab-%d" $idx }}
@@ -301,7 +313,7 @@
             <div class="mapping-box" data-mapping-box>
               <div class="mapping-tabs" role="tablist" aria-label="Minimal supergroup mappings">
                 {{ range $idx, $item := $minSup }}
-                  {{ $hmLabel := default $item.short_hm_symbol $item.universal_hm }}
+                  {{ $hmLabel := default $item.hm_short_unicode (default $item.hm_short (default $item.short_hm_symbol_unicode (default $item.short_hm_symbol (default $item.hm_universal_unicode (default $item.hm_universal $item.universal_hm))))) }}
                   {{ $hmLabel = default $hmLabel $item.hall_key }}
                   {{ $hmLabel = replace (string $hmLabel) " " "" }}
                   {{ $tabId := printf "min-tab-%d" $idx }}
@@ -385,7 +397,7 @@
                   {{ if $item.is_reference_setting }}
                     {{ $label = "ITA" }}
                   {{ else }}
-                    {{ $hm := string (default "" $item.universal_hm) }}
+                    {{ $hm := string (default (default "" $item.hm_universal) $item.universal_hm) }}
                     {{ $suffix := findRE "\\([^)]*\\)\\s*$" $hm 1 }}
                     {{ if gt (len $suffix) 0 }}
                       {{ $label = index $suffix 0 }}
@@ -472,7 +484,7 @@
                   {{ if $item.is_reference_setting }}
                     {{ $label = "ITA" }}
                   {{ else }}
-                    {{ $hm := string (default "" $item.universal_hm) }}
+                    {{ $hm := string (default (default "" $item.hm_universal) $item.universal_hm) }}
                     {{ $suffix := findRE "\\([^)]*\\)\\s*$" $hm 1 }}
                     {{ if gt (len $suffix) 0 }}
                       {{ $label = index $suffix 0 }}

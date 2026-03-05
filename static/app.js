@@ -6,14 +6,36 @@ const emptyState = document.getElementById("empty-state");
 
 const INDEX_FIELDS = [
   "hall_key",
+  "hall_entry",
   "hall_latex",
+  "hall_unicode",
   "ita_number",
+  "hm_short",
+  "hm_short_aliases",
+  "hm_short_aliases_latex",
+  "hm_short_aliases_unicode",
+  "hm_short_latex",
+  "hm_short_unicode",
+  "hm_full",
+  "hm_full_latex",
+  "hm_full_unicode",
+  "hm_extended",
+  "hm_extended_latex",
+  "hm_extended_unicode",
+  "hm_universal",
+  "hm_universal_aliases",
+  "hm_universal_aliases_latex",
+  "hm_universal_aliases_unicode",
+  "hm_universal_latex",
+  "hm_universal_unicode",
   "short_hm_symbol",
   "short_hm_symbol_latex",
+  "short_hm_symbol_unicode",
   "short_hm_symbol_aliases",
   "short_hm_symbol_aliases_latex",
   "universal_hm",
   "universal_hm_latex",
+  "universal_hm_unicode",
   "n_c",
   "crystal_system",
   "point_group",
@@ -59,6 +81,64 @@ const formatValue = (value) => {
   }
   return String(value);
 };
+
+const firstNonEmpty = (...values) => {
+  for (let i = 0; i < values.length; i += 1) {
+    const value = values[i];
+    if (value === null || value === undefined) {
+      continue;
+    }
+    if (typeof value === "string" && value.trim() === "") {
+      continue;
+    }
+    return value;
+  }
+  return null;
+};
+
+const normalizeRow = (row) => {
+  const normalized = { ...row };
+
+  normalized.hall_entry = firstNonEmpty(row.hall_entry, row.hall_key);
+  normalized.hall_latex = firstNonEmpty(row.hall_latex, row.hall_entry, row.hall_key);
+  normalized.hall_unicode = firstNonEmpty(row.hall_unicode, row.hall_entry, row.hall_key);
+
+  normalized.hm_short = firstNonEmpty(row.hm_short, row.short_hm_symbol);
+  normalized.hm_short_aliases = firstNonEmpty(row.hm_short_aliases, row.short_hm_symbol_aliases);
+  normalized.hm_short_aliases_latex = firstNonEmpty(row.hm_short_aliases_latex, row.short_hm_symbol_aliases_latex);
+  normalized.hm_short_aliases_unicode = firstNonEmpty(row.hm_short_aliases_unicode, row.hm_short_aliases, row.short_hm_symbol_aliases);
+  normalized.hm_short_latex = firstNonEmpty(row.hm_short_latex, row.short_hm_symbol_latex, row.hm_short);
+  normalized.hm_short_unicode = firstNonEmpty(row.hm_short_unicode, row.short_hm_symbol_unicode, row.hm_short);
+
+  normalized.hm_full = firstNonEmpty(row.hm_full);
+  normalized.hm_full_latex = firstNonEmpty(row.hm_full_latex, row.hm_full);
+  normalized.hm_full_unicode = firstNonEmpty(row.hm_full_unicode, row.hm_full);
+
+  normalized.hm_extended = firstNonEmpty(row.hm_extended);
+  normalized.hm_extended_latex = firstNonEmpty(row.hm_extended_latex, row.hm_extended);
+  normalized.hm_extended_unicode = firstNonEmpty(row.hm_extended_unicode, row.hm_extended);
+
+  normalized.hm_universal = firstNonEmpty(row.hm_universal, row.universal_hm);
+  normalized.hm_universal_aliases = firstNonEmpty(row.hm_universal_aliases);
+  normalized.hm_universal_aliases_latex = firstNonEmpty(row.hm_universal_aliases_latex, row.hm_universal_aliases);
+  normalized.hm_universal_aliases_unicode = firstNonEmpty(row.hm_universal_aliases_unicode, row.hm_universal_aliases);
+  normalized.hm_universal_latex = firstNonEmpty(row.hm_universal_latex, row.universal_hm_latex, row.hm_universal);
+  normalized.hm_universal_unicode = firstNonEmpty(row.hm_universal_unicode, row.universal_hm_unicode, row.hm_universal);
+
+  // Backfill legacy keys so older UI paths continue to work.
+  normalized.short_hm_symbol = normalized.hm_short;
+  normalized.short_hm_symbol_latex = normalized.hm_short_latex;
+  normalized.short_hm_symbol_unicode = normalized.hm_short_unicode;
+  normalized.short_hm_symbol_aliases = normalized.hm_short_aliases;
+  normalized.short_hm_symbol_aliases_latex = normalized.hm_short_aliases_latex;
+  normalized.universal_hm = normalized.hm_universal;
+  normalized.universal_hm_latex = normalized.hm_universal_latex;
+  normalized.universal_hm_unicode = normalized.hm_universal_unicode;
+
+  return normalized;
+};
+
+const normalizeRows = (rows) => rows.map((row) => normalizeRow(row));
 
 const normalizeSettingsMode = (value) => {
   if (typeof value !== "string") {
@@ -291,14 +371,14 @@ const getArrayValues = (value) => {
 };
 
 const renderHmWithAliases = (row) => {
-  const baseLabel = renderMaybeMath(row.short_hm_symbol_latex || row.short_hm_symbol);
-  const aliasesLatex = getArrayValues(row.short_hm_symbol_aliases_latex);
-  const aliasesPlain = getArrayValues(row.short_hm_symbol_aliases);
-  const aliases = aliasesLatex.length ? aliasesLatex : aliasesPlain;
+  const baseLabel = escapeHtml(formatValue(row.hm_short_unicode || row.hm_short || row.short_hm_symbol));
+  const aliasesUnicode = getArrayValues(row.hm_short_aliases_unicode);
+  const aliasesPlain = getArrayValues(row.hm_short_aliases || row.short_hm_symbol_aliases);
+  const aliases = aliasesUnicode.length ? aliasesUnicode : aliasesPlain;
   if (!aliases.length) {
     return baseLabel;
   }
-  const aliasLabel = aliases.map((item) => renderMaybeMath(item)).join(", ");
+  const aliasLabel = aliases.map((item) => escapeHtml(formatValue(item))).join(", ");
   return `${baseLabel} (${aliasLabel})`;
 };
 
@@ -311,7 +391,7 @@ const renderTable = () => {
   const rows = sortRows(filteredRows);
   tableBody.innerHTML = rows
     .map((row) => {
-      const hallLabel = renderMaybeMath(row.hall_latex || row.hall_key);
+      const hallLabel = escapeHtml(formatValue(row.hall_unicode || row.hall_entry || row.hall_key));
       const hallUrl = buildHallUrl(baseUrl, row.hall_key);
       const shortHmLabel = renderHmWithAliases(row);
       return `
@@ -350,15 +430,41 @@ const filterIndex = (rows, query) => {
   return rows.filter((item) => {
     const haystack = [
       item.hall_key,
+      item.hall_entry,
       item.hall_latex,
+      item.hall_unicode,
+      item.hm_short,
+      Array.isArray(item.hm_short_aliases) ? item.hm_short_aliases.join(" ") : item.hm_short_aliases,
+      Array.isArray(item.hm_short_aliases_latex) ? item.hm_short_aliases_latex.join(" ") : item.hm_short_aliases_latex,
+      Array.isArray(item.hm_short_aliases_unicode) ? item.hm_short_aliases_unicode.join(" ") : item.hm_short_aliases_unicode,
+      item.hm_short_latex,
+      item.hm_short_unicode,
+      item.hm_full,
+      item.hm_full_latex,
+      item.hm_full_unicode,
+      item.hm_extended,
+      item.hm_extended_latex,
+      item.hm_extended_unicode,
+      item.hm_universal,
+      Array.isArray(item.hm_universal_aliases) ? item.hm_universal_aliases.join(" ") : item.hm_universal_aliases,
+      Array.isArray(item.hm_universal_aliases_latex)
+        ? item.hm_universal_aliases_latex.join(" ")
+        : item.hm_universal_aliases_latex,
+      Array.isArray(item.hm_universal_aliases_unicode)
+        ? item.hm_universal_aliases_unicode.join(" ")
+        : item.hm_universal_aliases_unicode,
+      item.hm_universal_latex,
+      item.hm_universal_unicode,
       item.short_hm_symbol,
       item.short_hm_symbol_latex,
+      item.short_hm_symbol_unicode,
       Array.isArray(item.short_hm_symbol_aliases) ? item.short_hm_symbol_aliases.join(" ") : item.short_hm_symbol_aliases,
       Array.isArray(item.short_hm_symbol_aliases_latex)
         ? item.short_hm_symbol_aliases_latex.join(" ")
         : item.short_hm_symbol_aliases_latex,
       item.universal_hm,
       item.universal_hm_latex,
+      item.universal_hm_unicode,
       item.ita_number,
       Array.isArray(item.n_c) ? item.n_c.join(" ") : item.n_c,
       item.crystal_system,
@@ -656,8 +762,8 @@ const buildLists = (rows) => {
   const itaValues = new Set();
 
   rows.forEach((row) => {
-    if (row.universal_hm) {
-      const key = String(row.universal_hm);
+    if (row.hm_universal || row.universal_hm) {
+      const key = String(row.hm_universal || row.universal_hm);
       hmValues.add(key);
       if (!hmGroups.has(key)) {
         hmGroups.set(key, []);
@@ -680,8 +786,7 @@ const buildLists = (rows) => {
     const selected = chooseStandardSetting(entries);
     if (selected) {
       hmToHall[hm] = selected.hall_key;
-      const aliases = getArrayValues(selected.short_hm_symbol_aliases);
-      hmDisplay[hm] = aliases.length ? `${hm} (${aliases.join(", ")})` : hm;
+      hmDisplay[hm] = String(selected.hm_universal_unicode || selected.hm_universal || hm);
     }
   });
 
@@ -730,7 +835,8 @@ const populateDetailSelects = (lists) => {
     populateSelect(select, lists.halls, selected, (hallKey) => {
       const option = document.createElement("option");
       option.value = buildHallUrl(baseUrl, hallKey);
-      option.textContent = hallKey;
+      const row = allRows.find((item) => item.hall_key === hallKey);
+      option.textContent = row ? (row.hall_unicode || row.hall_entry || hallKey) : hallKey;
       option.dataset.matchValue = hallKey;
       return option;
     });
@@ -802,10 +908,10 @@ const initIndex = async () => {
   }
 
   if (Array.isArray(data)) {
-    allRows = data;
+    allRows = normalizeRows(data);
   } else {
     // Fall back to deriving the index when the full dataset was loaded instead.
-    allRows = buildIndexRows(data);
+    allRows = normalizeRows(buildIndexRows(data));
   }
   setupEvents();
   refreshUiState();
