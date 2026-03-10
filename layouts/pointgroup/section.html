@@ -1,0 +1,42 @@
+{{ define "main" }}
+  {{ .Content }}
+  <nav class="dataset-tabs" aria-label="Data pages">
+    <a class="dataset-tab" href="{{ "" | relURL }}">Spacegroups</a>
+    <a class="dataset-tab is-active" href="{{ "pointgroup/" | relURL }}" aria-current="page">Pointgroups</a>
+  </nav>
+
+  <section id="table-view" class="view is-active" aria-label="Pointgroup list view" data-table-dataset="pointgroups">
+    <div class="panel toolbar">
+      <div class="search-wrap">
+        <label for="search-input">Search</label>
+        <input id="search-input" type="search" autocomplete="off" placeholder="Point group symbol, Schoenflies, crystal system, laue class..." />
+      </div>
+      <div class="toolbar-meta">
+        <div id="settings-toggle-wrap-index" class="detail-meta-item settings-meta-item">
+          <p class="kicker">Show settings</p>
+          <button
+            id="settings-toggle-index"
+            class="settings-toggle"
+            type="button"
+            data-settings-toggle
+            aria-label="Toggle settings mode"
+          >
+            <span class="settings-label settings-label-ita" aria-hidden="true">ITA</span>
+            <span class="settings-toggle-track" aria-hidden="true"><span class="settings-toggle-thumb"></span></span>
+            <span class="settings-label settings-label-all" aria-hidden="true">ALL</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel table-panel">
+      <div class="table-scroll">
+        <table id="index-table" class="sg-table" aria-label="Pointgroup table">
+          <thead id="table-head"></thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+      <p class="empty-state" id="empty-state" hidden>No matching rows found.</p>
+    </div>
+  </section>
+{{ end }}

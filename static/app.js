@@ -52,8 +52,6 @@ const POINTGROUP_BASICS_DATA_PATH = "data/pointgroup_basics.json.gz";
 
 const DATASET_SPACEGROUPS = "spacegroups";
 const DATASET_POINTGROUPS = "pointgroups";
-const DATASET_QUERY_KEY = "dataset";
-const DATASET_STORAGE_KEY = "crystal_dataset_mode";
 
 const SETTINGS_ALL = "all";
 const SETTINGS_ITA = "ita";
@@ -226,19 +224,20 @@ const inferDatasetFromPath = () => {
   return DATASET_SPACEGROUPS;
 };
 
+const inferDatasetFromContext = () => {
+  if (tableView) {
+    const pageDataset = normalizeDatasetMode(tableView.getAttribute("data-table-dataset"));
+    if (pageDataset) {
+      return pageDataset;
+    }
+  }
+  return inferDatasetFromPath();
+};
+
 const getModeFromUrl = () => {
   try {
     const url = new URL(window.location.href);
     return normalizeSettingsMode(url.searchParams.get(SETTINGS_QUERY_KEY));
-  } catch {
-    return null;
-  }
-};
-
-const getDatasetFromUrl = () => {
-  try {
-    const url = new URL(window.location.href);
-    return normalizeDatasetMode(url.searchParams.get(DATASET_QUERY_KEY));
   } catch {
     return null;
   }
@@ -268,20 +267,12 @@ const getModeFromStorage = () => {
   }
 };
 
-const getDatasetFromStorage = () => {
-  try {
-    return normalizeDatasetMode(window.localStorage.getItem(DATASET_STORAGE_KEY));
-  } catch {
-    return null;
-  }
-};
-
 const sortState = { key: "ita_number", direction: "asc" };
 let allRows = [];
 let pointgroupRows = [];
 let filteredRows = [];
 let settingsMode = getModeFromUrl() || getModeFromStorage() || SETTINGS_ITA;
-let activeDataset = getDatasetFromUrl() || getDatasetFromStorage() || inferDatasetFromPath();
+let activeDataset = inferDatasetFromContext();
 let sectionState = {
   symops: getSectionOpenFromUrl(SYMOPS_QUERY_KEY, true),
   wyckoff: getSectionOpenFromUrl(WYCKOFF_QUERY_KEY, true),
@@ -375,12 +366,10 @@ const readJsonResponse = async (response, source) => {
   return JSON.parse(text);
 };
 
-const withNavigationQuery = (targetPath, mode, dataset = activeDataset) => {
+const withNavigationQuery = (targetPath, mode) => {
   const activeMode = normalizeSettingsMode(mode) || SETTINGS_ALL;
-  const activeDatasetMode = normalizeDatasetMode(dataset) || DATASET_SPACEGROUPS;
   const url = new URL(targetPath, window.location.origin);
   url.searchParams.set(SETTINGS_QUERY_KEY, activeMode);
-  url.searchParams.set(DATASET_QUERY_KEY, activeDatasetMode);
   Object.entries(SECTION_QUERY_KEYS).forEach(([key, queryKey]) => {
     url.searchParams.set(queryKey, sectionState[key] ? QUERY_VALUE_OPEN : QUERY_VALUE_CLOSED);
   });
@@ -389,23 +378,24 @@ const withNavigationQuery = (targetPath, mode, dataset = activeDataset) => {
 
 const buildHallUrl = (baseUrl, hallKey, mode = settingsMode) => {
   const rawPath = `${baseUrl}hall/${encodeURIComponent(hallKey)}/`;
-  return withNavigationQuery(rawPath, mode, DATASET_SPACEGROUPS);
+  return withNavigationQuery(rawPath, mode);
 };
 
 const buildPointgroupUrl = (baseUrl, slug) => {
   const rawPath = `${baseUrl}pointgroup/${encodeURIComponent(slug)}/`;
-  return withNavigationQuery(rawPath, settingsMode, DATASET_POINTGROUPS);
+  return withNavigationQuery(rawPath, settingsMode);
 };
 
 const buildRootUrl = (baseUrl, mode = settingsMode, dataset = activeDataset) => {
-  return withNavigationQuery(baseUrl, mode, dataset);
+  const normalizedDataset = normalizeDatasetMode(dataset) || DATASET_SPACEGROUPS;
+  const rawPath = normalizedDataset === DATASET_POINTGROUPS ? `${baseUrl}pointgroup/` : baseUrl;
+  return withNavigationQuery(rawPath, mode);
 };
 
 const syncModeUrlAndStorage = () => {
   const normalizedMode = normalizeSettingsMode(settingsMode) || SETTINGS_ALL;
-  const normalizedDataset = normalizeDatasetMode(activeDataset) || DATASET_SPACEGROUPS;
   settingsMode = normalizedMode;
-  activeDataset = normalizedDataset;
+  activeDataset = normalizeDatasetMode(activeDataset) || inferDatasetFromContext();
 
   try {
     window.localStorage.setItem(SETTINGS_STORAGE_KEY, normalizedMode);
@@ -414,15 +404,8 @@ const syncModeUrlAndStorage = () => {
   }
 
   try {
-    window.localStorage.setItem(DATASET_STORAGE_KEY, normalizedDataset);
-  } catch {
-    // Ignore storage failures.
-  }
-
-  try {
     const url = new URL(window.location.href);
     url.searchParams.set(SETTINGS_QUERY_KEY, normalizedMode);
-    url.searchParams.set(DATASET_QUERY_KEY, normalizedDataset);
     Object.entries(SECTION_QUERY_KEYS).forEach(([key, queryKey]) => {
       url.searchParams.set(queryKey, sectionState[key] ? QUERY_VALUE_OPEN : QUERY_VALUE_CLOSED);
     });
@@ -744,16 +727,6 @@ const updateSettingsButtons = () => {
   });
 };
 
-const updateDatasetButtons = () => {
-  document.querySelectorAll("[data-dataset-toggle]").forEach((button) => {
-    button.dataset.dataset = activeDataset;
-    button.setAttribute(
-      "title",
-      activeDataset === DATASET_SPACEGROUPS ? "Table: spacegroups" : "Table: pointgroups"
-    );
-  });
-};
-
 const updateIndexControlVisibility = () => {
   if (!tableView) {
     return;
@@ -804,7 +777,7 @@ const updateStaticHallLinks = () => {
 
     const explicitMode = normalizeSettingsMode(parsed.searchParams.get(SETTINGS_QUERY_KEY));
     const mode = explicitMode || settingsMode;
-    anchor.setAttribute("href", withNavigationQuery(parsed.pathname, mode, DATASET_SPACEGROUPS));
+    anchor.setAttribute("href", withNavigationQuery(parsed.pathname, mode));
   });
 };
 
@@ -1007,14 +980,6 @@ const setupEvents = () => {
     });
   });
 
-  document.querySelectorAll("[data-dataset-toggle]").forEach((button) => {
-    button.addEventListener("click", () => {
-      activeDataset = activeDataset === DATASET_SPACEGROUPS ? DATASET_POINTGROUPS : DATASET_SPACEGROUPS;
-      ensureSortKeyForActiveDataset(true);
-      syncModeUrlAndStorage();
-      refreshUiState();
-    });
-  });
 };
 
 const chooseStandardSetting = (entries) => {
@@ -1221,7 +1186,6 @@ const refreshUiState = () => {
   }
 
   updateSettingsButtons();
-  updateDatasetButtons();
   updateSectionToggles();
   updateMappingVisibility();
   updateStaticHallLinks();
@@ -1262,7 +1226,6 @@ const loadPointgroupRows = async (baseUrl) => {
 const initIndex = async () => {
   syncModeUrlAndStorage();
   updateSettingsButtons();
-  updateDatasetButtons();
   updateBackButtonHref();
 
   const baseUrl = resolveBase();

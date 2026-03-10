@@ -1,6 +1,6 @@
 <header class="topbar">
   <div class="brand-row">
-    {{ $showBack := not .IsHome }}
+    {{ $showBack := and (not .IsHome) (ne .Kind "section") }}
     <a
       href="{{ "" | relURL }}"
       class="header-back-btn{{ if $showBack }} is-visible{{ end }}"

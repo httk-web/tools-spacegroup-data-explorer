@@ -872,6 +872,16 @@ title: "Spacegroup Data Explorer"
         legacy_index.unlink()
 
 
+def write_pointgroup_index_content() -> None:
+    POINTGROUP_ROOT.mkdir(parents=True, exist_ok=True)
+    _log(f"Writing pointgroup index content to {POINTGROUP_ROOT / '_index.md'}")
+    content = """---
+title: "Pointgroup Data Explorer"
+---
+"""
+    (POINTGROUP_ROOT / "_index.md").write_text(content, encoding="utf-8")
+
+
 def write_pointgroup_pages(
     pointgroup_data: Dict[str, Dict[str, Any]],
     pointgroup_nav: List[Dict[str, Any]],
@@ -988,6 +998,7 @@ def main() -> None:
 
     write_index_content(index_rows)
     write_index_data(index_rows)
+    write_pointgroup_index_content()
     write_pointgroup_index_data(pointgroup_index_rows)
     write_pointgroup_pages(pointgroup_data, pointgroup_nav)
     write_hall_pages(

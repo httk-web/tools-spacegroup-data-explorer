@@ -1,6 +1,11 @@
 {{ define "main" }}
   {{ .Content }}
-  <section id="table-view" class="view is-active" aria-label="Spacegroup list view">
+  <nav class="dataset-tabs" aria-label="Data pages">
+    <a class="dataset-tab is-active" href="{{ "" | relURL }}" aria-current="page">Spacegroups</a>
+    <a class="dataset-tab" href="{{ "pointgroup/" | relURL }}">Pointgroups</a>
+  </nav>
+
+  <section id="table-view" class="view is-active" aria-label="Spacegroup list view" data-table-dataset="spacegroups">
     <div class="panel toolbar">
       <div class="search-wrap">
         <label for="search-input">Search</label>
@@ -12,20 +17,6 @@
         />
       </div>
       <div class="toolbar-meta">
-        <div class="detail-meta-item settings-meta-item">
-          <p class="kicker">Table</p>
-          <button
-            id="dataset-toggle-index"
-            class="dataset-toggle"
-            type="button"
-            data-dataset-toggle
-            aria-label="Toggle table dataset"
-          >
-            <span class="dataset-label dataset-label-spacegroups" aria-hidden="true">Spacegroups</span>
-            <span class="dataset-toggle-track" aria-hidden="true"><span class="dataset-toggle-thumb"></span></span>
-            <span class="dataset-label dataset-label-pointgroups" aria-hidden="true">Pointgroups</span>
-          </button>
-        </div>
         <div id="settings-toggle-wrap-index" class="detail-meta-item settings-meta-item">
           <p class="kicker">Show settings</p>
           <button
