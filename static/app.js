@@ -363,6 +363,13 @@ const renderMaybeMath = (value) => {
   return text;
 };
 
+const renderInlineLatex = (value) => {
+  if (value === null || value === undefined || String(value).trim() === "") {
+    return escapeHtml(formatValue(value));
+  }
+  return `<span class="math-content">\\(${escapeHtml(String(value))}\\)</span>`;
+};
+
 const getArrayValues = (value) => {
   if (!Array.isArray(value)) {
     return [];
@@ -371,15 +378,29 @@ const getArrayValues = (value) => {
 };
 
 const renderHmWithAliases = (row) => {
-  const baseLabel = escapeHtml(formatValue(row.hm_short_unicode || row.hm_short || row.short_hm_symbol));
+  const shortLatex = firstNonEmpty(row.hm_short_latex, row.short_hm_symbol_latex);
+  const baseLabel = shortLatex
+    ? renderInlineLatex(shortLatex)
+    : escapeHtml(formatValue(row.hm_short_unicode || row.hm_short || row.short_hm_symbol));
+  const aliasesLatex = getArrayValues(row.hm_short_aliases_latex || row.short_hm_symbol_aliases_latex);
   const aliasesUnicode = getArrayValues(row.hm_short_aliases_unicode);
   const aliasesPlain = getArrayValues(row.hm_short_aliases || row.short_hm_symbol_aliases);
-  const aliases = aliasesUnicode.length ? aliasesUnicode : aliasesPlain;
+  const aliases = aliasesLatex.length ? aliasesLatex : aliasesUnicode.length ? aliasesUnicode : aliasesPlain;
   if (!aliases.length) {
     return baseLabel;
   }
-  const aliasLabel = aliases.map((item) => escapeHtml(formatValue(item))).join(", ");
+  const aliasLabel = aliasesLatex.length
+    ? aliases.map((item) => renderInlineLatex(item)).join(", ")
+    : aliases.map((item) => escapeHtml(formatValue(item))).join(", ");
   return `${baseLabel} (${aliasLabel})`;
+};
+
+const renderHallWithLatex = (row) => {
+  const hallLatex = firstNonEmpty(row.hall_latex);
+  if (hallLatex) {
+    return renderInlineLatex(hallLatex);
+  }
+  return escapeHtml(formatValue(row.hall_unicode || row.hall_entry || row.hall_key));
 };
 
 const renderTable = () => {
@@ -391,14 +412,14 @@ const renderTable = () => {
   const rows = sortRows(filteredRows);
   tableBody.innerHTML = rows
     .map((row) => {
-      const hallLabel = escapeHtml(formatValue(row.hall_unicode || row.hall_entry || row.hall_key));
+      const hallLabel = renderHallWithLatex(row);
       const hallUrl = buildHallUrl(baseUrl, row.hall_key);
       const shortHmLabel = renderHmWithAliases(row);
       return `
       <tr class="sg-row" data-active="false" data-hall-url="${hallUrl}">
         <td>${shortHmLabel}</td>
         <td>${escapeHtml(formatValue(row.ita_number))}</td>
-        <td><a class="hall-link" href="${hallUrl}">${hallLabel}</a></td>
+        <td>${hallLabel}</td>
         <td class="td-muted">${escapeHtml(formatValue(row.crystal_system))}</td>
         <td class="td-muted">${escapeHtml(formatValue(row.point_group))}</td>
         <td class="td-muted">${escapeHtml(formatValue(row.n_c))}</td>
@@ -510,7 +531,7 @@ const updateSectionToggles = () => {
 };
 
 const updateStaticHallLinks = () => {
-  document.querySelectorAll("a.hall-link[href], a.related-link[href]").forEach((anchor) => {
+  document.querySelectorAll("a.related-link[href]").forEach((anchor) => {
     const href = anchor.getAttribute("href");
     if (!href) {
       return;
@@ -786,7 +807,9 @@ const buildLists = (rows) => {
     const selected = chooseStandardSetting(entries);
     if (selected) {
       hmToHall[hm] = selected.hall_key;
-      hmDisplay[hm] = String(selected.hm_universal_unicode || selected.hm_universal || hm);
+      hmDisplay[hm] = String(
+        selected.hm_full_unicode || selected.hm_full || selected.hm_universal_unicode || selected.hm_universal || hm
+      );
     }
   });
 

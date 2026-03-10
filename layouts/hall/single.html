@@ -70,40 +70,35 @@
         {{ end }}
       </article>
 
-      <article class="detail-card panel section-half">
+      <article class="detail-card panel section-wide">
         <h3>Identity</h3>
         <div class="identity-grid">
           <div class="metric">
-            <label>Hall Symbol</label>
-            {{ $hallSymbol := default .Params.hall_latex (default .Params.hall_entry .Params.hall_key) }}
-            <strong><span class="math-content">{{ partial "value.html" $hallSymbol }}</span></strong>
+            <label>HM Symbol Universal</label>
+            {{ $universalHM := default .Params.hm_symbol_universal_latex (default .Params.hm_universal_latex .Params.universal_hm_latex) }}
+            <strong>
+              {{ if $universalHM }}
+                <span class="math-content">\({{ $universalHM }}\)</span>
+              {{ else }}
+                <span>{{ partial "value.html" (default .Params.hm_universal .Params.universal_hm) }}</span>
+              {{ end }}
+            </strong>
           </div>
           <div class="metric">
             <label>HM Symbol Short <span tabindex="0" class="info-dot" data-tip="Short Hermann-Mauguin symbol, a compact notation for symmetry elements.">i</span></label>
-            {{ $shortHM := default .Params.hm_short_latex (default .Params.hm_short (default .Params.short_hm_symbol_latex .Params.short_hm_symbol)) }}
+            {{ $shortHM := default .Params.hm_short_latex .Params.short_hm_symbol_latex }}
             {{ $shortHMAliases := .Params.hm_short_aliases_latex }}
             {{ if not $shortHMAliases }}{{ $shortHMAliases = .Params.hm_short_aliases }}{{ end }}
             {{ if not $shortHMAliases }}{{ $shortHMAliases = .Params.short_hm_symbol_aliases_latex }}{{ end }}
             {{ if not $shortHMAliases }}{{ $shortHMAliases = .Params.short_hm_symbol_aliases }}{{ end }}
             <strong>
-              <span class="math-content">{{ partial "value.html" $shortHM }}</span>
-              {{ if $shortHMAliases }}<span class="hm-aliases-inline math-content">({{ partial "value.html" $shortHMAliases }})</span>{{ end }}
+              {{ if $shortHM }}
+                <span class="math-content">\({{ $shortHM }}\)</span>
+              {{ else }}
+                <span>{{ partial "value.html" .Params.hm_short }}</span>
+              {{ end }}
+              {{ if $shortHMAliases }}<span class="hm-aliases-inline">{{ partial "value.html" $shortHMAliases }}</span>{{ end }}
             </strong>
-          </div>
-          <div class="metric">
-            <label>HM Symbol Full</label>
-            {{ $fullHM := default .Params.hm_full_latex .Params.hm_full }}
-            <strong><span class="math-content">{{ partial "value.html" $fullHM }}</span></strong>
-          </div>
-          <div class="metric">
-            <label>HM Symbol Extended</label>
-            {{ $extendedHM := default .Params.hm_extended_latex .Params.hm_extended }}
-            <strong><span class="math-content">{{ partial "value.html" $extendedHM }}</span></strong>
-          </div>
-          <div class="metric">
-            <label>HM Symbol Universal</label>
-            {{ $universalHM := default .Params.hm_universal_latex (default .Params.hm_universal (default .Params.universal_hm_latex .Params.universal_hm)) }}
-            <strong><span class="math-content">{{ partial "value.html" $universalHM }}</span></strong>
           </div>
           <div class="metric">
             <label>n:c <span tabindex="0" class="info-dot" data-tip="Conventional setting label used in the source dataset.">i</span></label>
@@ -115,6 +110,17 @@
             </strong>
           </div>
           <div class="metric">
+            <label>Hall Symbol</label>
+            {{ $hallSymbolLatex := .Params.hall_latex }}
+            <strong>
+              {{ if $hallSymbolLatex }}
+                <span class="math-content">\({{ $hallSymbolLatex }}\)</span>
+              {{ else }}
+                <span>{{ partial "value.html" (default .Params.hall_entry .Params.hall_key) }}</span>
+              {{ end }}
+            </strong>
+          </div>
+          <div class="metric">
             <label>Point Group <span tabindex="0" class="info-dot" data-tip="Point group describing rotational/reflection symmetry without translations.">i</span></label>
             <strong>{{ partial "value.html" .Params.point_group }}</strong>
           </div>
@@ -122,14 +128,14 @@
             <label>Laue Class <span tabindex="0" class="info-dot" data-tip="Laue class used in diffraction symmetry classification.">i</span></label>
             <strong>{{ partial "value.html" .Params.laue_class }}</strong>
           </div>
-          <div class="metric">
+          <div class="metric metric-span-two">
             <label>Crystal System <span tabindex="0" class="info-dot" data-tip="Crystal family grouping by lattice constraints and symmetry type.">i</span></label>
             <strong>{{ partial "value.html" .Params.crystal_system }}</strong>
           </div>
         </div>
       </article>
 
-      <article class="detail-card panel section-half">
+      <article class="detail-card panel section-wide">
         <h3>Details</h3>
         <div class="flag-row">
           {{ $flags := slice "is_centric" "is_chiral" "is_enantiomorphic" "is_reference_setting" }}
@@ -233,9 +239,7 @@
             <div class="mapping-box" data-mapping-box>
               <div class="mapping-tabs" role="tablist" aria-label="Maximal subgroup mappings">
                 {{ range $idx, $item := $maxSubs }}
-                  {{ $hmLabel := default $item.hm_short_unicode (default $item.hm_short (default $item.short_hm_symbol_unicode (default $item.short_hm_symbol (default $item.hm_universal_unicode (default $item.hm_universal $item.universal_hm))))) }}
-                  {{ $hmLabel = default $hmLabel $item.hall_key }}
-                  {{ $hmLabel = replace (string $hmLabel) " " "" }}
+                  {{ $hmLabel := default $item.hall_key (default $item.hm_short $item.hm_short_unicode) }}
                   {{ $tabId := printf "max-tab-%d" $idx }}
                   <button
                     class="mapping-tab-btn{{ if eq $idx 0 }} is-active{{ end }}"
@@ -276,8 +280,18 @@
                       {{ if $rows }}
                         {{ range $rows }}
                           <tr>
-                            <td>{{ partial "value.html" .g_wp }}</td>
-                            <td>{{ partial "value.html" .h_wp }}</td>
+                            {{ $showGroupCell := true }}
+                            {{ if isset . "g_wp_show" }}
+                              {{ $showGroupCell = .g_wp_show }}
+                            {{ end }}
+                            {{ if $showGroupCell }}
+                              {{ $rowspan := 1 }}
+                              {{ if and (isset . "g_wp_rowspan") (gt .g_wp_rowspan 1) }}
+                                {{ $rowspan = .g_wp_rowspan }}
+                              {{ end }}
+                              <td{{ if gt $rowspan 1 }} rowspan="{{ $rowspan }}"{{ end }}>{{ partial "value.html" (default .g_wp .g_wp_display) }}</td>
+                            {{ end }}
+                            <td>{{ partial "value.html" (default .h_wp .h_wp_display) }}</td>
                             <td>{{ partial "value.html" .h_first_orbit_xyz }}</td>
                             <td>
                               {{ if and .affine_xyz (ge (len .affine_xyz) 3) }}
@@ -313,9 +327,7 @@
             <div class="mapping-box" data-mapping-box>
               <div class="mapping-tabs" role="tablist" aria-label="Minimal supergroup mappings">
                 {{ range $idx, $item := $minSup }}
-                  {{ $hmLabel := default $item.hm_short_unicode (default $item.hm_short (default $item.short_hm_symbol_unicode (default $item.short_hm_symbol (default $item.hm_universal_unicode (default $item.hm_universal $item.universal_hm))))) }}
-                  {{ $hmLabel = default $hmLabel $item.hall_key }}
-                  {{ $hmLabel = replace (string $hmLabel) " " "" }}
+                  {{ $hmLabel := default $item.hall_key (default $item.hm_short $item.hm_short_unicode) }}
                   {{ $tabId := printf "min-tab-%d" $idx }}
                   <button
                     class="mapping-tab-btn{{ if eq $idx 0 }} is-active{{ end }}"
@@ -356,8 +368,18 @@
                       {{ if $rows }}
                         {{ range $rows }}
                           <tr>
-                            <td>{{ partial "value.html" .g_wp }}</td>
-                            <td>{{ partial "value.html" .h_wp }}</td>
+                            {{ $showGroupCell := true }}
+                            {{ if isset . "g_wp_show" }}
+                              {{ $showGroupCell = .g_wp_show }}
+                            {{ end }}
+                            {{ if $showGroupCell }}
+                              {{ $rowspan := 1 }}
+                              {{ if and (isset . "g_wp_rowspan") (gt .g_wp_rowspan 1) }}
+                                {{ $rowspan = .g_wp_rowspan }}
+                              {{ end }}
+                              <td{{ if gt $rowspan 1 }} rowspan="{{ $rowspan }}"{{ end }}>{{ partial "value.html" (default .g_wp .g_wp_display) }}</td>
+                            {{ end }}
+                            <td>{{ partial "value.html" (default .h_wp .h_wp_display) }}</td>
                             <td>{{ partial "value.html" .h_first_orbit_xyz }}</td>
                             <td>
                               {{ if and .affine_xyz (ge (len .affine_xyz) 3) }}
@@ -385,86 +407,78 @@
       <article class="detail-card panel section-wide">
         <div class="detail-card-head">
           <button class="section-toggle-btn" type="button" data-section-toggle="normalizer" aria-expanded="true" aria-label="Collapse section">▼</button>
-          <h3>Normalizer transformations</h3>
+          <h3>Euclidian Normalizer</h3>
         </div>
         <div data-section-body="normalizer">
-          {{ $normalizer := .Params.normalizer_transformations }}
-          {{ if $normalizer }}
-            <div class="mapping-box" data-mapping-box>
-              <div class="mapping-tabs" role="tablist" aria-label="Normalizer transformations">
-                {{ range $idx, $item := $normalizer }}
-                  {{ $label := "—" }}
-                  {{ if $item.is_reference_setting }}
-                    {{ $label = "ITA" }}
-                  {{ else }}
-                    {{ $hm := string (default (default "" $item.hm_universal) $item.universal_hm) }}
-                    {{ $suffix := findRE "\\([^)]*\\)\\s*$" $hm 1 }}
-                    {{ if gt (len $suffix) 0 }}
-                      {{ $label = index $suffix 0 }}
-                    {{ end }}
-                  {{ end }}
-                  {{ $tabId := printf "normalizer-tab-%d" $idx }}
-                  <button
-                    class="mapping-tab-btn{{ if eq $idx 0 }} is-active{{ end }}"
-                    type="button"
-                    role="tab"
-                    id="{{ $tabId }}"
-                    data-mapping-tab
-                    data-target-id="{{ printf "normalizer-panel-%d" $idx }}"
-                    data-is-reference-setting="true"
-                    aria-controls="{{ printf "normalizer-panel-%d" $idx }}"
-                    aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
-                  >
-                    <span class="math-content">{{ $label }}</span>
-                  </button>
-                {{ end }}
-              </div>
-              <p class="note" data-mapping-empty hidden>No normalizer transformations in this mode.</p>
-              {{ range $idx, $item := $normalizer }}
-                <div
-                  class="mapping-panel"
-                  id="{{ printf "normalizer-panel-%d" $idx }}"
-                  role="tabpanel"
-                  data-mapping-panel
-                  data-is-reference-setting="true"
-                  {{ if ne $idx 0 }}hidden{{ end }}
-                >
-                  <table class="data-table">
-                    <thead>
-                      <tr>
-                        <th>G WP</th>
-                        <th>H WP</th>
-                        <th>H Orbit</th>
-                        <th>Algebraic Map</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {{ $rows := $item.wyckoff_rows }}
-                      {{ if $rows }}
-                        {{ range $rows }}
+          {{ $euclidian := .Params.euclidian_normalizer }}
+          {{ $continuous := .Params.continuous_euclidian_normalizer }}
+          {{ if or $euclidian $continuous }}
+            <div class="normalizer-stack">
+              <div class="mapping-box">
+                <p class="note">Discrete Euclidian normalizer operations</p>
+                {{ if $euclidian }}
+                  {{ $symops := $euclidian.symops }}
+                  {{ if $symops }}
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>xyz</th>
+                          <th>rot_type</th>
+                          <th>screw/glide</th>
+                          <th>origin_shift</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {{ range $index, $op := $symops }}
                           <tr>
-                            <td>{{ partial "value.html" .g_wp }}</td>
-                            <td>{{ partial "value.html" .h_wp }}</td>
-                            <td>{{ partial "value.html" .h_first_orbit_xyz }}</td>
-                            <td>
-                              {{ if and .affine_xyz (ge (len .affine_xyz) 3) }}
-                                x'={{ index .affine_xyz 0 }}; y'={{ index .affine_xyz 1 }}; z'={{ index .affine_xyz 2 }}
-                              {{ else }}
-                                —
-                              {{ end }}
-                            </td>
+                            <td>{{ add $index 1 }}</td>
+                            <td>{{ partial "value.html" $op.xyz }}</td>
+                            <td>{{ partial "value.html" $op.rot_type }}</td>
+                            <td>{{ partial "value.html" $op.screw_glide }}</td>
+                            <td>{{ partial "value.html" $op.origin_shift }}</td>
                           </tr>
                         {{ end }}
-                      {{ else }}
-                        <tr><td colspan="4">No Wyckoff splitting data available.</td></tr>
-                      {{ end }}
-                    </tbody>
-                  </table>
+                      </tbody>
+                    </table>
+                    <p class="note">Showing all {{ len $symops }} discrete Euclidian normalizer operations.</p>
+                  {{ else }}
+                    <p class="note">No discrete Euclidian normalizer operations available.</p>
+                  {{ end }}
+                {{ else }}
+                  <p class="note">No discrete Euclidian normalizer data available.</p>
+                {{ end }}
+              </div>
+
+              {{ if $continuous }}
+                <div class="mapping-box normalizer-inner-box">
+                  <p class="note">Continuous Euclidian normalizer</p>
+                  {{ $basis := $continuous.basis_vectors }}
+                  {{ if and $basis (gt (len $basis) 0) }}
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>basis vector</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {{ range $idx, $vec := $basis }}
+                          <tr>
+                            <td>{{ add $idx 1 }}</td>
+                            <td>{{ partial "value.html" (delimit $vec ", ") }}</td>
+                          </tr>
+                        {{ end }}
+                      </tbody>
+                    </table>
+                  {{ else }}
+                    <p class="note">No basis vectors listed for the continuous Euclidian normalizer.</p>
+                  {{ end }}
                 </div>
               {{ end }}
             </div>
           {{ else }}
-            <p class="note">No normalizer transformations available.</p>
+            <p class="note">No Euclidian normalizer data available.</p>
           {{ end }}
         </div>
       </article>
@@ -472,51 +486,43 @@
       <article class="detail-card panel section-wide">
         <div class="detail-card-head">
           <button class="section-toggle-btn" type="button" data-section-toggle="k_subgroups" aria-expanded="true" aria-label="Collapse section">▼</button>
-          <h3>Isomorphic klassengleiche (k) subgroup relations</h3>
+          <h3>Cell Commensurator <span tabindex="0" class="info-dot" data-tip="Buttons are labeled as No. N (k), where N is the item number in this list and k = |det(P)| for the displayed transformation matrix P.">i</span></h3>
         </div>
         <div data-section-body="k_subgroups">
-          {{ $kRelations := .Params.klassengleiche_subgroup_relations }}
-          {{ if $kRelations }}
+          {{ $commensurator := .Params.cell_commensurator }}
+          {{ if $commensurator }}
             <div class="mapping-box" data-mapping-box>
-              <div class="mapping-tabs" role="tablist" aria-label="Isomorphic klassengleiche subgroup relations">
-                {{ range $idx, $item := $kRelations }}
-                  {{ $label := "—" }}
-                  {{ if $item.is_reference_setting }}
-                    {{ $label = "ITA" }}
-                  {{ else }}
-                    {{ $hm := string (default (default "" $item.hm_universal) $item.universal_hm) }}
-                    {{ $suffix := findRE "\\([^)]*\\)\\s*$" $hm 1 }}
-                    {{ if gt (len $suffix) 0 }}
-                      {{ $label = index $suffix 0 }}
-                    {{ end }}
-                  {{ end }}
-                  {{ $tabId := printf "k-tab-%d" $idx }}
+              <div class="mapping-tabs" role="tablist" aria-label="Cell commensurator mappings">
+                {{ range $idx, $item := $commensurator }}
+                  {{ $tabId := printf "comm-tab-%d" $idx }}
                   <button
                     class="mapping-tab-btn{{ if eq $idx 0 }} is-active{{ end }}"
                     type="button"
                     role="tab"
                     id="{{ $tabId }}"
                     data-mapping-tab
-                    data-target-id="{{ printf "k-panel-%d" $idx }}"
+                    data-target-id="{{ printf "comm-panel-%d" $idx }}"
                     data-is-reference-setting="true"
-                    aria-controls="{{ printf "k-panel-%d" $idx }}"
+                    aria-controls="{{ printf "comm-panel-%d" $idx }}"
                     aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
                   >
-                    <span class="math-content">{{ $label }}</span>
-                    <span>({{ partial "value.html" $item.index }})</span>
+                    <span>No. {{ add $idx 1 }} ({{ partial "value.html" $item.index }})</span>
                   </button>
                 {{ end }}
               </div>
-              <p class="note" data-mapping-empty hidden>No klassengleiche subgroup relations in this mode.</p>
-              {{ range $idx, $item := $kRelations }}
+              {{ range $idx, $item := $commensurator }}
                 <div
                   class="mapping-panel"
-                  id="{{ printf "k-panel-%d" $idx }}"
+                  id="{{ printf "comm-panel-%d" $idx }}"
                   role="tabpanel"
                   data-mapping-panel
                   data-is-reference-setting="true"
                   {{ if ne $idx 0 }}hidden{{ end }}
                 >
+                  <p class="note">
+                    P={{ partial "value.html" $item.transformation_matrix_text }},
+                    p={{ partial "value.html" $item.origin_shift_text }}
+                  </p>
                   <table class="data-table">
                     <thead>
                       <tr>
@@ -531,8 +537,18 @@
                       {{ if $rows }}
                         {{ range $rows }}
                           <tr>
-                            <td>{{ partial "value.html" .g_wp }}</td>
-                            <td>{{ partial "value.html" .h_wp }}</td>
+                            {{ $showGroupCell := true }}
+                            {{ if isset . "g_wp_show" }}
+                              {{ $showGroupCell = .g_wp_show }}
+                            {{ end }}
+                            {{ if $showGroupCell }}
+                              {{ $rowspan := 1 }}
+                              {{ if and (isset . "g_wp_rowspan") (gt .g_wp_rowspan 1) }}
+                                {{ $rowspan = .g_wp_rowspan }}
+                              {{ end }}
+                              <td{{ if gt $rowspan 1 }} rowspan="{{ $rowspan }}"{{ end }}>{{ partial "value.html" (default .g_wp .g_wp_display) }}</td>
+                            {{ end }}
+                            <td>{{ partial "value.html" (default .h_wp .h_wp_display) }}</td>
                             <td>{{ partial "value.html" .h_first_orbit_xyz }}</td>
                             <td>
                               {{ if and .affine_xyz (ge (len .affine_xyz) 3) }}
@@ -550,9 +566,10 @@
                   </table>
                 </div>
               {{ end }}
+              <p class="note">Showing all {{ len $commensurator }} cell commensurator mappings.</p>
             </div>
           {{ else }}
-            <p class="note">No klassengleiche subgroup relations available.</p>
+            <p class="note">No cell commensurator data available.</p>
           {{ end }}
         </div>
       </article>

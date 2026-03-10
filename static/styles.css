@@ -256,23 +256,6 @@ h2 {
   background: rgba(207, 90, 47, 0.11);
 }
 
-.hall-link {
-  border: 0;
-  padding: 0;
-  background: transparent;
-  color: var(--accent);
-  font-family: "Fraunces", Georgia, serif;
-  font-size: 18px;
-  cursor: pointer;
-}
-
-.hall-link:hover,
-.hall-link:focus-visible {
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  outline: none;
-}
-
 .td-muted {
   color: var(--ink-soft);
 }
@@ -326,6 +309,11 @@ h2 {
   font-size: 15px;
   font-family: "Fraunces", Georgia, serif;
   padding: 9px 10px;
+}
+
+#detail-view .detail-select,
+#detail-view .detail-select option {
+  font-family: "DejaVu Sans", "Noto Sans", "Segoe UI Symbol", "Arial Unicode MS", sans-serif;
 }
 
 .detail-select:focus {
@@ -468,7 +456,7 @@ h2 {
 
 .identity-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -492,6 +480,10 @@ h2 {
 .metric strong {
   font-size: 20px;
   font-family: "Fraunces", Georgia, serif;
+}
+
+.metric-span-two {
+  grid-column: span 2;
 }
 
 .hm-aliases-inline {
@@ -651,8 +643,9 @@ h2 {
   border-radius: 999px;
   background: #fffdfa;
   color: var(--ink);
-  font-family: "Fraunces", Georgia, serif;
+  font-family: "DejaVu Sans", "Noto Sans", "Segoe UI Symbol", "Arial Unicode MS", sans-serif;
   font-size: 13px;
+  line-height: 1.25;
   padding: 6px 10px;
   display: inline-flex;
   align-items: center;
@@ -674,6 +667,15 @@ h2 {
 
 .mapping-panel {
   margin-top: 8px;
+}
+
+.normalizer-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.normalizer-inner-box {
+  margin-top: 0;
 }
 
 .mapping-meta {
@@ -728,6 +730,10 @@ h2 {
 
   .identity-grid {
     grid-template-columns: 1fr;
+  }
+
+  .metric-span-two {
+    grid-column: span 1;
   }
 
   .toolbar {
