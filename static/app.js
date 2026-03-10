@@ -57,6 +57,10 @@ const SETTINGS_ALL = "all";
 const SETTINGS_ITA = "ita";
 const SETTINGS_QUERY_KEY = "settings";
 const SETTINGS_STORAGE_KEY = "spacegroup_settings_mode";
+const THEME_QUERY_KEY = "theme";
+const THEME_DARK = "dark";
+const THEME_TWILIGHT = "twilight";
+const THEME_LIGHT = "light";
 const SYMOPS_QUERY_KEY = "symops";
 const WYCKOFF_QUERY_KEY = "wyckoff";
 const MAX_SUBGROUPS_QUERY_KEY = "max_subgroups";
@@ -216,6 +220,17 @@ const normalizeDatasetMode = (value) => {
   return null;
 };
 
+const normalizeThemeMode = (value) => {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (normalized === THEME_DARK || normalized === THEME_TWILIGHT || normalized === THEME_LIGHT) {
+    return normalized;
+  }
+  return null;
+};
+
 const inferDatasetFromPath = () => {
   const path = window.location.pathname || "/";
   if (path.includes("/pointgroup/")) {
@@ -238,6 +253,15 @@ const getModeFromUrl = () => {
   try {
     const url = new URL(window.location.href);
     return normalizeSettingsMode(url.searchParams.get(SETTINGS_QUERY_KEY));
+  } catch {
+    return null;
+  }
+};
+
+const getThemeFromUrl = () => {
+  try {
+    const url = new URL(window.location.href);
+    return normalizeThemeMode(url.searchParams.get(THEME_QUERY_KEY));
   } catch {
     return null;
   }
@@ -273,6 +297,7 @@ let pointgroupRows = [];
 let filteredRows = [];
 let settingsMode = getModeFromUrl() || getModeFromStorage() || SETTINGS_ITA;
 let activeDataset = inferDatasetFromContext();
+let themeMode = getThemeFromUrl() || THEME_TWILIGHT;
 let sectionState = {
   symops: getSectionOpenFromUrl(SYMOPS_QUERY_KEY, true),
   wyckoff: getSectionOpenFromUrl(WYCKOFF_QUERY_KEY, true),
@@ -290,6 +315,14 @@ const SECTION_QUERY_KEYS = {
   normalizer: NORMALIZER_QUERY_KEY,
   k_subgroups: K_SUBGROUPS_QUERY_KEY
 };
+
+const applyTheme = () => {
+  const normalizedTheme = normalizeThemeMode(themeMode) || THEME_TWILIGHT;
+  themeMode = normalizedTheme;
+  document.documentElement.setAttribute("data-theme", normalizedTheme);
+};
+
+applyTheme();
 
 const sortRows = (rows) => {
   const { key, direction } = sortState;
@@ -366,10 +399,12 @@ const readJsonResponse = async (response, source) => {
   return JSON.parse(text);
 };
 
-const withNavigationQuery = (targetPath, mode) => {
+const withNavigationQuery = (targetPath, mode, theme = themeMode) => {
   const activeMode = normalizeSettingsMode(mode) || SETTINGS_ALL;
+  const activeTheme = normalizeThemeMode(theme) || THEME_TWILIGHT;
   const url = new URL(targetPath, window.location.origin);
   url.searchParams.set(SETTINGS_QUERY_KEY, activeMode);
+  url.searchParams.set(THEME_QUERY_KEY, activeTheme);
   Object.entries(SECTION_QUERY_KEYS).forEach(([key, queryKey]) => {
     url.searchParams.set(queryKey, sectionState[key] ? QUERY_VALUE_OPEN : QUERY_VALUE_CLOSED);
   });
@@ -394,8 +429,11 @@ const buildRootUrl = (baseUrl, mode = settingsMode, dataset = activeDataset) => 
 
 const syncModeUrlAndStorage = () => {
   const normalizedMode = normalizeSettingsMode(settingsMode) || SETTINGS_ALL;
+  const normalizedTheme = normalizeThemeMode(themeMode) || THEME_TWILIGHT;
   settingsMode = normalizedMode;
+  themeMode = normalizedTheme;
   activeDataset = normalizeDatasetMode(activeDataset) || inferDatasetFromContext();
+  applyTheme();
 
   try {
     window.localStorage.setItem(SETTINGS_STORAGE_KEY, normalizedMode);
@@ -406,6 +444,7 @@ const syncModeUrlAndStorage = () => {
   try {
     const url = new URL(window.location.href);
     url.searchParams.set(SETTINGS_QUERY_KEY, normalizedMode);
+    url.searchParams.set(THEME_QUERY_KEY, normalizedTheme);
     Object.entries(SECTION_QUERY_KEYS).forEach(([key, queryKey]) => {
       url.searchParams.set(queryKey, sectionState[key] ? QUERY_VALUE_OPEN : QUERY_VALUE_CLOSED);
     });
@@ -727,6 +766,15 @@ const updateSettingsButtons = () => {
   });
 };
 
+const updateThemeButtons = () => {
+  document.querySelectorAll("[data-theme-option]").forEach((button) => {
+    const option = normalizeThemeMode(button.getAttribute("data-theme-option"));
+    const isActive = Boolean(option) && option === themeMode;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", isActive ? "true" : "false");
+  });
+};
+
 const updateIndexControlVisibility = () => {
   if (!tableView) {
     return;
@@ -778,6 +826,46 @@ const updateStaticHallLinks = () => {
     const explicitMode = normalizeSettingsMode(parsed.searchParams.get(SETTINGS_QUERY_KEY));
     const mode = explicitMode || settingsMode;
     anchor.setAttribute("href", withNavigationQuery(parsed.pathname, mode));
+  });
+};
+
+const updateStaticPointgroupLinks = () => {
+  document.querySelectorAll("a.related-link[href], a.inline-detail-link[href]").forEach((anchor) => {
+    const href = anchor.getAttribute("href");
+    if (!href) {
+      return;
+    }
+
+    let parsed;
+    try {
+      parsed = new URL(href, window.location.origin);
+    } catch {
+      return;
+    }
+
+    if (!parsed.pathname.includes("/pointgroup/")) {
+      return;
+    }
+
+    anchor.setAttribute("href", withNavigationQuery(parsed.pathname, settingsMode, themeMode));
+  });
+};
+
+const updateDatasetTabLinks = () => {
+  document.querySelectorAll("a.dataset-tab[href]").forEach((anchor) => {
+    const href = anchor.getAttribute("href");
+    if (!href) {
+      return;
+    }
+
+    let parsed;
+    try {
+      parsed = new URL(href, window.location.origin);
+    } catch {
+      return;
+    }
+
+    anchor.setAttribute("href", withNavigationQuery(parsed.pathname, settingsMode, themeMode));
   });
 };
 
@@ -976,6 +1064,18 @@ const setupEvents = () => {
       if (settingsMode === SETTINGS_ITA && maybeRedirectToItaReferenceSetting()) {
         return;
       }
+      refreshUiState();
+    });
+  });
+
+  document.querySelectorAll("[data-theme-option]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const option = normalizeThemeMode(button.getAttribute("data-theme-option"));
+      if (!option || option === themeMode) {
+        return;
+      }
+      themeMode = option;
+      syncModeUrlAndStorage();
       refreshUiState();
     });
   });
@@ -1186,9 +1286,12 @@ const refreshUiState = () => {
   }
 
   updateSettingsButtons();
+  updateThemeButtons();
   updateSectionToggles();
   updateMappingVisibility();
   updateStaticHallLinks();
+  updateStaticPointgroupLinks();
+  updateDatasetTabLinks();
   updateBackButtonHref();
 };
 
@@ -1226,6 +1329,7 @@ const loadPointgroupRows = async (baseUrl) => {
 const initIndex = async () => {
   syncModeUrlAndStorage();
   updateSettingsButtons();
+  updateThemeButtons();
   updateBackButtonHref();
 
   const baseUrl = resolveBase();
