@@ -41,7 +41,7 @@
     </div>
 
     <div class="detail-grid">
-      <article class="detail-card panel section-wide">
+      <article class="detail-card panel section-wide" data-hide-when-settings="ita">
         {{
           partial "section_heading.html" (dict
             "title" "Alternative settings"
@@ -94,25 +94,6 @@
           <div class="identity-grid">
             <div class="metric">
               <label>
-                HM Symbol Universal
-                {{
-                  partial "info_dot.html" (dict
-                    "general" "Hermann-Mauguin symbols describe symmetry elements in a compact text notation used widely in crystallography."
-                    "context" "The universal HM value shown here is the canonical form used in this explorer for grouping and cross-linking settings."
-                  )
-                }}
-              </label>
-              {{ $universalHM := default .Params.hm_symbol_universal_latex (default .Params.hm_universal_latex .Params.universal_hm_latex) }}
-              <strong>
-                {{ if $universalHM }}
-                  <span class="math-content">\({{ $universalHM }}\)</span>
-                {{ else }}
-                  <span>{{ partial "value.html" (default .Params.hm_universal .Params.universal_hm) }}</span>
-                {{ end }}
-              </strong>
-            </div>
-            <div class="metric">
-              <label>
                 HM Symbol Short
                 {{
                   partial "info_dot.html" (dict
@@ -130,14 +111,32 @@
                 {{ if $shortHM }}
                   <span class="math-content">\({{ $shortHM }}\)</span>
                 {{ else }}
-                  <span>{{ partial "value.html" .Params.hm_short }}</span>
+                  <span>{{ partial "value.html" (default .Params.hm_short .Params.short_hm_symbol) }}</span>
                 {{ end }}
                 {{ if $shortHMAliases }}<span class="hm-aliases-inline">{{ partial "value.html" $shortHMAliases }}</span>{{ end }}
               </strong>
             </div>
             <div class="metric">
               <label>
-                n:c
+                HM Symbol Full
+                {{
+                  partial "info_dot.html" (dict
+                    "general" "A full Hermann-Mauguin symbol gives a more expanded notation of the symmetry content than the short form."
+                  )
+                }}
+              </label>
+              {{ $fullHM := .Params.hm_full_latex }}
+              <strong>
+                {{ if $fullHM }}
+                  <span class="math-content">\({{ $fullHM }}\)</span>
+                {{ else }}
+                  <span>{{ partial "value.html" .Params.hm_full }}</span>
+                {{ end }}
+              </strong>
+            </div>
+            <div class="metric">
+              <label>
+                N:C
                 {{
                   partial "info_dot.html" (dict
                     "general" "Setting labels are often used to distinguish equivalent descriptions of one space-group type."
@@ -170,6 +169,21 @@
                   <span>{{ partial "value.html" (default .Params.hall_entry .Params.hall_key) }}</span>
                 {{ end }}
               </strong>
+            </div>
+            <div class="metric">
+              <label>
+                HM Symbol Unicode
+                {{
+                  partial "info_dot.html" (dict
+                    "general" "Unicode forms of Hermann-Mauguin symbols are useful for direct copy-and-paste in documents and notes."
+                  )
+                }}
+              </label>
+              {{ $hmUnicode := default .Params.hm_short_unicode .Params.short_hm_symbol_unicode }}
+              {{ if not $hmUnicode }}{{ $hmUnicode = .Params.hm_full_unicode }}{{ end }}
+              {{ if not $hmUnicode }}{{ $hmUnicode = .Params.hm_universal_unicode }}{{ end }}
+              {{ if not $hmUnicode }}{{ $hmUnicode = default .Params.hm_short .Params.short_hm_symbol }}{{ end }}
+              <strong class="metric-value-unicode">{{ partial "value.html" $hmUnicode }}</strong>
             </div>
             <div class="metric">
               <label>
@@ -744,30 +758,28 @@
             "id" "cell-commensurator"
             "toggle_key" "k_subgroups"
             "info_general" "Cell-commensurator relations describe transformations into commensurate supercells of the same space group."
-            "info_context" "Buttons are labeled as No. N (k), where N is the list number and k is the index, typically |det(P)| for transformation matrix P."
+            "info_context" "Dropdown entries are labeled as No. N (k), where N is the list number and k is the index, typically |det(P)| for transformation matrix P."
           )
         }}
         <div data-section-body="k_subgroups">
           {{ $commensurator := .Params.cell_commensurator }}
           {{ if $commensurator }}
             <div class="mapping-box" data-mapping-box>
-              <div class="mapping-tabs" role="tablist" aria-label="Cell commensurator mappings">
-                {{ range $idx, $item := $commensurator }}
-                  {{ $tabId := printf "comm-tab-%d" $idx }}
-                  <button
-                    class="mapping-tab-btn{{ if eq $idx 0 }} is-active{{ end }}"
-                    type="button"
-                    role="tab"
-                    id="{{ $tabId }}"
-                    data-mapping-tab
-                    data-target-id="{{ printf "comm-panel-%d" $idx }}"
-                    data-is-reference-setting="true"
-                    aria-controls="{{ printf "comm-panel-%d" $idx }}"
-                    aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
-                  >
-                    <span>No. {{ add $idx 1 }} ({{ partial "value.html" $item.index }})</span>
-                  </button>
-                {{ end }}
+              <div class="mapping-select-wrap">
+                <label class="mapping-select-label" for="commensurator-select">Cell Mapping</label>
+                <select id="commensurator-select" class="mapping-select" data-mapping-select aria-label="Select cell commensurator mapping">
+                  {{ range $idx, $item := $commensurator }}
+                    {{ $panelId := printf "comm-panel-%d" $idx }}
+                    <option
+                      value="{{ $panelId }}"
+                      data-target-id="{{ $panelId }}"
+                      data-is-reference-setting="true"
+                      {{ if eq $idx 0 }}selected{{ end }}
+                    >
+                      No. {{ add $idx 1 }} ({{ partial "value.html" $item.index }})
+                    </option>
+                  {{ end }}
+                </select>
               </div>
               {{ range $idx, $item := $commensurator }}
                 <div

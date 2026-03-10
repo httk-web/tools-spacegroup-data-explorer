@@ -805,6 +805,18 @@ const updateIndexControlVisibility = () => {
   }
 };
 
+const updateSettingsConditionalVisibility = () => {
+  document.querySelectorAll("[data-hide-when-settings]").forEach((section) => {
+    const targetMode = normalizeSettingsMode(section.getAttribute("data-hide-when-settings"));
+    if (!targetMode) {
+      return;
+    }
+    const shouldHide = settingsMode === targetMode;
+    section.hidden = shouldHide;
+    section.style.display = shouldHide ? "none" : "";
+  });
+};
+
 const updateSectionToggles = () => {
   document.querySelectorAll("[data-section-toggle]").forEach((button) => {
     const key = button.getAttribute("data-section-toggle");
@@ -893,54 +905,84 @@ const updateDatasetTabLinks = () => {
 const updateMappingVisibility = () => {
   document.querySelectorAll("[data-mapping-box]").forEach((box) => {
     const tabs = Array.from(box.querySelectorAll("[data-mapping-tab]"));
+    const mappingSelect = box.querySelector("[data-mapping-select]");
     const panels = Array.from(box.querySelectorAll("[data-mapping-panel]"));
-
-    const visibleTabs = tabs.filter((tab) => {
-      const isReference = tab.getAttribute("data-is-reference-setting") === "true";
-      const visible = settingsMode !== SETTINGS_ITA || isReference;
-      const tabItem = tab.closest("[data-mapping-tab-item]");
-      if (tabItem) {
-        tabItem.hidden = !visible;
-        tabItem.style.display = visible ? "" : "none";
-      }
-      tab.hidden = !visible;
-      tab.style.display = visible ? "" : "none";
-      return visible;
-    });
-
-    const visiblePanelIds = new Set(
-      visibleTabs.map((tab) => tab.getAttribute("data-target-id")).filter(Boolean)
-    );
-
+    let visiblePanelIds = [];
     let activeTargetId = box.getAttribute("data-active-target-id");
-    if (!activeTargetId || !visiblePanelIds.has(activeTargetId)) {
-      activeTargetId = visibleTabs.length > 0 ? visibleTabs[0].getAttribute("data-target-id") : null;
+
+    if (tabs.length > 0) {
+      const visibleTabs = tabs.filter((tab) => {
+        const isReference = tab.getAttribute("data-is-reference-setting") === "true";
+        const visible = settingsMode !== SETTINGS_ITA || isReference;
+        const tabItem = tab.closest("[data-mapping-tab-item]");
+        if (tabItem) {
+          tabItem.hidden = !visible;
+          tabItem.style.display = visible ? "" : "none";
+        }
+        tab.hidden = !visible;
+        tab.style.display = visible ? "" : "none";
+        return visible;
+      });
+
+      visiblePanelIds = visibleTabs.map((tab) => tab.getAttribute("data-target-id")).filter(Boolean);
+
+      if (!activeTargetId || !visiblePanelIds.includes(activeTargetId)) {
+        activeTargetId = visibleTabs.length > 0 ? visibleTabs[0].getAttribute("data-target-id") : null;
+      }
+
+      tabs.forEach((tab) => {
+        const targetId = tab.getAttribute("data-target-id");
+        const isActive = Boolean(targetId) && targetId === activeTargetId && !tab.hidden;
+        tab.classList.toggle("is-active", isActive);
+        tab.setAttribute("aria-selected", isActive ? "true" : "false");
+      });
+    } else if (mappingSelect instanceof HTMLSelectElement) {
+      const options = Array.from(mappingSelect.options);
+      const visibleOptions = options.filter((option) => {
+        const isReference = option.getAttribute("data-is-reference-setting") === "true";
+        const visible = settingsMode !== SETTINGS_ITA || isReference;
+        option.hidden = !visible;
+        return visible;
+      });
+
+      visiblePanelIds = visibleOptions
+        .map((option) => option.getAttribute("data-target-id") || option.value)
+        .filter(Boolean);
+
+      const selectedTargetId = mappingSelect.value;
+      if (!activeTargetId && visiblePanelIds.includes(selectedTargetId)) {
+        activeTargetId = selectedTargetId;
+      }
+      if (!activeTargetId || !visiblePanelIds.includes(activeTargetId)) {
+        activeTargetId = visiblePanelIds.length > 0 ? visiblePanelIds[0] : null;
+      }
       if (activeTargetId) {
-        box.setAttribute("data-active-target-id", activeTargetId);
+        mappingSelect.value = activeTargetId;
       } else {
-        box.removeAttribute("data-active-target-id");
+        mappingSelect.selectedIndex = -1;
       }
     }
 
-    tabs.forEach((tab) => {
-      const targetId = tab.getAttribute("data-target-id");
-      const isActive = Boolean(targetId) && targetId === activeTargetId && !tab.hidden;
-      tab.classList.toggle("is-active", isActive);
-      tab.setAttribute("aria-selected", isActive ? "true" : "false");
-    });
+    if (activeTargetId) {
+      box.setAttribute("data-active-target-id", activeTargetId);
+    } else {
+      box.removeAttribute("data-active-target-id");
+    }
+
+    const visiblePanelIdSet = new Set(visiblePanelIds);
 
     panels.forEach((panel) => {
       const panelId = panel.getAttribute("id");
       const isReference = panel.getAttribute("data-is-reference-setting") === "true";
       const allowedByMode = settingsMode !== SETTINGS_ITA || isReference;
-      const isVisiblePanel = Boolean(panelId) && panelId === activeTargetId && visiblePanelIds.has(panelId) && allowedByMode;
+      const isVisiblePanel = Boolean(panelId) && panelId === activeTargetId && visiblePanelIdSet.has(panelId) && allowedByMode;
       panel.hidden = !isVisiblePanel;
       panel.style.display = isVisiblePanel ? "" : "none";
     });
 
     const emptyNote = box.querySelector("[data-mapping-empty]");
     if (emptyNote) {
-      emptyNote.hidden = !(settingsMode === SETTINGS_ITA && visibleTabs.length === 0);
+      emptyNote.hidden = !(settingsMode === SETTINGS_ITA && visiblePanelIds.length === 0);
     }
   });
 };
@@ -1029,6 +1071,21 @@ const setupEvents = () => {
       const box = tab.closest("[data-mapping-box]");
       const targetId = tab.getAttribute("data-target-id");
       if (!box || !targetId || tab.hidden) {
+        return;
+      }
+      box.setAttribute("data-active-target-id", targetId);
+      updateMappingVisibility();
+    });
+  });
+
+  document.querySelectorAll("[data-mapping-select]").forEach((select) => {
+    select.addEventListener("change", () => {
+      const box = select.closest("[data-mapping-box]");
+      if (!box) {
+        return;
+      }
+      const targetId = select.value;
+      if (!targetId) {
         return;
       }
       box.setAttribute("data-active-target-id", targetId);
@@ -1312,6 +1369,7 @@ const refreshUiState = () => {
   }
 
   updateSettingsButtons();
+  updateSettingsConditionalVisibility();
   updateThemeButtons();
   updateSectionToggles();
   updateMappingVisibility();

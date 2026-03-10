@@ -681,6 +681,12 @@ html[data-theme="dark"] .section-anchor-icon {
   font-family: "Fraunces", Georgia, serif;
 }
 
+.metric strong.metric-value-unicode {
+  font-family: "DejaVu Sans", "Noto Sans", "Segoe UI Symbol", "Arial Unicode MS", sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.01em;
+}
+
 .metric-span-two {
   grid-column: span 2;
 }
@@ -855,6 +861,39 @@ html[data-theme="dark"] .section-anchor-icon {
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 10px;
+}
+
+.mapping-select-wrap {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.mapping-select-label {
+  color: var(--ink-soft);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.mapping-select {
+  min-width: 240px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 13px;
+  font-family: "DejaVu Sans", "Noto Sans", "Segoe UI Symbol", "Arial Unicode MS", sans-serif;
+  line-height: 1.25;
+  padding: 7px 10px;
+}
+
+.mapping-select:hover,
+.mapping-select:focus-visible {
+  border-color: rgba(var(--accent-rgb), 0.55);
+  outline: none;
 }
 
 .mapping-tab-item {
