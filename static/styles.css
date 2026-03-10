@@ -857,6 +857,16 @@ html[data-theme="dark"] .section-anchor-icon {
   margin-bottom: 10px;
 }
 
+.mapping-tab-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.mapping-tab-item .mapping-tab-btn {
+  padding-right: 34px;
+}
+
 .mapping-tab-btn {
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -882,6 +892,36 @@ html[data-theme="dark"] .section-anchor-icon {
   border-color: rgba(var(--accent-rgb), 0.8);
   box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.18);
   background: rgba(var(--accent-rgb), 0.1);
+}
+
+.mapping-tab-external-link {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: inline-grid;
+  place-content: center;
+  text-decoration: none;
+  z-index: 1;
+}
+
+.mapping-tab-external-link:hover,
+.mapping-tab-external-link:focus-visible {
+  background: rgba(var(--accent-rgb), 0.16);
+  outline: none;
+}
+
+.mapping-tab-external-icon {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
+html[data-theme="dark"] .mapping-tab-external-icon {
+  filter: brightness(0) invert(1) contrast(1.08);
 }
 
 .mapping-panel {

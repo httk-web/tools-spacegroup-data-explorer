@@ -421,19 +421,36 @@
                 {{ range $idx, $item := $maxSubs }}
                   {{ $hmLabel := default $item.hall_key (default $item.hm_short $item.hm_short_unicode) }}
                   {{ $tabId := printf "max-tab-%d" $idx }}
-                  <button
-                    class="mapping-tab-btn{{ if eq $idx 0 }} is-active{{ end }}"
-                    type="button"
-                    role="tab"
-                    id="{{ $tabId }}"
-                    data-mapping-tab
-                    data-target-id="{{ printf "max-panel-%d" $idx }}"
-                    data-is-reference-setting="{{ if $item.is_reference_setting }}true{{ else }}false{{ end }}"
-                    aria-controls="{{ printf "max-panel-%d" $idx }}"
-                    aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
-                  >
-                    <span>{{ $hmLabel }} #{{ partial "value.html" $item.ita_number }} ({{ partial "value.html" $item.index }})</span>
-                  </button>
+                  <div class="mapping-tab-item" data-mapping-tab-item>
+                    <button
+                      class="mapping-tab-btn{{ if eq $idx 0 }} is-active{{ end }}"
+                      type="button"
+                      role="tab"
+                      id="{{ $tabId }}"
+                      data-mapping-tab
+                      data-target-id="{{ printf "max-panel-%d" $idx }}"
+                      data-is-reference-setting="{{ if $item.is_reference_setting }}true{{ else }}false{{ end }}"
+                      aria-controls="{{ printf "max-panel-%d" $idx }}"
+                      aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
+                    >
+                      <span>{{ $hmLabel }} #{{ partial "value.html" $item.ita_number }} ({{ partial "value.html" $item.index }})</span>
+                    </button>
+                    {{ with $item.hall_key }}
+                      <a
+                        class="mapping-tab-external-link"
+                        href="{{ printf "hall/%s/" . | relURL }}"
+                        aria-label="Open {{ $hmLabel }} spacegroup page"
+                        title="Open spacegroup page"
+                      >
+                        <img
+                          class="mapping-tab-external-icon"
+                          src="{{ "icons/Hicon_Pack_1/external-link.svg" | relURL }}"
+                          alt=""
+                          aria-hidden="true"
+                        />
+                      </a>
+                    {{ end }}
+                  </div>
                 {{ end }}
               </div>
               <p class="note" data-mapping-empty hidden>No ITA-reference subgroup mappings in this mode.</p>
@@ -526,19 +543,36 @@
                 {{ range $idx, $item := $minSup }}
                   {{ $hmLabel := default $item.hall_key (default $item.hm_short $item.hm_short_unicode) }}
                   {{ $tabId := printf "min-tab-%d" $idx }}
-                  <button
-                    class="mapping-tab-btn{{ if eq $idx 0 }} is-active{{ end }}"
-                    type="button"
-                    role="tab"
-                    id="{{ $tabId }}"
-                    data-mapping-tab
-                    data-target-id="{{ printf "min-panel-%d" $idx }}"
-                    data-is-reference-setting="{{ if $item.is_reference_setting }}true{{ else }}false{{ end }}"
-                    aria-controls="{{ printf "min-panel-%d" $idx }}"
-                    aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
-                  >
-                    <span>{{ $hmLabel }} #{{ partial "value.html" $item.ita_number }} ({{ partial "value.html" $item.index }})</span>
-                  </button>
+                  <div class="mapping-tab-item" data-mapping-tab-item>
+                    <button
+                      class="mapping-tab-btn{{ if eq $idx 0 }} is-active{{ end }}"
+                      type="button"
+                      role="tab"
+                      id="{{ $tabId }}"
+                      data-mapping-tab
+                      data-target-id="{{ printf "min-panel-%d" $idx }}"
+                      data-is-reference-setting="{{ if $item.is_reference_setting }}true{{ else }}false{{ end }}"
+                      aria-controls="{{ printf "min-panel-%d" $idx }}"
+                      aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
+                    >
+                      <span>{{ $hmLabel }} #{{ partial "value.html" $item.ita_number }} ({{ partial "value.html" $item.index }})</span>
+                    </button>
+                    {{ with $item.hall_key }}
+                      <a
+                        class="mapping-tab-external-link"
+                        href="{{ printf "hall/%s/" . | relURL }}"
+                        aria-label="Open {{ $hmLabel }} spacegroup page"
+                        title="Open spacegroup page"
+                      >
+                        <img
+                          class="mapping-tab-external-icon"
+                          src="{{ "icons/Hicon_Pack_1/external-link.svg" | relURL }}"
+                          alt=""
+                          aria-hidden="true"
+                        />
+                      </a>
+                    {{ end }}
+                  </div>
                 {{ end }}
               </div>
               <p class="note" data-mapping-empty hidden>No ITA-reference supergroup mappings in this mode.</p>

@@ -827,7 +827,7 @@ const updateSectionToggles = () => {
 };
 
 const updateStaticHallLinks = () => {
-  document.querySelectorAll("a.related-link[href]").forEach((anchor) => {
+  document.querySelectorAll("a.related-link[href], a.mapping-tab-external-link[href]").forEach((anchor) => {
     const href = anchor.getAttribute("href");
     if (!href) {
       return;
@@ -898,6 +898,11 @@ const updateMappingVisibility = () => {
     const visibleTabs = tabs.filter((tab) => {
       const isReference = tab.getAttribute("data-is-reference-setting") === "true";
       const visible = settingsMode !== SETTINGS_ITA || isReference;
+      const tabItem = tab.closest("[data-mapping-tab-item]");
+      if (tabItem) {
+        tabItem.hidden = !visible;
+        tabItem.style.display = visible ? "" : "none";
+      }
       tab.hidden = !visible;
       tab.style.display = visible ? "" : "none";
       return visible;
