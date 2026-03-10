@@ -172,7 +172,7 @@ body {
 }
 
 html[data-theme="dark"] .theme-icon {
-  filter: invert(1) brightness(1.12);
+  filter: brightness(0) invert(1) contrast(1.08);
 }
 
 .theme-btn:hover,
