@@ -1,0 +1,197 @@
+{{ define "main" }}
+  <section id="detail-view" class="view is-active" aria-label="Pointgroup detail view">
+    <div class="detail-grid">
+      <article class="detail-card panel section-wide">
+        <h3>All Pointgroups</h3>
+        {{ $nav := .Params.pointgroup_nav }}
+        {{ if $nav }}
+          <div class="related-links">
+            {{ range $nav }}
+              {{ $classes := slice "related-link" }}
+              {{ if eq $.Params.slug .slug }}{{ $classes = $classes | append "is-active" }}{{ end }}
+              <a class="{{ delimit $classes " " }}" href="{{ printf "pointgroup/%s/" .slug | relURL }}">
+                {{ partial "value.html" .hm_symbol }}
+              </a>
+            {{ end }}
+          </div>
+        {{ else }}
+          <p class="note">Pointgroup navigation is not available.</p>
+        {{ end }}
+      </article>
+
+      <article class="detail-card panel section-wide">
+        <h3>Identity</h3>
+        <div class="identity-grid">
+          <div class="metric">
+            <label>Hermann-Mauguin Symbol</label>
+            <strong>{{ partial "value.html" .Params.hm_symbol }}</strong>
+          </div>
+          <div class="metric">
+            <label>Schoenflies Symbol</label>
+            <strong>{{ partial "value.html" .Params.schoenflies_unicode }}</strong>
+          </div>
+          <div class="metric">
+            <label>Crystal System</label>
+            <strong>{{ partial "value.html" .Params.crystal_system }}</strong>
+          </div>
+          <div class="metric">
+            <label>Laue Class</label>
+            <strong>{{ partial "value.html" .Params.laue_class }}</strong>
+          </div>
+          <div class="metric">
+            <label>Group Order</label>
+            <strong>{{ partial "value.html" .Params.order }}</strong>
+          </div>
+          <div class="metric">
+            <label>Conjugacy Classes</label>
+            <strong>{{ partial "value.html" .Params.n_conjugacy_classes }}</strong>
+          </div>
+          <div class="metric metric-span-two">
+            <label>Centrosymmetric</label>
+            <strong>{{ if .Params.is_centrosymmetric }}Yes{{ else }}No{{ end }}</strong>
+          </div>
+        </div>
+      </article>
+
+      <article class="detail-card panel section-wide">
+        <h3>Symmetry Operations</h3>
+        {{ $symops := .Params.symops }}
+        {{ if $symops }}
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>xyz</th>
+                <th>type</th>
+                <th>proper</th>
+                <th>axis</th>
+                <th>sense</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ range $index, $op := $symops }}
+                <tr>
+                  <td>{{ add $index 1 }}</td>
+                  <td>{{ partial "value.html" $op.xyz }}</td>
+                  <td>{{ partial "value.html" $op.type }}</td>
+                  <td>{{ if $op.is_proper }}Yes{{ else }}No{{ end }}</td>
+                  <td>{{ partial "value.html" (delimit $op.axis ", ") }}</td>
+                  <td>{{ partial "value.html" $op.sense }}</td>
+                </tr>
+              {{ end }}
+            </tbody>
+          </table>
+          <p class="note">Showing all {{ len $symops }} operations.</p>
+        {{ else }}
+          <p class="note">No symmetry operation data available.</p>
+        {{ end }}
+      </article>
+
+      <article class="detail-card panel section-wide">
+        <h3>Conjugacy Classes</h3>
+        {{ $classes := .Params.conjugacy_classes }}
+        {{ if $classes }}
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Label</th>
+                <th>Size</th>
+                <th>Representative</th>
+                <th>Operation Type</th>
+                <th>Axis</th>
+                <th>Members</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ range $classes }}
+                {{ $labelText := "—" }}
+                {{ with .label }}
+                  {{ if reflect.IsMap . }}
+                    {{ $labelText = default (index . "ascii") (index . "unicode") }}
+                  {{ else }}
+                    {{ $labelText = . }}
+                  {{ end }}
+                {{ end }}
+                <tr>
+                  <td>{{ partial "value.html" $labelText }}</td>
+                  <td>{{ partial "value.html" .size }}</td>
+                  <td>{{ partial "value.html" .representative }}</td>
+                  <td>{{ partial "value.html" .op_type }}</td>
+                  <td>{{ partial "value.html" (delimit .op_axis ", ") }}</td>
+                  <td>{{ partial "value.html" .members }}</td>
+                </tr>
+              {{ end }}
+            </tbody>
+          </table>
+          <p class="note">Showing all {{ len $classes }} conjugacy classes.</p>
+        {{ else }}
+          <p class="note">No conjugacy class data available.</p>
+        {{ end }}
+      </article>
+
+      <article class="detail-card panel section-wide">
+        <h3>Character Table (Real)</h3>
+        {{ $rows := .Params.character_table_real }}
+        {{ if $rows }}
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Irrep</th>
+                <th>Dimension</th>
+                <th>Characters</th>
+                <th>Basis (Linear)</th>
+                <th>Basis (Rotation)</th>
+                <th>Basis (Quadratic)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ range $rows }}
+                <tr>
+                  <td>{{ partial "value.html" (default .label .label_unicode) }}</td>
+                  <td>{{ partial "value.html" .dimension }}</td>
+                  <td>{{ partial "value.html" .characters }}</td>
+                  <td>{{ partial "value.html" .basis_linear }}</td>
+                  <td>{{ partial "value.html" .basis_rotation }}</td>
+                  <td>{{ partial "value.html" .basis_quadratic }}</td>
+                </tr>
+              {{ end }}
+            </tbody>
+          </table>
+          <p class="note">Showing all {{ len $rows }} real irreducible representations.</p>
+        {{ else }}
+          <p class="note">No real character table data available.</p>
+        {{ end }}
+      </article>
+
+      <article class="detail-card panel section-wide">
+        <h3>Character Table (Complex)</h3>
+        {{ $rows := .Params.character_table_complex }}
+        {{ if $rows }}
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Irrep</th>
+                <th>Dimension</th>
+                <th>Characters</th>
+                <th>Frobenius-Schur Indicator</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ range $rows }}
+                <tr>
+                  <td>{{ partial "value.html" (default .label .label_unicode) }}</td>
+                  <td>{{ partial "value.html" .dimension }}</td>
+                  <td>{{ partial "value.html" .characters }}</td>
+                  <td>{{ partial "value.html" .frobenius_schur_indicator }}</td>
+                </tr>
+              {{ end }}
+            </tbody>
+          </table>
+          <p class="note">Showing all {{ len $rows }} complex irreducible representations.</p>
+        {{ else }}
+          <p class="note">No complex character table data available.</p>
+        {{ end }}
+      </article>
+    </div>
+  </section>
+{{ end }}

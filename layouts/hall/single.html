@@ -122,7 +122,14 @@
           </div>
           <div class="metric">
             <label>Point Group <span tabindex="0" class="info-dot" data-tip="Point group describing rotational/reflection symmetry without translations.">i</span></label>
-            <strong>{{ partial "value.html" .Params.point_group }}</strong>
+            {{ $pointgroupSlug := .Params.point_group_slug }}
+            <strong>
+              {{ if $pointgroupSlug }}
+                <a class="inline-detail-link" href="{{ printf "pointgroup/%s/" $pointgroupSlug | relURL }}">{{ partial "value.html" .Params.point_group }}</a>
+              {{ else }}
+                {{ partial "value.html" .Params.point_group }}
+              {{ end }}
+            </strong>
           </div>
           <div class="metric">
             <label>Laue Class <span tabindex="0" class="info-dot" data-tip="Laue class used in diffraction symmetry classification.">i</span></label>

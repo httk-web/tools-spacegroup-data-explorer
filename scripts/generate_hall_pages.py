@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import gzip
 import json
+import re
 from fractions import Fraction
 from pathlib import Path
 from typing import Any, Dict, List
@@ -10,12 +11,14 @@ from typing import Any, Dict, List
 HUGO_ROOT = Path(__file__).resolve().parents[1]
 DATA_ROOT = HUGO_ROOT / "static" / "data"
 SYMMETRY_BASICS_PATH = DATA_ROOT / "symmetry_basics.json"
+POINTGROUP_BASICS_PATH = DATA_ROOT / "pointgroup_basics.json"
 BARNIGHAUSEN_PATH = HUGO_ROOT / "static" / "data" / "barnighausen_hall.json"
 EUCLIDIAN_NORMALIZER_PATH = DATA_ROOT / "euclidian_normalizer.json"
 CONTINUOUS_EUCLIDIAN_NORMALIZER_PATH = DATA_ROOT / "continuous_euclidian_normalizer_hall.json"
 CELL_COMMENSURATOR_PATH = DATA_ROOT / "cell_commensurator_hall.json"
 CONTENT_ROOT = HUGO_ROOT / "content"
 HALL_ROOT = CONTENT_ROOT / "hall"
+POINTGROUP_ROOT = CONTENT_ROOT / "pointgroup"
 
 INDEX_FIELDS = [
     "hall_key",
@@ -167,6 +170,147 @@ def load_data() -> Dict[str, Dict[str, Any]]:
         hall_key = str(raw_hall_key)
         normalized[hall_key] = _normalize_entry(hall_key, raw_entry)
     return normalized
+
+
+def _normalize_pointgroup_entry(pointgroup_key: str, raw_entry: Any) -> Dict[str, Any]:
+    entry = dict(raw_entry) if isinstance(raw_entry, dict) else {}
+    normalized = dict(entry)
+
+    normalized["pointgroup_key"] = pointgroup_key
+    normalized["hm_symbol"] = _first_non_empty(entry.get("hm_symbol"), pointgroup_key)
+    normalized["crystal_system"] = _first_non_empty(entry.get("crystal_system"))
+    normalized["laue_class"] = _first_non_empty(entry.get("laue_class"))
+    normalized["schoenflies"] = _first_non_empty(entry.get("schoenflies"))
+    normalized["schoenflies_latex"] = _first_non_empty(entry.get("schoenflies_latex"), normalized["schoenflies"])
+    normalized["schoenflies_unicode"] = _first_non_empty(entry.get("schoenflies_unicode"), normalized["schoenflies"])
+
+    symops = entry.get("symops")
+    normalized["symops"] = symops if isinstance(symops, list) else []
+
+    conjugacy = entry.get("conjugacy_classes")
+    normalized["conjugacy_classes"] = conjugacy if isinstance(conjugacy, list) else []
+
+    character_real = entry.get("character_table_real")
+    normalized["character_table_real"] = character_real if isinstance(character_real, list) else []
+
+    character_complex = entry.get("character_table_complex")
+    normalized["character_table_complex"] = character_complex if isinstance(character_complex, list) else []
+
+    return normalized
+
+
+def load_pointgroup_data() -> Dict[str, Dict[str, Any]]:
+    if not _resolve_input_path(POINTGROUP_BASICS_PATH).exists():
+        _log("Pointgroup basics data not found; pointgroup pages and table will be empty")
+        return {}
+    _log(f"Loading pointgroup basics from {_resolve_input_path(POINTGROUP_BASICS_PATH)}")
+    payload = _load_json(POINTGROUP_BASICS_PATH)
+    if not isinstance(payload, dict):
+        return {}
+
+    normalized: Dict[str, Dict[str, Any]] = {}
+    for raw_key, raw_entry in payload.items():
+        pointgroup_key = str(raw_key)
+        normalized[pointgroup_key] = _normalize_pointgroup_entry(pointgroup_key, raw_entry)
+    return normalized
+
+
+def _pointgroup_slug_base(symbol: str) -> str:
+    text = str(symbol).strip().lower()
+    if text.startswith("-"):
+        text = f"neg-{text[1:]}"
+    text = text.replace("/", "-over-")
+    text = text.replace("*", "star")
+    text = text.replace('"', "prime")
+    text = text.replace(" ", "-")
+    text = re.sub(r"[^a-z0-9-]", "-", text)
+    text = re.sub(r"-{2,}", "-", text).strip("-")
+    return text or "pointgroup"
+
+
+def attach_pointgroup_slugs(pointgroup_data: Dict[str, Dict[str, Any]]) -> Dict[str, str]:
+    used_slugs: set[str] = set()
+    symbol_to_slug: Dict[str, str] = {}
+
+    for pointgroup_key in sorted(pointgroup_data.keys()):
+        base_slug = _pointgroup_slug_base(pointgroup_key)
+        slug = base_slug
+        suffix = 2
+        while slug in used_slugs:
+            slug = f"{base_slug}-{suffix}"
+            suffix += 1
+
+        used_slugs.add(slug)
+        symbol_to_slug[pointgroup_key] = slug
+
+    lookup: Dict[str, str] = {}
+    for pointgroup_key, entry in pointgroup_data.items():
+        slug = symbol_to_slug[pointgroup_key]
+        entry["slug"] = slug
+        entry["url"] = f"/pointgroup/{slug}/"
+
+        key_text = str(pointgroup_key).strip()
+        if key_text:
+            lookup[key_text] = slug
+
+        hm_symbol = str(entry.get("hm_symbol") or "").strip()
+        if hm_symbol:
+            lookup[hm_symbol] = slug
+
+    return lookup
+
+
+def build_pointgroup_index_rows(pointgroup_data: Dict[str, Dict[str, Any]]) -> List[Dict[str, Any]]:
+    rows: List[Dict[str, Any]] = []
+    for pointgroup_key, entry in pointgroup_data.items():
+        rows.append(
+            {
+                "pointgroup_key": pointgroup_key,
+                "slug": entry.get("slug"),
+                "hm_symbol": entry.get("hm_symbol"),
+                "schoenflies": entry.get("schoenflies"),
+                "schoenflies_latex": entry.get("schoenflies_latex"),
+                "schoenflies_unicode": entry.get("schoenflies_unicode"),
+                "crystal_system": entry.get("crystal_system"),
+                "laue_class": entry.get("laue_class"),
+                "order": entry.get("order"),
+                "n_conjugacy_classes": entry.get("n_conjugacy_classes"),
+                "is_centrosymmetric": bool(entry.get("is_centrosymmetric")),
+            }
+        )
+
+    rows.sort(
+        key=lambda item: (
+            str(item.get("crystal_system") or ""),
+            item.get("order") if isinstance(item.get("order"), int) else 10**9,
+            str(item.get("hm_symbol") or item.get("pointgroup_key") or ""),
+        )
+    )
+    return rows
+
+
+def build_pointgroup_nav_rows(pointgroup_data: Dict[str, Dict[str, Any]]) -> List[Dict[str, Any]]:
+    rows: List[Dict[str, Any]] = []
+    for pointgroup_key, entry in pointgroup_data.items():
+        rows.append(
+            {
+                "pointgroup_key": pointgroup_key,
+                "slug": entry.get("slug"),
+                "hm_symbol": entry.get("hm_symbol"),
+                "schoenflies_unicode": entry.get("schoenflies_unicode"),
+                "crystal_system": entry.get("crystal_system"),
+                "order": entry.get("order"),
+            }
+        )
+
+    rows.sort(
+        key=lambda item: (
+            str(item.get("crystal_system") or ""),
+            item.get("order") if isinstance(item.get("order"), int) else 10**9,
+            str(item.get("hm_symbol") or item.get("pointgroup_key") or ""),
+        )
+    )
+    return rows
 
 
 def load_barnighausen_data() -> Dict[str, Dict[str, Dict[str, Any]]]:
@@ -702,6 +846,17 @@ def write_index_data(index_rows: List[Dict[str, Any]]) -> None:
     _write_json_gz(index_path.with_name(f"{index_path.name}.gz"), index_rows)
 
 
+def write_pointgroup_index_data(pointgroup_index_rows: List[Dict[str, Any]]) -> None:
+    DATA_ROOT.mkdir(parents=True, exist_ok=True)
+    index_path = DATA_ROOT / "pointgroup_index.json"
+    _log(f"Writing pointgroup index data ({len(pointgroup_index_rows)} rows) to {index_path} and {index_path}.gz")
+    index_path.write_text(
+        json.dumps(pointgroup_index_rows, ensure_ascii=True, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    _write_json_gz(index_path.with_name(f"{index_path.name}.gz"), pointgroup_index_rows)
+
+
 def write_index_content(index_rows: List[Dict[str, Any]]) -> None:
     CONTENT_ROOT.mkdir(parents=True, exist_ok=True)
     _log(f"Writing index content to {CONTENT_ROOT / '_index.md'}")
@@ -717,11 +872,46 @@ title: "Spacegroup Data Explorer"
         legacy_index.unlink()
 
 
+def write_pointgroup_pages(
+    pointgroup_data: Dict[str, Dict[str, Any]],
+    pointgroup_nav: List[Dict[str, Any]],
+) -> None:
+    POINTGROUP_ROOT.mkdir(parents=True, exist_ok=True)
+    total = len(pointgroup_data)
+    _log(f"Writing {total} pointgroup detail pages to {POINTGROUP_ROOT}")
+
+    # Sort consistently with the index table.
+    ordered = sorted(
+        pointgroup_data.items(),
+        key=lambda item: (
+            str(item[1].get("crystal_system") or ""),
+            item[1].get("order") if isinstance(item[1].get("order"), int) else 10**9,
+            str(item[1].get("hm_symbol") or item[0]),
+        ),
+    )
+    for idx, (pointgroup_key, entry) in enumerate(ordered, start=1):
+        slug = str(entry.get("slug") or pointgroup_key)
+        payload: Dict[str, Any] = {
+            "title": f"Pointgroup {entry.get('hm_symbol') or pointgroup_key}",
+            "pointgroup_key": pointgroup_key,
+            "slug": slug,
+            "url": f"/pointgroup/{slug}/",
+        }
+        payload.update(entry)
+        payload["pointgroup_nav"] = pointgroup_nav
+
+        json_text = json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True)
+        (POINTGROUP_ROOT / f"{slug}.md").write_text(f"{json_text}\n", encoding="utf-8")
+        if idx % 20 == 0 or idx == total:
+            _log(f"  wrote {idx}/{total} pointgroup pages")
+
+
 def write_hall_pages(
     data: Dict[str, Dict[str, Any]],
     euclidian_normalizer_data: Dict[str, Dict[str, Any]],
     continuous_euclidian_normalizer_data: Dict[str, Dict[str, Any]],
     cell_commensurator_data: Dict[str, Dict[str, Any]],
+    pointgroup_slug_lookup: Dict[str, str],
     related_settings: Dict[str, List[Dict[str, Any]]],
     maximal_subgroup_mappings: Dict[str, List[Dict[str, Any]]],
     minimal_supergroup_mappings: Dict[str, List[Dict[str, Any]]],
@@ -750,6 +940,8 @@ def write_hall_pages(
         payload["continuous_euclidian_normalizer"] = (
             (continuous_euclidian_normalizer_data.get(hall_key) or {}).get("continuous_euclidian_normalizer")
         )
+        point_group_symbol = str(payload.get("point_group") or "").strip()
+        payload["point_group_slug"] = pointgroup_slug_lookup.get(point_group_symbol)
         payload["cell_commensurator"] = _build_cell_commensurator_items(
             (cell_commensurator_data.get(hall_key) or {}).get("affine_commensurator"),
             entry,
@@ -766,6 +958,10 @@ def main() -> None:
     _log("Starting generation")
     data = load_data()
     _log(f"Loaded {len(data)} Hall entries")
+    pointgroup_data = load_pointgroup_data()
+    _log(f"Loaded pointgroup basics for {len(pointgroup_data)} pointgroups")
+    pointgroup_slug_lookup = attach_pointgroup_slugs(pointgroup_data)
+    _log(f"Prepared pointgroup slug lookup ({len(pointgroup_slug_lookup)} symbols)")
     barnighausen = load_barnighausen_data()
     _log(f"Loaded Barnighausen mappings for {len(barnighausen)} source Hall entries")
     euclidian_normalizer_data = load_euclidian_normalizer_data()
@@ -776,6 +972,10 @@ def main() -> None:
     _log(f"Loaded cell commensurator entries for {len(cell_commensurator_data)} Hall entries")
     index_rows = build_index_rows(data)
     _log(f"Built index rows ({len(index_rows)})")
+    pointgroup_index_rows = build_pointgroup_index_rows(pointgroup_data)
+    _log(f"Built pointgroup index rows ({len(pointgroup_index_rows)})")
+    pointgroup_nav = build_pointgroup_nav_rows(pointgroup_data)
+    _log(f"Built pointgroup nav rows ({len(pointgroup_nav)})")
     related_settings = build_related_settings(index_rows)
     _log(f"Built related settings map ({len(related_settings)} keys)")
     (
@@ -788,11 +988,14 @@ def main() -> None:
 
     write_index_content(index_rows)
     write_index_data(index_rows)
+    write_pointgroup_index_data(pointgroup_index_rows)
+    write_pointgroup_pages(pointgroup_data, pointgroup_nav)
     write_hall_pages(
         data,
         euclidian_normalizer_data,
         continuous_euclidian_normalizer_data,
         cell_commensurator_data,
+        pointgroup_slug_lookup,
         related_settings,
         maximal_subgroup_mappings,
         minimal_supergroup_mappings,

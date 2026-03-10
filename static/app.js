@@ -1,8 +1,11 @@
 const tableView = document.getElementById("table-view");
+const indexTable = document.getElementById("index-table");
+const tableHead = document.getElementById("table-head");
 const tableBody = document.getElementById("table-body");
 const searchInput = document.getElementById("search-input");
 const searchSummary = document.getElementById("search-summary");
 const emptyState = document.getElementById("empty-state");
+const settingsToggleWrapIndex = document.getElementById("settings-toggle-wrap-index");
 
 const INDEX_FIELDS = [
   "hall_key",
@@ -44,6 +47,13 @@ const INDEX_FIELDS = [
 
 const INDEX_DATA_PATH = "data/spacegroup_index.json.gz";
 const FULL_DATA_PATH = "data/spacegroup_data.json.gz";
+const POINTGROUP_INDEX_DATA_PATH = "data/pointgroup_index.json.gz";
+const POINTGROUP_BASICS_DATA_PATH = "data/pointgroup_basics.json.gz";
+
+const DATASET_SPACEGROUPS = "spacegroups";
+const DATASET_POINTGROUPS = "pointgroups";
+const DATASET_QUERY_KEY = "dataset";
+const DATASET_STORAGE_KEY = "crystal_dataset_mode";
 
 const SETTINGS_ALL = "all";
 const SETTINGS_ITA = "ita";
@@ -96,6 +106,19 @@ const firstNonEmpty = (...values) => {
   return null;
 };
 
+const toMaybeNumber = (value) => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+  return null;
+};
+
 const normalizeRow = (row) => {
   const normalized = { ...row };
 
@@ -140,6 +163,39 @@ const normalizeRow = (row) => {
 
 const normalizeRows = (rows) => rows.map((row) => normalizeRow(row));
 
+const slugifyPointgroupSymbol = (symbol) => {
+  let text = String(symbol || "").trim().toLowerCase();
+  if (!text) {
+    return "pointgroup";
+  }
+  if (text.startsWith("-")) {
+    text = `neg-${text.slice(1)}`;
+  }
+  text = text.replace(/\//g, "-over-");
+  text = text.replace(/\*/g, "star");
+  text = text.replace(/\"/g, "prime");
+  text = text.replace(/\s+/g, "-");
+  text = text.replace(/[^a-z0-9-]/g, "-");
+  text = text.replace(/-+/g, "-").replace(/^-+|-+$/g, "");
+  return text || "pointgroup";
+};
+
+const normalizePointgroupRow = (row) => {
+  const normalized = { ...row };
+  normalized.pointgroup_key = firstNonEmpty(row.pointgroup_key, row.hm_symbol);
+  normalized.hm_symbol = firstNonEmpty(row.hm_symbol, row.pointgroup_key);
+  normalized.schoenflies = firstNonEmpty(row.schoenflies);
+  normalized.schoenflies_unicode = firstNonEmpty(row.schoenflies_unicode, row.schoenflies);
+  normalized.schoenflies_latex = firstNonEmpty(row.schoenflies_latex, row.schoenflies);
+  normalized.crystal_system = firstNonEmpty(row.crystal_system);
+  normalized.laue_class = firstNonEmpty(row.laue_class);
+  normalized.order = toMaybeNumber(row.order);
+  normalized.n_conjugacy_classes = toMaybeNumber(row.n_conjugacy_classes);
+  normalized.is_centrosymmetric = Boolean(row.is_centrosymmetric);
+  normalized.slug = firstNonEmpty(row.slug);
+  return normalized;
+};
+
 const normalizeSettingsMode = (value) => {
   if (typeof value !== "string") {
     return null;
@@ -151,10 +207,38 @@ const normalizeSettingsMode = (value) => {
   return null;
 };
 
+const normalizeDatasetMode = (value) => {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (normalized === DATASET_SPACEGROUPS || normalized === DATASET_POINTGROUPS) {
+    return normalized;
+  }
+  return null;
+};
+
+const inferDatasetFromPath = () => {
+  const path = window.location.pathname || "/";
+  if (path.includes("/pointgroup/")) {
+    return DATASET_POINTGROUPS;
+  }
+  return DATASET_SPACEGROUPS;
+};
+
 const getModeFromUrl = () => {
   try {
     const url = new URL(window.location.href);
     return normalizeSettingsMode(url.searchParams.get(SETTINGS_QUERY_KEY));
+  } catch {
+    return null;
+  }
+};
+
+const getDatasetFromUrl = () => {
+  try {
+    const url = new URL(window.location.href);
+    return normalizeDatasetMode(url.searchParams.get(DATASET_QUERY_KEY));
   } catch {
     return null;
   }
@@ -184,10 +268,20 @@ const getModeFromStorage = () => {
   }
 };
 
+const getDatasetFromStorage = () => {
+  try {
+    return normalizeDatasetMode(window.localStorage.getItem(DATASET_STORAGE_KEY));
+  } catch {
+    return null;
+  }
+};
+
 const sortState = { key: "ita_number", direction: "asc" };
 let allRows = [];
+let pointgroupRows = [];
 let filteredRows = [];
 let settingsMode = getModeFromUrl() || getModeFromStorage() || SETTINGS_ITA;
+let activeDataset = getDatasetFromUrl() || getDatasetFromStorage() || inferDatasetFromPath();
 let sectionState = {
   symops: getSectionOpenFromUrl(SYMOPS_QUERY_KEY, true),
   wyckoff: getSectionOpenFromUrl(WYCKOFF_QUERY_KEY, true),
@@ -255,6 +349,9 @@ const resolveBase = () => {
   if (path.includes("/hall/")) {
     return path.split("/hall/")[0] + "/";
   }
+  if (path.includes("/pointgroup/")) {
+    return path.split("/pointgroup/")[0] + "/";
+  }
   return path.endsWith("/") ? path : path.replace(/[^/]+$/, "");
 };
 
@@ -278,10 +375,12 @@ const readJsonResponse = async (response, source) => {
   return JSON.parse(text);
 };
 
-const withNavigationQuery = (targetPath, mode) => {
+const withNavigationQuery = (targetPath, mode, dataset = activeDataset) => {
   const activeMode = normalizeSettingsMode(mode) || SETTINGS_ALL;
+  const activeDatasetMode = normalizeDatasetMode(dataset) || DATASET_SPACEGROUPS;
   const url = new URL(targetPath, window.location.origin);
   url.searchParams.set(SETTINGS_QUERY_KEY, activeMode);
+  url.searchParams.set(DATASET_QUERY_KEY, activeDatasetMode);
   Object.entries(SECTION_QUERY_KEYS).forEach(([key, queryKey]) => {
     url.searchParams.set(queryKey, sectionState[key] ? QUERY_VALUE_OPEN : QUERY_VALUE_CLOSED);
   });
@@ -290,26 +389,40 @@ const withNavigationQuery = (targetPath, mode) => {
 
 const buildHallUrl = (baseUrl, hallKey, mode = settingsMode) => {
   const rawPath = `${baseUrl}hall/${encodeURIComponent(hallKey)}/`;
-  return withNavigationQuery(rawPath, mode);
+  return withNavigationQuery(rawPath, mode, DATASET_SPACEGROUPS);
 };
 
-const buildRootUrl = (baseUrl, mode = settingsMode) => {
-  return withNavigationQuery(baseUrl, mode);
+const buildPointgroupUrl = (baseUrl, slug) => {
+  const rawPath = `${baseUrl}pointgroup/${encodeURIComponent(slug)}/`;
+  return withNavigationQuery(rawPath, settingsMode, DATASET_POINTGROUPS);
+};
+
+const buildRootUrl = (baseUrl, mode = settingsMode, dataset = activeDataset) => {
+  return withNavigationQuery(baseUrl, mode, dataset);
 };
 
 const syncModeUrlAndStorage = () => {
-  const normalized = normalizeSettingsMode(settingsMode) || SETTINGS_ALL;
-  settingsMode = normalized;
+  const normalizedMode = normalizeSettingsMode(settingsMode) || SETTINGS_ALL;
+  const normalizedDataset = normalizeDatasetMode(activeDataset) || DATASET_SPACEGROUPS;
+  settingsMode = normalizedMode;
+  activeDataset = normalizedDataset;
 
   try {
-    window.localStorage.setItem(SETTINGS_STORAGE_KEY, normalized);
+    window.localStorage.setItem(SETTINGS_STORAGE_KEY, normalizedMode);
+  } catch {
+    // Ignore storage failures.
+  }
+
+  try {
+    window.localStorage.setItem(DATASET_STORAGE_KEY, normalizedDataset);
   } catch {
     // Ignore storage failures.
   }
 
   try {
     const url = new URL(window.location.href);
-    url.searchParams.set(SETTINGS_QUERY_KEY, normalized);
+    url.searchParams.set(SETTINGS_QUERY_KEY, normalizedMode);
+    url.searchParams.set(DATASET_QUERY_KEY, normalizedDataset);
     Object.entries(SECTION_QUERY_KEYS).forEach(([key, queryKey]) => {
       url.searchParams.set(queryKey, sectionState[key] ? QUERY_VALUE_OPEN : QUERY_VALUE_CLOSED);
     });
@@ -328,27 +441,6 @@ const getRowsForMode = (rows) => {
     return rows;
   }
   return rows.filter((row) => Boolean(row.is_reference_setting));
-};
-
-const applyFilters = () => {
-  const visibleRows = getRowsForMode(allRows);
-  if (!tableView || !searchInput) {
-    filteredRows = visibleRows;
-    return;
-  }
-  filteredRows = filterIndex(visibleRows, searchInput.value);
-};
-
-const updateSummary = () => {
-  if (!searchSummary) {
-    return;
-  }
-  const query = searchInput ? searchInput.value.trim() : "";
-  if (!query) {
-    searchSummary.textContent = "Showing all spacegroups";
-    return;
-  }
-  searchSummary.textContent = `Query "${query}" returned ${filteredRows.length} result${filteredRows.length === 1 ? "" : "s"}`;
 };
 
 const isLikelyLatex = (value) => {
@@ -403,46 +495,73 @@ const renderHallWithLatex = (row) => {
   return escapeHtml(formatValue(row.hall_unicode || row.hall_entry || row.hall_key));
 };
 
-const renderTable = () => {
-  if (!tableBody || !emptyState) {
-    return;
-  }
+const renderPointgroupSymbol = (row) => {
+  return escapeHtml(formatValue(row.hm_symbol || row.pointgroup_key));
+};
 
-  const baseUrl = resolveBase();
-  const rows = sortRows(filteredRows);
-  tableBody.innerHTML = rows
-    .map((row) => {
-      const hallLabel = renderHallWithLatex(row);
-      const hallUrl = buildHallUrl(baseUrl, row.hall_key);
-      const shortHmLabel = renderHmWithAliases(row);
-      return `
-      <tr class="sg-row" data-active="false" data-hall-url="${hallUrl}">
-        <td>${shortHmLabel}</td>
-        <td>${escapeHtml(formatValue(row.ita_number))}</td>
-        <td>${hallLabel}</td>
-        <td class="td-muted">${escapeHtml(formatValue(row.crystal_system))}</td>
-        <td class="td-muted">${escapeHtml(formatValue(row.point_group))}</td>
-        <td class="td-muted">${escapeHtml(formatValue(row.n_c))}</td>
-      </tr>`;
-    })
-    .join("");
+const renderPointgroupSchoenflies = (row) => {
+  return renderMaybeMath(row.schoenflies_unicode || row.schoenflies || row.schoenflies_latex);
+};
 
-  emptyState.hidden = rows.length > 0;
-  updateSummary();
-
-  if (window.MathJax && typeof window.MathJax.typesetPromise === "function") {
-    tableBody.classList.add("math-pending");
-    window.MathJax.typesetPromise([tableBody])
-      .catch((err) => {
-        console.warn("MathJax typeset failed", err);
-      })
-      .finally(() => {
-        tableBody.classList.remove("math-pending");
-      });
+const TABLE_CONFIGS = {
+  [DATASET_SPACEGROUPS]: {
+    ariaLabel: "Spacegroup table",
+    searchPlaceholder: "Hall symbol, HM symbol, ITA, n:c, crystal system...",
+    emptyLabel: "spacegroups",
+    defaultSortKey: "ita_number",
+    columns: [
+      { key: "short_hm_symbol", label: "Hermann-Mauguin", render: (row) => renderHmWithAliases(row) },
+      { key: "ita_number", label: "ITA #", render: (row) => escapeHtml(formatValue(row.ita_number)) },
+      { key: "hall_key", label: "Hall Symbol", render: (row) => renderHallWithLatex(row) },
+      { key: "crystal_system", label: "Crystal System", muted: true, render: (row) => escapeHtml(formatValue(row.crystal_system)) },
+      { key: "point_group", label: "Point Group", muted: true, render: (row) => escapeHtml(formatValue(row.point_group)) },
+      { key: "n_c", label: "n:c", muted: true, render: (row) => escapeHtml(formatValue(row.n_c)) }
+    ],
+    rowUrl: (baseUrl, row) => buildHallUrl(baseUrl, row.hall_key)
+  },
+  [DATASET_POINTGROUPS]: {
+    ariaLabel: "Pointgroup table",
+    searchPlaceholder: "Point group symbol, Schoenflies, crystal system, laue class...",
+    emptyLabel: "pointgroups",
+    defaultSortKey: "hm_symbol",
+    columns: [
+      { key: "hm_symbol", label: "Point Group", render: (row) => renderPointgroupSymbol(row) },
+      { key: "schoenflies_unicode", label: "Schoenflies", render: (row) => renderPointgroupSchoenflies(row) },
+      { key: "crystal_system", label: "Crystal System", muted: true, render: (row) => escapeHtml(formatValue(row.crystal_system)) },
+      { key: "laue_class", label: "Laue Class", muted: true, render: (row) => escapeHtml(formatValue(row.laue_class)) },
+      { key: "order", label: "Order", muted: true, render: (row) => escapeHtml(formatValue(row.order)) },
+      {
+        key: "n_conjugacy_classes",
+        label: "Conj. Classes",
+        muted: true,
+        render: (row) => escapeHtml(formatValue(row.n_conjugacy_classes))
+      }
+    ],
+    rowUrl: (baseUrl, row) => buildPointgroupUrl(baseUrl, row.slug || slugifyPointgroupSymbol(row.hm_symbol || row.pointgroup_key))
   }
 };
 
-const filterIndex = (rows, query) => {
+const getActiveTableConfig = () => {
+  return TABLE_CONFIGS[activeDataset] || TABLE_CONFIGS[DATASET_SPACEGROUPS];
+};
+
+const ensureSortKeyForActiveDataset = (forceDefault = false) => {
+  const config = getActiveTableConfig();
+  const keys = new Set(config.columns.map((column) => column.key));
+  if (forceDefault || !keys.has(sortState.key)) {
+    sortState.key = config.defaultSortKey;
+    sortState.direction = "asc";
+  }
+};
+
+const getActiveSourceRows = () => {
+  if (activeDataset === DATASET_POINTGROUPS) {
+    return pointgroupRows;
+  }
+  return getRowsForMode(allRows);
+};
+
+const filterSpacegroupRows = (rows, query) => {
   const q = String(query || "").trim().toLowerCase();
   if (!q) {
     return rows;
@@ -498,6 +617,122 @@ const filterIndex = (rows, query) => {
   });
 };
 
+const filterPointgroupRows = (rows, query) => {
+  const q = String(query || "").trim().toLowerCase();
+  if (!q) {
+    return rows;
+  }
+
+  return rows.filter((item) => {
+    const haystack = [
+      item.pointgroup_key,
+      item.hm_symbol,
+      item.schoenflies,
+      item.schoenflies_unicode,
+      item.schoenflies_latex,
+      item.crystal_system,
+      item.laue_class,
+      item.order,
+      item.n_conjugacy_classes,
+      item.is_centrosymmetric ? "centrosymmetric" : "non-centrosymmetric"
+    ]
+      .map((value) => String(value ?? ""))
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(q);
+  });
+};
+
+const applyFilters = () => {
+  const visibleRows = getActiveSourceRows();
+  if (!tableView || !searchInput) {
+    filteredRows = visibleRows;
+    return;
+  }
+
+  if (activeDataset === DATASET_POINTGROUPS) {
+    filteredRows = filterPointgroupRows(visibleRows, searchInput.value);
+    return;
+  }
+  filteredRows = filterSpacegroupRows(visibleRows, searchInput.value);
+};
+
+const updateSummary = () => {
+  if (!searchSummary) {
+    return;
+  }
+  const config = getActiveTableConfig();
+  const query = searchInput ? searchInput.value.trim() : "";
+  if (!query) {
+    searchSummary.textContent = `Showing all ${config.emptyLabel}`;
+    return;
+  }
+  searchSummary.textContent = `Query "${query}" returned ${filteredRows.length} result${filteredRows.length === 1 ? "" : "s"}`;
+};
+
+const renderTableHeader = () => {
+  if (!tableHead) {
+    return;
+  }
+  const config = getActiveTableConfig();
+  tableHead.innerHTML = `<tr>${config.columns
+    .map((column) => `<th><button class="sort-btn" data-sort="${column.key}">${escapeHtml(column.label)}</button></th>`)
+    .join("")}</tr>`;
+};
+
+const renderTable = () => {
+  if (!tableBody || !emptyState) {
+    return;
+  }
+
+  const config = getActiveTableConfig();
+  renderTableHeader();
+
+  if (indexTable) {
+    indexTable.setAttribute("aria-label", config.ariaLabel);
+  }
+
+  const baseUrl = resolveBase();
+  const rows = sortRows(filteredRows);
+  tableBody.innerHTML = rows
+    .map((row) => {
+      const rowUrl = config.rowUrl(baseUrl, row);
+      const cells = config.columns
+        .map((column) => {
+          const className = column.muted ? ' class="td-muted"' : "";
+          return `<td${className}>${column.render(row)}</td>`;
+        })
+        .join("");
+      return `<tr class="sg-row" data-active="false" data-row-url="${escapeHtml(rowUrl)}">${cells}</tr>`;
+    })
+    .join("");
+
+  emptyState.hidden = rows.length > 0;
+  emptyState.textContent = `No matching ${config.emptyLabel} found.`;
+  updateSummary();
+
+  if (window.MathJax && typeof window.MathJax.typesetPromise === "function") {
+    tableBody.classList.add("math-pending");
+    window.MathJax.typesetPromise([tableHead || tableBody, tableBody])
+      .catch((err) => {
+        console.warn("MathJax typeset failed", err);
+      })
+      .finally(() => {
+        tableBody.classList.remove("math-pending");
+      });
+  }
+};
+
+const updateSearchUi = () => {
+  if (!tableView) {
+    return;
+  }
+  const config = getActiveTableConfig();
+  if (searchInput) {
+    searchInput.placeholder = config.searchPlaceholder;
+  }
+};
+
 const updateSettingsButtons = () => {
   document.querySelectorAll("[data-settings-toggle]").forEach((button) => {
     button.dataset.mode = settingsMode;
@@ -507,6 +742,25 @@ const updateSettingsButtons = () => {
       settingsMode === SETTINGS_ITA ? "Settings mode: ITA reference only" : "Settings mode: all"
     );
   });
+};
+
+const updateDatasetButtons = () => {
+  document.querySelectorAll("[data-dataset-toggle]").forEach((button) => {
+    button.dataset.dataset = activeDataset;
+    button.setAttribute(
+      "title",
+      activeDataset === DATASET_SPACEGROUPS ? "Table: spacegroups" : "Table: pointgroups"
+    );
+  });
+};
+
+const updateIndexControlVisibility = () => {
+  if (!tableView) {
+    return;
+  }
+  if (settingsToggleWrapIndex) {
+    settingsToggleWrapIndex.hidden = false;
+  }
 };
 
 const updateSectionToggles = () => {
@@ -550,7 +804,7 @@ const updateStaticHallLinks = () => {
 
     const explicitMode = normalizeSettingsMode(parsed.searchParams.get(SETTINGS_QUERY_KEY));
     const mode = explicitMode || settingsMode;
-    anchor.setAttribute("href", withNavigationQuery(parsed.pathname, mode));
+    anchor.setAttribute("href", withNavigationQuery(parsed.pathname, mode, DATASET_SPACEGROUPS));
   });
 };
 
@@ -609,7 +863,7 @@ const updateBackButtonHref = () => {
   if (!backButton) {
     return;
   }
-  backButton.setAttribute("href", buildRootUrl(resolveBase()));
+  backButton.setAttribute("href", buildRootUrl(resolveBase(), settingsMode, activeDataset));
 };
 
 const getCurrentDetailHallKey = () => {
@@ -705,20 +959,28 @@ const setupEvents = () => {
         return;
       }
 
-      const row = target.closest("tr.sg-row");
+      const row = target.closest("tr[data-row-url]");
       if (!row) {
         return;
       }
-      const hallUrl = row.getAttribute("data-hall-url");
-      if (hallUrl) {
-        window.location.assign(hallUrl);
+      const rowUrl = row.getAttribute("data-row-url");
+      if (rowUrl) {
+        window.location.assign(rowUrl);
       }
     });
   }
 
-  document.querySelectorAll(".sort-btn").forEach((button) => {
-    button.addEventListener("click", () => {
-      const key = button.dataset.sort;
+  if (tableView) {
+    tableView.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) {
+        return;
+      }
+      const button = target.closest(".sort-btn");
+      if (!button) {
+        return;
+      }
+      const key = button.getAttribute("data-sort");
       if (!key) {
         return;
       }
@@ -732,7 +994,7 @@ const setupEvents = () => {
 
       renderTable();
     });
-  });
+  }
 
   document.querySelectorAll("[data-settings-toggle]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -741,6 +1003,15 @@ const setupEvents = () => {
       if (settingsMode === SETTINGS_ITA && maybeRedirectToItaReferenceSetting()) {
         return;
       }
+      refreshUiState();
+    });
+  });
+
+  document.querySelectorAll("[data-dataset-toggle]").forEach((button) => {
+    button.addEventListener("click", () => {
+      activeDataset = activeDataset === DATASET_SPACEGROUPS ? DATASET_POINTGROUPS : DATASET_SPACEGROUPS;
+      ensureSortKeyForActiveDataset(true);
+      syncModeUrlAndStorage();
       refreshUiState();
     });
   });
@@ -774,6 +1045,52 @@ const buildIndexRows = (data) => {
     }
     return String(a.hall_key).localeCompare(String(b.hall_key));
   });
+};
+
+const buildPointgroupRows = (data) => {
+  let rows = [];
+
+  if (Array.isArray(data)) {
+    rows = data.map((row) => normalizePointgroupRow(row));
+  } else if (data && typeof data === "object") {
+    rows = Object.entries(data).map(([pointgroupKey, entry]) => {
+      const rawEntry = entry && typeof entry === "object" ? entry : {};
+      return normalizePointgroupRow({
+        ...rawEntry,
+        pointgroup_key: pointgroupKey,
+        hm_symbol: rawEntry.hm_symbol ?? pointgroupKey
+      });
+    });
+  }
+
+  // Ensure every row has a unique slug, even when we loaded fallback raw basics.
+  const usedSlugs = new Set();
+  rows.forEach((row) => {
+    const base = firstNonEmpty(row.slug, slugifyPointgroupSymbol(row.hm_symbol || row.pointgroup_key));
+    let slug = String(base);
+    let suffix = 2;
+    while (usedSlugs.has(slug)) {
+      slug = `${base}-${suffix}`;
+      suffix += 1;
+    }
+    usedSlugs.add(slug);
+    row.slug = slug;
+  });
+
+  rows.sort((a, b) => {
+    const cs = String(a.crystal_system || "").localeCompare(String(b.crystal_system || ""));
+    if (cs !== 0) {
+      return cs;
+    }
+    const orderA = a.order ?? 10 ** 9;
+    const orderB = b.order ?? 10 ** 9;
+    if (orderA !== orderB) {
+      return orderA - orderB;
+    }
+    return String(a.hm_symbol || a.pointgroup_key || "").localeCompare(String(b.hm_symbol || b.pointgroup_key || ""));
+  });
+
+  return rows;
 };
 
 const buildLists = (rows) => {
@@ -859,7 +1176,7 @@ const populateDetailSelects = (lists) => {
       const option = document.createElement("option");
       option.value = buildHallUrl(baseUrl, hallKey);
       const row = allRows.find((item) => item.hall_key === hallKey);
-      option.textContent = row ? (row.hall_unicode || row.hall_entry || hallKey) : hallKey;
+      option.textContent = row ? row.hall_unicode || row.hall_entry || hallKey : hallKey;
       option.dataset.matchValue = hallKey;
       return option;
     });
@@ -896,46 +1213,62 @@ const refreshUiState = () => {
   populateDetailSelects(lists);
 
   if (tableView) {
+    ensureSortKeyForActiveDataset();
+    updateSearchUi();
+    updateIndexControlVisibility();
     applyFilters();
     renderTable();
   }
 
   updateSettingsButtons();
+  updateDatasetButtons();
   updateSectionToggles();
   updateMappingVisibility();
   updateStaticHallLinks();
   updateBackButtonHref();
 };
 
-const initIndex = async () => {
-  syncModeUrlAndStorage();
-  updateSettingsButtons();
-  updateBackButtonHref();
-
-  const baseUrl = resolveBase();
-  let data = null;
+const loadSpacegroupRows = async (baseUrl) => {
   const sources = [INDEX_DATA_PATH, FULL_DATA_PATH];
   for (const source of sources) {
     try {
       const response = await fetch(`${baseUrl}${source}`, { cache: "force-cache" });
-      data = await readJsonResponse(response, source);
-      break;
+      const data = await readJsonResponse(response, source);
+      if (Array.isArray(data)) {
+        return normalizeRows(data);
+      }
+      return normalizeRows(buildIndexRows(data));
     } catch (error) {
       console.warn(`Unable to load ${source}`, error);
     }
   }
+  return [];
+};
 
-  if (!data) {
-    setupEvents();
-    return;
+const loadPointgroupRows = async (baseUrl) => {
+  const sources = [POINTGROUP_INDEX_DATA_PATH, POINTGROUP_BASICS_DATA_PATH];
+  for (const source of sources) {
+    try {
+      const response = await fetch(`${baseUrl}${source}`, { cache: "force-cache" });
+      const data = await readJsonResponse(response, source);
+      return buildPointgroupRows(data);
+    } catch (error) {
+      console.warn(`Unable to load ${source}`, error);
+    }
   }
+  return [];
+};
 
-  if (Array.isArray(data)) {
-    allRows = normalizeRows(data);
-  } else {
-    // Fall back to deriving the index when the full dataset was loaded instead.
-    allRows = normalizeRows(buildIndexRows(data));
-  }
+const initIndex = async () => {
+  syncModeUrlAndStorage();
+  updateSettingsButtons();
+  updateDatasetButtons();
+  updateBackButtonHref();
+
+  const baseUrl = resolveBase();
+  allRows = await loadSpacegroupRows(baseUrl);
+  pointgroupRows = await loadPointgroupRows(baseUrl);
+
   setupEvents();
   refreshUiState();
 };
