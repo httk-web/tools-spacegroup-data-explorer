@@ -87,7 +87,7 @@
             "id" "identity"
             "toggle_key" "identity"
             "info_general" "Identity fields summarize how a space group is named and classified across crystallographic notation systems."
-            "info_context" "This section focuses on symbols and classes used throughout this dataset and links the point-group field directly to the matching pointgroup detail page when available."
+            "info_context" "This section focuses on symbols used on this page and links the point-group field directly to the matching pointgroup detail page when available."
           )
         }}
         <div data-section-body="identity">
@@ -117,7 +117,7 @@
                 {{
                   partial "info_dot.html" (dict
                     "general" "A short Hermann-Mauguin symbol is a compact way to express the main symmetry content of a group."
-                    "context" "This field may also show short-form aliases in parentheses when the dataset contains alternative short names for the same setting."
+                    "context" "If alternate short forms exist, they are shown in parentheses."
                   )
                 }}
               </label>
@@ -141,7 +141,7 @@
                 {{
                   partial "info_dot.html" (dict
                     "general" "Setting labels are often used to distinguish equivalent descriptions of one space-group type."
-                    "context" "The n:c value and its aliases come directly from the source mapping used for setting navigation in this explorer."
+                    "context" "Aliases are shown in parentheses when available."
                   )
                 }}
               </label>
@@ -158,7 +158,7 @@
                 {{
                   partial "info_dot.html" (dict
                     "general" "Hall symbols encode space-group symmetry in a form designed to fix generators and origin choices unambiguously."
-                    "context" "This explorer shows the Hall representation for each entry and prefers the LaTeX version when the dataset provides one."
+                    "context" "When available, the symbol is rendered in math notation."
                   )
                 }}
               </label>
@@ -196,7 +196,6 @@
                 {{
                   partial "info_dot.html" (dict
                     "general" "Laue classes group crystals by diffraction symmetry and are closely tied to inversion-related point-group behavior."
-                    "context" "The value here is the class assignment stored in this dataset for the current setting."
                   )
                 }}
               </label>
@@ -225,7 +224,7 @@
             "id" "details"
             "toggle_key" "details"
             "info_general" "This section collects structural flags and counts that describe special properties of the space group and its unit-cell representation."
-            "info_context" "Values are displayed exactly as provided by the generated dataset, including compact aliases and precomputed counts used elsewhere in this explorer."
+            "info_context" "Values are shown with the same labels used across this page, including compact aliases and summary counts."
           )
         }}
         <div data-section-body="details">
@@ -241,7 +240,7 @@
             {{
               partial "info_dot.html" (dict
                 "general" "Schoenflies notation is an alternative symmetry-label system common in spectroscopy and molecular-group contexts."
-                "context" "The value here mirrors the Schoenflies mapping linked to this space-group record."
+                "context" "It is shown in the same compact symbol style used throughout this page."
               )
             }}:
             {{ partial "value.html" .Params.schoenflies }}
@@ -251,7 +250,6 @@
             {{
               partial "info_dot.html" (dict
                 "general" "Qualifiers are extra labels used to disambiguate variants that share a closely related base symbol."
-                "context" "If present, this qualifier comes directly from the source record and is kept as-is in the explorer."
               )
             }}:
             {{ partial "value.html" .Params.qualifier }}
@@ -261,7 +259,7 @@
             {{
               partial "info_dot.html" (dict
                 "general" "The asymmetric unit is the smallest region that generates the full crystal under all symmetry operations."
-                "context" "These bounds are shown in the same textual format as the source data used by this site."
+                "context" "On this page, bounds are shown as compact coordinate intervals."
               )
             }}:
             {{ partial "value.html" .Params.asym_unit }}
@@ -291,7 +289,6 @@
             {{
               partial "info_dot.html" (dict
                 "general" "Z commonly denotes multiplicity-related counts per conventional unit cell in crystallographic tables."
-                "context" "Here we display the dataset field named order_z without additional normalization."
               )
             }}:
             {{ partial "value.html" .Params.order_z }}
@@ -306,7 +303,7 @@
             "id" "symmetry-operations"
             "toggle_key" "symops"
             "info_general" "Symmetry operations describe coordinate transformations that leave the crystal invariant."
-            "info_context" "Rows are listed in dataset order and use xyz notation as displayed in source data."
+            "info_context" "Rows are listed in page order and use xyz notation."
           )
         }}
         <div data-section-body="symops">
@@ -322,7 +319,7 @@
                   </th>
                   <th>
                     rot_type
-                    {{ partial "info_dot.html" (dict "general" "Rotation type labels classify rotational character such as order or inversion pairing." "context" "Names follow the dataset vocabulary and are not reinterpreted by the UI.") }}
+                    {{ partial "info_dot.html" (dict "general" "Rotation type labels classify rotational character such as order or inversion pairing." "context" "This column keeps the short rot_type labels shown in the table.") }}
                   </th>
                   <th>
                     screw/glide
@@ -355,7 +352,7 @@
             "id" "wyckoff-positions"
             "toggle_key" "wyckoff"
             "info_general" "Wyckoff positions partition symmetry-equivalent sites by multiplicity and site symmetry in a given space group."
-            "info_context" "The table lists position labels and representative orbit text as provided in this dataset."
+            "info_context" "The table lists position labels and representative orbit text used on this page."
           )
         }}
         <div data-section-body="wyckoff">
@@ -367,7 +364,7 @@
                   <tr>
                     <th>
                       Label
-                      {{ partial "info_dot.html" (dict "general" "Wyckoff labels are letter identifiers for site classes within a space group." "context" "These labels are shown exactly as stored in the source entry.") }}
+                      {{ partial "info_dot.html" (dict "general" "Wyckoff labels are letter identifiers for site classes within a space group." "context" "Labels are shown directly in their table form.") }}
                     </th>
                     <th>
                       Multiplicity
@@ -375,7 +372,7 @@
                     </th>
                     <th>
                       Site Symmetry
-                      {{ partial "info_dot.html" (dict "general" "Site symmetry is the subgroup that leaves a representative site fixed." "context" "This column uses the short site-symmetry text from the dataset.") }}
+                      {{ partial "info_dot.html" (dict "general" "Site symmetry is the subgroup that leaves a representative site fixed." "context" "This column uses short site-symmetry text.") }}
                     </th>
                     <th>
                       Full Orbit (xyz)
@@ -712,8 +709,8 @@
             "title" "Cell Commensurator"
             "id" "cell-commensurator"
             "toggle_key" "k_subgroups"
-            "info_general" "Cell-commensurator relations describe compatible subgroup mappings under cell transformations with finite index."
-            "info_context" "Buttons are labeled as No. N (k), where N is the listed item number and k is the index value from the mapping data, typically tied to |det(P)|."
+            "info_general" "Cell-commensurator relations describe transformations into commensurate supercells of the same space group."
+            "info_context" "Buttons are labeled as No. N (k), where N is the list number and k is the index, typically |det(P)| for transformation matrix P."
           )
         }}
         <div data-section-body="k_subgroups">
@@ -750,7 +747,7 @@
                   <p class="note">
                     P={{ partial "value.html" $item.transformation_matrix_text }},
                     p={{ partial "value.html" $item.origin_shift_text }}
-                    {{ partial "info_dot.html" (dict "general" "An affine transformation uses a matrix P and shift vector p to map coordinate systems." "context" "For each mapping we show P and p exactly as text from the dataset payload.") }}
+                    {{ partial "info_dot.html" (dict "general" "An affine transformation uses a matrix P and shift vector p to map coordinate systems." "context" "For each mapping, P and p are shown in the matrix-and-shift form used on this page.") }}
                   </p>
                   <table class="data-table">
                     <thead>

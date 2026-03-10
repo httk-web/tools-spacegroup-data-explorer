@@ -8,7 +8,7 @@
             "id" "all-pointgroups"
             "toggle_key" "pointgroup_nav"
             "info_general" "Point groups classify rotational and reflection symmetries without translation components."
-            "info_context" "This navigator lists every pointgroup entry in the dataset and highlights the currently opened one."
+            "info_context" "This navigator lists pointgroups and highlights the currently opened one."
           )
         }}
         <div data-section-body="pointgroup_nav">
@@ -59,7 +59,7 @@
                 {{
                   partial "info_dot.html" (dict
                     "general" "Schoenflies notation is another standard symmetry-label system, common in molecular and spectroscopic contexts."
-                    "context" "This value comes from the pointgroup dataset and is shown in its unicode-friendly display form."
+                    "context" "It is shown in its unicode-friendly display form."
                   )
                 }}
               </label>
@@ -82,8 +82,7 @@
                 Laue Class
                 {{
                   partial "info_dot.html" (dict
-                    "general" "Laue classes capture diffraction-equivalent symmetry behavior." 
-                    "context" "The listed value is the direct class assignment from this pointgroup record."
+                    "general" "Laue classes capture diffraction-equivalent symmetry behavior."
                   )
                 }}
               </label>
@@ -119,7 +118,6 @@
                 {{
                   partial "info_dot.html" (dict
                     "general" "A centrosymmetric group contains inversion symmetry about a center."
-                    "context" "Yes/No here is a boolean flag from the source pointgroup metadata."
                   )
                 }}
               </label>
@@ -136,7 +134,7 @@
             "id" "symmetry-operations"
             "toggle_key" "symops"
             "info_general" "Symmetry operations are coordinate transformations that leave the object unchanged."
-            "info_context" "Rows list operation metadata in the same order and naming convention as the pointgroup source data."
+            "info_context" "Rows list operation metadata in page order using the same short labels shown in the table."
           )
         }}
         <div data-section-body="symops">
@@ -152,7 +150,7 @@
                   </th>
                   <th>
                     type
-                    {{ partial "info_dot.html" (dict "general" "Operation type classifies the symmetry action, such as rotation or reflection." "context" "Type labels follow the dataset vocabulary without UI renaming.") }}
+                    {{ partial "info_dot.html" (dict "general" "Operation type classifies the symmetry action, such as rotation or reflection." "context" "This column keeps the short type labels shown in the table.") }}
                   </th>
                   <th>
                     proper
@@ -195,7 +193,7 @@
             "id" "conjugacy-classes"
             "toggle_key" "conjugacy"
             "info_general" "Conjugacy classes group operations that are equivalent under change of basis inside the same group."
-            "info_context" "Each row provides representative operations and member listings as supplied in the pointgroup dataset."
+            "info_context" "Each row provides representative operations and member listings for one class."
           )
         }}
         <div data-section-body="conjugacy">
@@ -214,7 +212,7 @@
                   </th>
                   <th>
                     Representative
-                    {{ partial "info_dot.html" (dict "general" "A representative is one selected element standing in for the full class." "context" "The displayed representative string is copied from source data.") }}
+                    {{ partial "info_dot.html" (dict "general" "A representative is one selected element standing in for the full class." "context" "The table shows one representative symbol per class.") }}
                   </th>
                   <th>
                     Operation Type
@@ -226,7 +224,7 @@
                   </th>
                   <th>
                     Members
-                    {{ partial "info_dot.html" (dict "general" "Members are the explicit operations contained in a conjugacy class." "context" "This column renders the source member list with default value formatting.") }}
+                    {{ partial "info_dot.html" (dict "general" "Members are the explicit operations contained in a conjugacy class." "context" "Members are displayed as the class element list in this table.") }}
                   </th>
                 </tr>
               </thead>
@@ -265,7 +263,7 @@
             "id" "character-table-real"
             "toggle_key" "char_real"
             "info_general" "A character table summarizes traces of representation matrices over each conjugacy class and is central in symmetry-based analysis."
-            "info_context" "This real table lists irreducible representations and basis hints using the exact fields provided in the dataset."
+            "info_context" "This real table lists irreducible representations with common basis hints."
           )
         }}
         <div data-section-body="char_real">
@@ -280,7 +278,7 @@
                   </th>
                   <th>
                     Dimension
-                    {{ partial "info_dot.html" (dict "general" "Representation dimension is the size of matrices used for that representation." "context" "This is shown as the per-irrep dimension value from the dataset.") }}
+                    {{ partial "info_dot.html" (dict "general" "Representation dimension is the size of matrices used for that representation." "context" "This column shows the dimension value for each irrep.") }}
                   </th>
                   <th>
                     Characters
@@ -288,7 +286,7 @@
                   </th>
                   <th>
                     Basis (Linear)
-                    {{ partial "info_dot.html" (dict "general" "Linear basis labels indicate vector-like functions transforming under the irrep." "context" "This field reflects dataset annotations for linear basis functions.") }}
+                    {{ partial "info_dot.html" (dict "general" "Linear basis labels indicate vector-like functions transforming under the irrep." "context" "This column lists common linear basis examples.") }}
                   </th>
                   <th>
                     Basis (Rotation)
@@ -327,7 +325,7 @@
             "id" "character-table-complex"
             "toggle_key" "char_complex"
             "info_general" "Complex character tables extend representation analysis using complex-valued irreducible representations."
-            "info_context" "This table includes each complex irrep and the Frobenius-Schur indicator as provided by the pointgroup source record."
+            "info_context" "This table includes each complex irrep and its Frobenius-Schur indicator."
           )
         }}
         <div data-section-body="char_complex">
@@ -346,7 +344,7 @@
                   </th>
                   <th>
                     Characters
-                    {{ partial "info_dot.html" (dict "general" "Characters are conjugacy-class invariants computed as traces of representation matrices." "context" "Character values here are rendered exactly from the complex table payload.") }}
+                    {{ partial "info_dot.html" (dict "general" "Characters are conjugacy-class invariants computed as traces of representation matrices." "context" "Character values are shown in compact table form for each irrep.") }}
                   </th>
                   <th>
                     Frobenius-Schur Indicator
