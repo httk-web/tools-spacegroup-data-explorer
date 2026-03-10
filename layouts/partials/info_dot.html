@@ -1,0 +1,11 @@
+{{- $general := default "" .general -}}
+{{- $context := default "" .context -}}
+<span tabindex="0" class="info-dot" role="button" aria-label="More information">
+  i
+  <span class="info-bubble" role="tooltip">
+    <span class="info-bubble-paragraph">{{ $general }}</span>
+    {{- if $context }}
+      <span class="info-bubble-paragraph">{{ $context }}</span>
+    {{- end }}
+  </span>
+</span>

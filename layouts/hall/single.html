@@ -42,128 +42,273 @@
 
     <div class="detail-grid">
       <article class="detail-card panel section-wide">
-        <h3>Alternative settings</h3>
-        {{ $related := .Params.related_settings }}
-        {{ if $related }}
-          <div class="related-links">
-            {{ range $related }}
-              {{ $classes := slice "related-link" }}
-              {{ if .is_reference_setting }}{{ $classes = $classes | append "is-standard" }}{{ end }}
-              {{ if eq $.Params.hall_key .hall_key }}{{ $classes = $classes | append "is-active" }}{{ end }}
-              {{ $label := "—" }}
-              {{ if .is_reference_setting }}
-                {{ $label = "ITA" }}
-              {{ else }}
-                {{ $hm := string (default (default "" .hm_universal) .universal_hm) }}
-                {{ $suffix := findRE "\\([^)]*\\)\\s*$" $hm 1 }}
-                {{ if gt (len $suffix) 0 }}
-                  {{ $label = index $suffix 0 }}
+        {{
+          partial "section_heading.html" (dict
+            "title" "Alternative settings"
+            "id" "alternative-settings"
+            "toggle_key" "alt_settings"
+            "info_general" "The same space-group type can be written in different settings, which are equivalent descriptions that use different axis choices or origin placements."
+            "info_context" "Buttons in this explorer jump between available settings for the current group. ITA marks the ITA reference setting, while non-ITA buttons use suffix labels parsed from the HM form."
+          )
+        }}
+        <div data-section-body="alt_settings">
+          {{ $related := .Params.related_settings }}
+          {{ if $related }}
+            <div class="related-links">
+              {{ range $related }}
+                {{ $classes := slice "related-link" }}
+                {{ if .is_reference_setting }}{{ $classes = $classes | append "is-standard" }}{{ end }}
+                {{ if eq $.Params.hall_key .hall_key }}{{ $classes = $classes | append "is-active" }}{{ end }}
+                {{ $label := "—" }}
+                {{ if .is_reference_setting }}
+                  {{ $label = "ITA" }}
+                {{ else }}
+                  {{ $hm := string (default (default "" .hm_universal) .universal_hm) }}
+                  {{ $suffix := findRE "\\([^)]*\\)\\s*$" $hm 1 }}
+                  {{ if gt (len $suffix) 0 }}
+                    {{ $label = index $suffix 0 }}
+                  {{ end }}
                 {{ end }}
+                <a class="{{ delimit $classes " " }}" href="{{ printf "hall/%s/?settings=all" .hall_key | relURL }}">
+                  <span class="math-content">{{ $label }}</span>
+                </a>
               {{ end }}
-              <a class="{{ delimit $classes " " }}" href="{{ printf "hall/%s/?settings=all" .hall_key | relURL }}">
-                <span class="math-content">{{ $label }}</span>
-              </a>
-            {{ end }}
-          </div>
-        {{ else }}
-          <p class="note">No related Hall settings available.</p>
-        {{ end }}
-      </article>
-
-      <article class="detail-card panel section-wide">
-        <h3>Identity</h3>
-        <div class="identity-grid">
-          <div class="metric">
-            <label>HM Symbol Universal</label>
-            {{ $universalHM := default .Params.hm_symbol_universal_latex (default .Params.hm_universal_latex .Params.universal_hm_latex) }}
-            <strong>
-              {{ if $universalHM }}
-                <span class="math-content">\({{ $universalHM }}\)</span>
-              {{ else }}
-                <span>{{ partial "value.html" (default .Params.hm_universal .Params.universal_hm) }}</span>
-              {{ end }}
-            </strong>
-          </div>
-          <div class="metric">
-            <label>HM Symbol Short <span tabindex="0" class="info-dot" data-tip="Short Hermann-Mauguin symbol, a compact notation for symmetry elements.">i</span></label>
-            {{ $shortHM := default .Params.hm_short_latex .Params.short_hm_symbol_latex }}
-            {{ $shortHMAliases := .Params.hm_short_aliases_latex }}
-            {{ if not $shortHMAliases }}{{ $shortHMAliases = .Params.hm_short_aliases }}{{ end }}
-            {{ if not $shortHMAliases }}{{ $shortHMAliases = .Params.short_hm_symbol_aliases_latex }}{{ end }}
-            {{ if not $shortHMAliases }}{{ $shortHMAliases = .Params.short_hm_symbol_aliases }}{{ end }}
-            <strong>
-              {{ if $shortHM }}
-                <span class="math-content">\({{ $shortHM }}\)</span>
-              {{ else }}
-                <span>{{ partial "value.html" .Params.hm_short }}</span>
-              {{ end }}
-              {{ if $shortHMAliases }}<span class="hm-aliases-inline">{{ partial "value.html" $shortHMAliases }}</span>{{ end }}
-            </strong>
-          </div>
-          <div class="metric">
-            <label>n:c <span tabindex="0" class="info-dot" data-tip="Conventional setting label used in the source dataset.">i</span></label>
-            {{ $nCAliases := .Params.n_c_aliases }}
-            {{ if not $nCAliases }}{{ $nCAliases = .Params.n_c_alias }}{{ end }}
-            <strong>
-              {{ partial "value.html" .Params.n_c }}
-              {{ if $nCAliases }}<span class="hm-aliases-inline">({{ partial "value.html" $nCAliases }})</span>{{ end }}
-            </strong>
-          </div>
-          <div class="metric">
-            <label>Hall Symbol</label>
-            {{ $hallSymbolLatex := .Params.hall_latex }}
-            <strong>
-              {{ if $hallSymbolLatex }}
-                <span class="math-content">\({{ $hallSymbolLatex }}\)</span>
-              {{ else }}
-                <span>{{ partial "value.html" (default .Params.hall_entry .Params.hall_key) }}</span>
-              {{ end }}
-            </strong>
-          </div>
-          <div class="metric">
-            <label>Point Group <span tabindex="0" class="info-dot" data-tip="Point group describing rotational/reflection symmetry without translations.">i</span></label>
-            {{ $pointgroupSlug := .Params.point_group_slug }}
-            <strong>
-              {{ if $pointgroupSlug }}
-                <a class="inline-detail-link" href="{{ printf "pointgroup/%s/" $pointgroupSlug | relURL }}">{{ partial "value.html" .Params.point_group }}</a>
-              {{ else }}
-                {{ partial "value.html" .Params.point_group }}
-              {{ end }}
-            </strong>
-          </div>
-          <div class="metric">
-            <label>Laue Class <span tabindex="0" class="info-dot" data-tip="Laue class used in diffraction symmetry classification.">i</span></label>
-            <strong>{{ partial "value.html" .Params.laue_class }}</strong>
-          </div>
-          <div class="metric metric-span-two">
-            <label>Crystal System <span tabindex="0" class="info-dot" data-tip="Crystal family grouping by lattice constraints and symmetry type.">i</span></label>
-            <strong>{{ partial "value.html" .Params.crystal_system }}</strong>
-          </div>
-        </div>
-      </article>
-
-      <article class="detail-card panel section-wide">
-        <h3>Details</h3>
-        <div class="flag-row">
-          {{ $flags := slice "is_centric" "is_chiral" "is_enantiomorphic" "is_reference_setting" }}
-          {{ range $flags }}
-            {{ $value := index $.Params . }}
-            <span class="flag-pill {{ if $value }}true{{ else }}false{{ end }}">{{ replace . "_" " " }}: {{ if $value }}yes{{ else }}no{{ end }}</span>
+            </div>
+          {{ else }}
+            <p class="note">No related Hall settings available.</p>
           {{ end }}
         </div>
-        <p class="note">Schoenflies: {{ partial "value.html" .Params.schoenflies }}</p>
-        <p class="note">Qualifier: {{ partial "value.html" .Params.qualifier }}</p>
-        <p class="note">Asymmetric unit <span tabindex="0" class="info-dot" data-tip="Asymmetric unit bounds that generate the full unit cell under symmetry operations.">i</span>: {{ partial "value.html" .Params.asym_unit }}</p>
-        <p class="note">Lattice translations: {{ partial "value.html" .Params.n_ltr }}</p>
-        <p class="note">Symmetry operations count: {{ partial "value.html" .Params.n_smx }}</p>
-        <p class="note">Order Z: {{ partial "value.html" .Params.order_z }}</p>
       </article>
 
       <article class="detail-card panel section-wide">
-        <div class="detail-card-head">
-          <button class="section-toggle-btn" type="button" data-section-toggle="symops" aria-expanded="true" aria-label="Collapse section">▼</button>
-          <h3>Symmetry Operations <span tabindex="0" class="info-dot" data-tip="Symmetry operations represented in coordinate form x,y,z with optional origin shifts.">i</span></h3>
+        {{
+          partial "section_heading.html" (dict
+            "title" "Identity"
+            "id" "identity"
+            "toggle_key" "identity"
+            "info_general" "Identity fields summarize how a space group is named and classified across crystallographic notation systems."
+            "info_context" "This section focuses on symbols and classes used throughout this dataset and links the point-group field directly to the matching pointgroup detail page when available."
+          )
+        }}
+        <div data-section-body="identity">
+          <div class="identity-grid">
+            <div class="metric">
+              <label>
+                HM Symbol Universal
+                {{
+                  partial "info_dot.html" (dict
+                    "general" "Hermann-Mauguin symbols describe symmetry elements in a compact text notation used widely in crystallography."
+                    "context" "The universal HM value shown here is the canonical form used in this explorer for grouping and cross-linking settings."
+                  )
+                }}
+              </label>
+              {{ $universalHM := default .Params.hm_symbol_universal_latex (default .Params.hm_universal_latex .Params.universal_hm_latex) }}
+              <strong>
+                {{ if $universalHM }}
+                  <span class="math-content">\({{ $universalHM }}\)</span>
+                {{ else }}
+                  <span>{{ partial "value.html" (default .Params.hm_universal .Params.universal_hm) }}</span>
+                {{ end }}
+              </strong>
+            </div>
+            <div class="metric">
+              <label>
+                HM Symbol Short
+                {{
+                  partial "info_dot.html" (dict
+                    "general" "A short Hermann-Mauguin symbol is a compact way to express the main symmetry content of a group."
+                    "context" "This field may also show short-form aliases in parentheses when the dataset contains alternative short names for the same setting."
+                  )
+                }}
+              </label>
+              {{ $shortHM := default .Params.hm_short_latex .Params.short_hm_symbol_latex }}
+              {{ $shortHMAliases := .Params.hm_short_aliases_latex }}
+              {{ if not $shortHMAliases }}{{ $shortHMAliases = .Params.hm_short_aliases }}{{ end }}
+              {{ if not $shortHMAliases }}{{ $shortHMAliases = .Params.short_hm_symbol_aliases_latex }}{{ end }}
+              {{ if not $shortHMAliases }}{{ $shortHMAliases = .Params.short_hm_symbol_aliases }}{{ end }}
+              <strong>
+                {{ if $shortHM }}
+                  <span class="math-content">\({{ $shortHM }}\)</span>
+                {{ else }}
+                  <span>{{ partial "value.html" .Params.hm_short }}</span>
+                {{ end }}
+                {{ if $shortHMAliases }}<span class="hm-aliases-inline">{{ partial "value.html" $shortHMAliases }}</span>{{ end }}
+              </strong>
+            </div>
+            <div class="metric">
+              <label>
+                n:c
+                {{
+                  partial "info_dot.html" (dict
+                    "general" "Setting labels are often used to distinguish equivalent descriptions of one space-group type."
+                    "context" "The n:c value and its aliases come directly from the source mapping used for setting navigation in this explorer."
+                  )
+                }}
+              </label>
+              {{ $nCAliases := .Params.n_c_aliases }}
+              {{ if not $nCAliases }}{{ $nCAliases = .Params.n_c_alias }}{{ end }}
+              <strong>
+                {{ partial "value.html" .Params.n_c }}
+                {{ if $nCAliases }}<span class="hm-aliases-inline">({{ partial "value.html" $nCAliases }})</span>{{ end }}
+              </strong>
+            </div>
+            <div class="metric">
+              <label>
+                Hall Symbol
+                {{
+                  partial "info_dot.html" (dict
+                    "general" "Hall symbols encode space-group symmetry in a form designed to fix generators and origin choices unambiguously."
+                    "context" "This explorer shows the Hall representation for each entry and prefers the LaTeX version when the dataset provides one."
+                  )
+                }}
+              </label>
+              {{ $hallSymbolLatex := .Params.hall_latex }}
+              <strong>
+                {{ if $hallSymbolLatex }}
+                  <span class="math-content">\({{ $hallSymbolLatex }}\)</span>
+                {{ else }}
+                  <span>{{ partial "value.html" (default .Params.hall_entry .Params.hall_key) }}</span>
+                {{ end }}
+              </strong>
+            </div>
+            <div class="metric">
+              <label>
+                Point Group
+                {{
+                  partial "info_dot.html" (dict
+                    "general" "A point group captures rotational and reflection symmetry while ignoring translations."
+                    "context" "When we have a matching pointgroup page, this value is rendered as a direct link so you can jump from the space-group record to its point-group details."
+                  )
+                }}
+              </label>
+              {{ $pointgroupSlug := .Params.point_group_slug }}
+              <strong>
+                {{ if $pointgroupSlug }}
+                  <a class="inline-detail-link" href="{{ printf "pointgroup/%s/" $pointgroupSlug | relURL }}">{{ partial "value.html" .Params.point_group }}</a>
+                {{ else }}
+                  {{ partial "value.html" .Params.point_group }}
+                {{ end }}
+              </strong>
+            </div>
+            <div class="metric">
+              <label>
+                Laue Class
+                {{
+                  partial "info_dot.html" (dict
+                    "general" "Laue classes group crystals by diffraction symmetry and are closely tied to inversion-related point-group behavior."
+                    "context" "The value here is the class assignment stored in this dataset for the current setting."
+                  )
+                }}
+              </label>
+              <strong>{{ partial "value.html" .Params.laue_class }}</strong>
+            </div>
+            <div class="metric metric-span-two">
+              <label>
+                Crystal System
+                {{
+                  partial "info_dot.html" (dict
+                    "general" "Crystal systems are broad families defined by characteristic symmetry and lattice constraints."
+                    "context" "This value is used by the explorer index filters and is repeated here as part of the identity summary."
+                  )
+                }}
+              </label>
+              <strong>{{ partial "value.html" .Params.crystal_system }}</strong>
+            </div>
+          </div>
         </div>
+      </article>
+
+      <article class="detail-card panel section-wide">
+        {{
+          partial "section_heading.html" (dict
+            "title" "Details"
+            "id" "details"
+            "toggle_key" "details"
+            "info_general" "This section collects structural flags and counts that describe special properties of the space group and its unit-cell representation."
+            "info_context" "Values are displayed exactly as provided by the generated dataset, including compact aliases and precomputed counts used elsewhere in this explorer."
+          )
+        }}
+        <div data-section-body="details">
+          <div class="flag-row">
+            {{ $flags := slice "is_centric" "is_chiral" "is_enantiomorphic" "is_reference_setting" }}
+            {{ range $flags }}
+              {{ $value := index $.Params . }}
+              <span class="flag-pill {{ if $value }}true{{ else }}false{{ end }}">{{ replace . "_" " " }}: {{ if $value }}yes{{ else }}no{{ end }}</span>
+            {{ end }}
+          </div>
+          <p class="note">
+            Schoenflies
+            {{
+              partial "info_dot.html" (dict
+                "general" "Schoenflies notation is an alternative symmetry-label system common in spectroscopy and molecular-group contexts."
+                "context" "The value here mirrors the Schoenflies mapping linked to this space-group record."
+              )
+            }}:
+            {{ partial "value.html" .Params.schoenflies }}
+          </p>
+          <p class="note">
+            Qualifier
+            {{
+              partial "info_dot.html" (dict
+                "general" "Qualifiers are extra labels used to disambiguate variants that share a closely related base symbol."
+                "context" "If present, this qualifier comes directly from the source record and is kept as-is in the explorer."
+              )
+            }}:
+            {{ partial "value.html" .Params.qualifier }}
+          </p>
+          <p class="note">
+            Asymmetric unit
+            {{
+              partial "info_dot.html" (dict
+                "general" "The asymmetric unit is the smallest region that generates the full crystal under all symmetry operations."
+                "context" "These bounds are shown in the same textual format as the source data used by this site."
+              )
+            }}:
+            {{ partial "value.html" .Params.asym_unit }}
+          </p>
+          <p class="note">
+            Lattice translations
+            {{
+              partial "info_dot.html" (dict
+                "general" "Lattice translations are shifts that map the crystal lattice onto itself without changing local structure."
+                "context" "This count reflects the number of listed lattice-translation components in this entry."
+              )
+            }}:
+            {{ partial "value.html" .Params.n_ltr }}
+          </p>
+          <p class="note">
+            Symmetry operations count
+            {{
+              partial "info_dot.html" (dict
+                "general" "A space group is defined by all operations that preserve the structure, including rotations, reflections, inversions, and translations."
+                "context" "This is the precomputed operation count used in the full operation table below."
+              )
+            }}:
+            {{ partial "value.html" .Params.n_smx }}
+          </p>
+          <p class="note">
+            Order Z
+            {{
+              partial "info_dot.html" (dict
+                "general" "Z commonly denotes multiplicity-related counts per conventional unit cell in crystallographic tables."
+                "context" "Here we display the dataset field named order_z without additional normalization."
+              )
+            }}:
+            {{ partial "value.html" .Params.order_z }}
+          </p>
+        </div>
+      </article>
+
+      <article class="detail-card panel section-wide">
+        {{
+          partial "section_heading.html" (dict
+            "title" "Symmetry Operations"
+            "id" "symmetry-operations"
+            "toggle_key" "symops"
+            "info_general" "Symmetry operations describe coordinate transformations that leave the crystal invariant."
+            "info_context" "Rows are listed in dataset order and use xyz notation as displayed in source data."
+          )
+        }}
         <div data-section-body="symops">
           {{ $symops := .Params.symops }}
           {{ if $symops }}
@@ -171,9 +316,18 @@
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>xyz</th>
-                  <th>rot_type</th>
-                  <th>screw/glide</th>
+                  <th>
+                    xyz
+                    {{ partial "info_dot.html" (dict "general" "Coordinate-form operations express transformed x, y, z values." "context" "This column uses the exact textual xyz form stored for each operation.") }}
+                  </th>
+                  <th>
+                    rot_type
+                    {{ partial "info_dot.html" (dict "general" "Rotation type labels classify rotational character such as order or inversion pairing." "context" "Names follow the dataset vocabulary and are not reinterpreted by the UI.") }}
+                  </th>
+                  <th>
+                    screw/glide
+                    {{ partial "info_dot.html" (dict "general" "Screw and glide components add fractional translations to rotational or reflection operations." "context" "This column reports the parsed screw or glide descriptor for each operation when available.") }}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -195,10 +349,15 @@
       </article>
 
       <article class="detail-card panel section-wide">
-        <div class="detail-card-head">
-          <button class="section-toggle-btn" type="button" data-section-toggle="wyckoff" aria-expanded="true" aria-label="Collapse section">▼</button>
-          <h3>Wyckoff Positions <span tabindex="0" class="info-dot" data-tip="Wyckoff positions grouped by multiplicity and site symmetry.">i</span></h3>
-        </div>
+        {{
+          partial "section_heading.html" (dict
+            "title" "Wyckoff Positions"
+            "id" "wyckoff-positions"
+            "toggle_key" "wyckoff"
+            "info_general" "Wyckoff positions partition symmetry-equivalent sites by multiplicity and site symmetry in a given space group."
+            "info_context" "The table lists position labels and representative orbit text as provided in this dataset."
+          )
+        }}
         <div data-section-body="wyckoff">
           {{ $wyckoffItems := .Params.wyckoff_items }}
           {{ if $wyckoffItems }}
@@ -206,10 +365,22 @@
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th>Label</th>
-                    <th>Multiplicity</th>
-                    <th>Site Symmetry</th>
-                    <th>Full Orbit (xyz)</th>
+                    <th>
+                      Label
+                      {{ partial "info_dot.html" (dict "general" "Wyckoff labels are letter identifiers for site classes within a space group." "context" "These labels are shown exactly as stored in the source entry.") }}
+                    </th>
+                    <th>
+                      Multiplicity
+                      {{ partial "info_dot.html" (dict "general" "Multiplicity is the number of equivalent points generated from one representative site." "context" "Values here match each listed Wyckoff label in this setting.") }}
+                    </th>
+                    <th>
+                      Site Symmetry
+                      {{ partial "info_dot.html" (dict "general" "Site symmetry is the subgroup that leaves a representative site fixed." "context" "This column uses the short site-symmetry text from the dataset.") }}
+                    </th>
+                    <th>
+                      Full Orbit (xyz)
+                      {{ partial "info_dot.html" (dict "general" "An orbit is the full set of equivalent coordinates generated by symmetry from one site." "context" "Orbit coordinates are rendered in parenthesized xyz tuples for readability.") }}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -236,10 +407,15 @@
       </article>
 
       <article class="detail-card panel section-wide">
-        <div class="detail-card-head">
-          <button class="section-toggle-btn" type="button" data-section-toggle="max_subgroups" aria-expanded="true" aria-label="Collapse section">▼</button>
-          <h3>Maximal Subgroups <span tabindex="0" class="info-dot" data-tip="A maximal subgroup is a proper subgroup with no intermediate subgroup between it and the current space group. Buttons are shown as HM #ITA (index), where HM is the target Hermann-Mauguin symbol, #ITA is its ITA number, and the final value is the subgroup index.">i</span></h3>
-        </div>
+        {{
+          partial "section_heading.html" (dict
+            "title" "Maximal Subgroups"
+            "id" "maximal-subgroups"
+            "toggle_key" "max_subgroups"
+            "info_general" "A maximal subgroup is a proper subgroup with no intermediate subgroup between it and the parent group."
+            "info_context" "Buttons use the format HM #ITA (index): HM is the target Hermann-Mauguin symbol, #ITA is its ITA number, and index is the subgroup index."
+          )
+        }}
         <div data-section-body="max_subgroups">
           {{ $maxSubs := .Params.maximal_subgroup_mappings }}
           {{ if $maxSubs }}
@@ -276,10 +452,22 @@
                   <table class="data-table">
                     <thead>
                       <tr>
-                        <th>G WP</th>
-                        <th>H WP</th>
-                        <th>H Orbit</th>
-                        <th>Algebraic Map</th>
+                        <th>
+                          G WP
+                          {{ partial "info_dot.html" (dict "general" "A Wyckoff position in G refers to a site class in the current parent group." "context" "G WP denotes the parent-group side of each splitting relation.") }}
+                        </th>
+                        <th>
+                          H WP
+                          {{ partial "info_dot.html" (dict "general" "A Wyckoff position in H refers to the corresponding site class in the subgroup." "context" "H WP shows the mapped subgroup position for each row.") }}
+                        </th>
+                        <th>
+                          H Orbit
+                          {{ partial "info_dot.html" (dict "general" "An H orbit is the representative coordinate orbit in the subgroup setting." "context" "This column shows the first orbit text supplied for each mapped subgroup Wyckoff site.") }}
+                        </th>
+                        <th>
+                          Algebraic Map
+                          {{ partial "info_dot.html" (dict "general" "Algebraic maps write coordinate substitutions that convert between related group settings." "context" "When available we show x', y', z' formulas from the affine map array.") }}
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -324,10 +512,15 @@
       </article>
 
       <article class="detail-card panel section-wide">
-        <div class="detail-card-head">
-          <button class="section-toggle-btn" type="button" data-section-toggle="min_supergroups" aria-expanded="true" aria-label="Collapse section">▼</button>
-          <h3>Minimal Supergroups <span tabindex="0" class="info-dot" data-tip="A minimal supergroup is the smallest proper supergroup containing the current space group, with no intermediate supergroup between them. Buttons are shown as HM #ITA (index), where HM is the target Hermann-Mauguin symbol, #ITA is its ITA number, and the final value is the subgroup index relating the current group to that supergroup.">i</span></h3>
-        </div>
+        {{
+          partial "section_heading.html" (dict
+            "title" "Minimal Supergroups"
+            "id" "minimal-supergroups"
+            "toggle_key" "min_supergroups"
+            "info_general" "A minimal supergroup is a smallest proper supergroup above the current group with no intermediate supergroup."
+            "info_context" "Buttons use the same HM #ITA (index) format used for maximal subgroups, now interpreted for upward relations."
+          )
+        }}
         <div data-section-body="min_supergroups">
           {{ $minSup := .Params.minimal_supergroup_mappings }}
           {{ if $minSup }}
@@ -364,10 +557,22 @@
                   <table class="data-table">
                     <thead>
                       <tr>
-                        <th>G WP</th>
-                        <th>H WP</th>
-                        <th>H Orbit</th>
-                        <th>Algebraic Map</th>
+                        <th>
+                          G WP
+                          {{ partial "info_dot.html" (dict "general" "A Wyckoff position in G refers to a site class in the current group." "context" "Here G WP denotes the starting side of each supergroup relation.") }}
+                        </th>
+                        <th>
+                          H WP
+                          {{ partial "info_dot.html" (dict "general" "A Wyckoff position in H is the corresponding site class after embedding into the supergroup." "context" "H WP reports the mapped target position in the selected supergroup setting.") }}
+                        </th>
+                        <th>
+                          H Orbit
+                          {{ partial "info_dot.html" (dict "general" "An orbit lists equivalent coordinates under the target group action." "context" "We show the first listed orbit text from the mapping data.") }}
+                        </th>
+                        <th>
+                          Algebraic Map
+                          {{ partial "info_dot.html" (dict "general" "Coordinate maps give explicit substitutions between source and target descriptions." "context" "When available we render x', y', z' formulas from affine_xyz.") }}
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -412,17 +617,25 @@
       </article>
 
       <article class="detail-card panel section-wide">
-        <div class="detail-card-head">
-          <button class="section-toggle-btn" type="button" data-section-toggle="normalizer" aria-expanded="true" aria-label="Collapse section">▼</button>
-          <h3>Euclidian Normalizer</h3>
-        </div>
+        {{
+          partial "section_heading.html" (dict
+            "title" "Euclidian Normalizer"
+            "id" "euclidian-normalizer"
+            "toggle_key" "normalizer"
+            "info_general" "A normalizer captures transformations that map a group to itself under conjugation, helping classify equivalent embeddings."
+            "info_context" "This explorer shows discrete Euclidian normalizer operations and, when present, basis vectors for the continuous part."
+          )
+        }}
         <div data-section-body="normalizer">
           {{ $euclidian := .Params.euclidian_normalizer }}
           {{ $continuous := .Params.continuous_euclidian_normalizer }}
           {{ if or $euclidian $continuous }}
             <div class="normalizer-stack">
               <div class="mapping-box">
-                <p class="note">Discrete Euclidian normalizer operations</p>
+                <p class="note">
+                  Discrete Euclidian normalizer operations
+                  {{ partial "info_dot.html" (dict "general" "Discrete normalizer operations are isolated symmetry-compatible transformations." "context" "These rows use the same xyz-style fields as other operation tables in the explorer.") }}
+                </p>
                 {{ if $euclidian }}
                   {{ $symops := $euclidian.symops }}
                   {{ if $symops }}
@@ -459,7 +672,10 @@
 
               {{ if $continuous }}
                 <div class="mapping-box normalizer-inner-box">
-                  <p class="note">Continuous Euclidian normalizer</p>
+                  <p class="note">
+                    Continuous Euclidian normalizer
+                    {{ partial "info_dot.html" (dict "general" "Continuous normalizer components form parameterized families of compatible transformations." "context" "When available, we show the basis vectors used to describe that continuous subspace.") }}
+                  </p>
                   {{ $basis := $continuous.basis_vectors }}
                   {{ if and $basis (gt (len $basis) 0) }}
                     <table class="data-table">
@@ -491,10 +707,15 @@
       </article>
 
       <article class="detail-card panel section-wide">
-        <div class="detail-card-head">
-          <button class="section-toggle-btn" type="button" data-section-toggle="k_subgroups" aria-expanded="true" aria-label="Collapse section">▼</button>
-          <h3>Cell Commensurator <span tabindex="0" class="info-dot" data-tip="Buttons are labeled as No. N (k), where N is the item number in this list and k = |det(P)| for the displayed transformation matrix P.">i</span></h3>
-        </div>
+        {{
+          partial "section_heading.html" (dict
+            "title" "Cell Commensurator"
+            "id" "cell-commensurator"
+            "toggle_key" "k_subgroups"
+            "info_general" "Cell-commensurator relations describe compatible subgroup mappings under cell transformations with finite index."
+            "info_context" "Buttons are labeled as No. N (k), where N is the listed item number and k is the index value from the mapping data, typically tied to |det(P)|."
+          )
+        }}
         <div data-section-body="k_subgroups">
           {{ $commensurator := .Params.cell_commensurator }}
           {{ if $commensurator }}
@@ -529,14 +750,27 @@
                   <p class="note">
                     P={{ partial "value.html" $item.transformation_matrix_text }},
                     p={{ partial "value.html" $item.origin_shift_text }}
+                    {{ partial "info_dot.html" (dict "general" "An affine transformation uses a matrix P and shift vector p to map coordinate systems." "context" "For each mapping we show P and p exactly as text from the dataset payload.") }}
                   </p>
                   <table class="data-table">
                     <thead>
                       <tr>
-                        <th>G WP</th>
-                        <th>H WP</th>
-                        <th>H Orbit</th>
-                        <th>Algebraic Map</th>
+                        <th>
+                          G WP
+                          {{ partial "info_dot.html" (dict "general" "G WP refers to the parent-group Wyckoff position before transformation." "context" "Grouped cells indicate repeated parent positions across several mapped rows.") }}
+                        </th>
+                        <th>
+                          H WP
+                          {{ partial "info_dot.html" (dict "general" "H WP refers to the target-group Wyckoff position after transformation." "context" "This value is shown from h_wp or h_wp_display depending on availability.") }}
+                        </th>
+                        <th>
+                          H Orbit
+                          {{ partial "info_dot.html" (dict "general" "An orbit entry lists representative coordinates generated in the target setting." "context" "This column shows the first listed H orbit text for each mapping row.") }}
+                        </th>
+                        <th>
+                          Algebraic Map
+                          {{ partial "info_dot.html" (dict "general" "Algebraic map entries provide explicit coordinate substitutions." "context" "If affine data is present, we render x', y', z' equations directly from it.") }}
+                        </th>
                       </tr>
                     </thead>
                     <tbody>

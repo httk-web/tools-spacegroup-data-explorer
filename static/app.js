@@ -61,12 +61,19 @@ const THEME_QUERY_KEY = "theme";
 const THEME_DARK = "dark";
 const THEME_TWILIGHT = "twilight";
 const THEME_LIGHT = "light";
+const ALT_SETTINGS_QUERY_KEY = "alt_settings";
+const IDENTITY_QUERY_KEY = "identity";
+const DETAILS_QUERY_KEY = "details";
+const POINTGROUP_NAV_QUERY_KEY = "pointgroup_nav";
 const SYMOPS_QUERY_KEY = "symops";
 const WYCKOFF_QUERY_KEY = "wyckoff";
 const MAX_SUBGROUPS_QUERY_KEY = "max_subgroups";
 const MIN_SUPERGROUPS_QUERY_KEY = "min_supergroups";
 const NORMALIZER_QUERY_KEY = "normalizer";
 const K_SUBGROUPS_QUERY_KEY = "k_subgroups";
+const CONJUGACY_QUERY_KEY = "conjugacy";
+const CHAR_REAL_QUERY_KEY = "char_real";
+const CHAR_COMPLEX_QUERY_KEY = "char_complex";
 const QUERY_VALUE_OPEN = "open";
 const QUERY_VALUE_CLOSED = "closed";
 const TRIANGLE_OPEN = "\u25BE";
@@ -299,21 +306,35 @@ let settingsMode = getModeFromUrl() || getModeFromStorage() || SETTINGS_ITA;
 let activeDataset = inferDatasetFromContext();
 let themeMode = getThemeFromUrl() || THEME_TWILIGHT;
 let sectionState = {
+  alt_settings: getSectionOpenFromUrl(ALT_SETTINGS_QUERY_KEY, true),
+  identity: getSectionOpenFromUrl(IDENTITY_QUERY_KEY, true),
+  details: getSectionOpenFromUrl(DETAILS_QUERY_KEY, true),
+  pointgroup_nav: getSectionOpenFromUrl(POINTGROUP_NAV_QUERY_KEY, true),
   symops: getSectionOpenFromUrl(SYMOPS_QUERY_KEY, true),
   wyckoff: getSectionOpenFromUrl(WYCKOFF_QUERY_KEY, true),
   max_subgroups: getSectionOpenFromUrl(MAX_SUBGROUPS_QUERY_KEY, true),
   min_supergroups: getSectionOpenFromUrl(MIN_SUPERGROUPS_QUERY_KEY, true),
   normalizer: getSectionOpenFromUrl(NORMALIZER_QUERY_KEY, true),
-  k_subgroups: getSectionOpenFromUrl(K_SUBGROUPS_QUERY_KEY, true)
+  k_subgroups: getSectionOpenFromUrl(K_SUBGROUPS_QUERY_KEY, true),
+  conjugacy: getSectionOpenFromUrl(CONJUGACY_QUERY_KEY, true),
+  char_real: getSectionOpenFromUrl(CHAR_REAL_QUERY_KEY, true),
+  char_complex: getSectionOpenFromUrl(CHAR_COMPLEX_QUERY_KEY, true)
 };
 
 const SECTION_QUERY_KEYS = {
+  alt_settings: ALT_SETTINGS_QUERY_KEY,
+  identity: IDENTITY_QUERY_KEY,
+  details: DETAILS_QUERY_KEY,
+  pointgroup_nav: POINTGROUP_NAV_QUERY_KEY,
   symops: SYMOPS_QUERY_KEY,
   wyckoff: WYCKOFF_QUERY_KEY,
   max_subgroups: MAX_SUBGROUPS_QUERY_KEY,
   min_supergroups: MIN_SUPERGROUPS_QUERY_KEY,
   normalizer: NORMALIZER_QUERY_KEY,
-  k_subgroups: K_SUBGROUPS_QUERY_KEY
+  k_subgroups: K_SUBGROUPS_QUERY_KEY,
+  conjugacy: CONJUGACY_QUERY_KEY,
+  char_real: CHAR_REAL_QUERY_KEY,
+  char_complex: CHAR_COMPLEX_QUERY_KEY
 };
 
 const applyTheme = () => {

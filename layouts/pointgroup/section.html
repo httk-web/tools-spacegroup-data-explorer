@@ -8,7 +8,15 @@
   <section id="table-view" class="view is-active" aria-label="Pointgroup list view" data-table-dataset="pointgroups">
     <div class="panel toolbar">
       <div class="search-wrap">
-        <label for="search-input">Search</label>
+        <label for="search-input">
+          Search
+          {{
+            partial "info_dot.html" (dict
+              "general" "Search filters the pointgroup list by matching symbols, class names, and key numeric descriptors."
+              "context" "This page matches point-group symbols, Schoenflies labels, crystal system, Laue class, and order-related fields."
+            )
+          }}
+        </label>
         <input id="search-input" type="search" autocomplete="off" placeholder="Point group symbol, Schoenflies, crystal system, laue class..." />
       </div>
       <div class="toolbar-meta">

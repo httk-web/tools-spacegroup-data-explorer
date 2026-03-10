@@ -1,0 +1,17 @@
+{{- $title := default "Section" .title -}}
+{{- $id := default (anchorize $title) .id -}}
+{{- $toggleKey := default "" .toggle_key -}}
+<div class="detail-card-head">
+  {{- if $toggleKey }}
+    <button class="section-toggle-btn" type="button" data-section-toggle="{{ $toggleKey }}" aria-expanded="true" aria-label="Collapse section">&#9662;</button>
+  {{- end }}
+  <h3 id="{{ $id }}" class="section-title">
+    <a class="section-anchor-link" href="#{{ $id }}" aria-label="Copy link to {{ $title }}" title="Copy link to this section">
+      <img class="section-anchor-icon" src="{{ "icons/Hicon_Pack_1/link.svg" | relURL }}" alt="" aria-hidden="true" />
+    </a>
+    <span>{{ $title }}</span>
+    {{- with .info_general }}
+      {{ partial "info_dot.html" (dict "general" . "context" $.info_context) }}
+    {{- end }}
+  </h3>
+</div>
