@@ -1378,7 +1378,7 @@ const populateDetailSelects = (lists) => {
       const row = rowByHallKey.get(hallKey);
       const hallLabel = row ? row.hall_unicode || row.hall_entry || hallKey : hallKey;
       const itaSuffix =
-        row && row.ita_number !== null && row.ita_number !== undefined ? ` #${row.ita_number}` : "";
+        row && row.ita_number !== null && row.ita_number !== undefined ? ` - (#${row.ita_number})` : "";
       option.textContent = `${hallLabel}${itaSuffix}`;
       option.dataset.matchValue = hallKey;
       return option;
@@ -1393,7 +1393,7 @@ const populateDetailSelects = (lists) => {
       const option = document.createElement("option");
       option.value = hall ? buildHallUrl(baseUrl, hall) : "";
       const itaSuffix =
-        row && row.ita_number !== null && row.ita_number !== undefined ? ` #${row.ita_number}` : "";
+        row && row.ita_number !== null && row.ita_number !== undefined ? ` - (#${row.ita_number})` : "";
       option.textContent = `${lists.hmDisplay[hm] || hm}${itaSuffix}`;
       option.dataset.matchValue = hm;
       return option;
