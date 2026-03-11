@@ -103,17 +103,39 @@
                 }}
               </label>
               {{ $shortHM := default .Params.hm_short_latex .Params.short_hm_symbol_latex }}
-              {{ $shortHMAliases := .Params.hm_short_aliases_latex }}
-              {{ if not $shortHMAliases }}{{ $shortHMAliases = .Params.hm_short_aliases }}{{ end }}
-              {{ if not $shortHMAliases }}{{ $shortHMAliases = .Params.short_hm_symbol_aliases_latex }}{{ end }}
-              {{ if not $shortHMAliases }}{{ $shortHMAliases = .Params.short_hm_symbol_aliases }}{{ end }}
+              {{ $shortHMAliasesLatex := .Params.hm_short_aliases_latex }}
+              {{ if not $shortHMAliasesLatex }}{{ $shortHMAliasesLatex = .Params.short_hm_symbol_aliases_latex }}{{ end }}
+              {{ $shortHMAliases := $shortHMAliasesLatex }}
+              {{ $shortHMAliasesAreLatex := true }}
+              {{ if not $shortHMAliases }}
+                {{ $shortHMAliases = .Params.hm_short_aliases }}
+                {{ $shortHMAliasesAreLatex = false }}
+              {{ end }}
+              {{ if not $shortHMAliases }}
+                {{ $shortHMAliases = .Params.short_hm_symbol_aliases }}
+                {{ $shortHMAliasesAreLatex = false }}
+              {{ end }}
               <strong>
                 {{ if $shortHM }}
                   <span class="math-content">\({{ $shortHM }}\)</span>
                 {{ else }}
                   <span>{{ partial "value.html" (default .Params.hm_short .Params.short_hm_symbol) }}</span>
                 {{ end }}
-                {{ if $shortHMAliases }}<span class="hm-aliases-inline">{{ partial "value.html" $shortHMAliases }}</span>{{ end }}
+                {{ if $shortHMAliases }}
+                  <span class="hm-aliases-inline">
+                    {{ if $shortHMAliasesAreLatex }}
+                      {{ if reflect.IsSlice $shortHMAliases }}
+                        {{ range $idx, $alias := $shortHMAliases }}
+                          {{ if gt $idx 0 }}, {{ end }}<span class="math-content">\({{ $alias }}\)</span>
+                        {{ end }}
+                      {{ else }}
+                        <span class="math-content">\({{ $shortHMAliases }}\)</span>
+                      {{ end }}
+                    {{ else }}
+                      {{ partial "value.html" $shortHMAliases }}
+                    {{ end }}
+                  </span>
+                {{ end }}
               </strong>
             </div>
             <div class="metric">
