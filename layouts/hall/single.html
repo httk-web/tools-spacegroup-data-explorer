@@ -12,11 +12,14 @@
           ></select>
         </div>
         <div class="detail-meta-item">
-          <p class="kicker">ITA#</p>
+          <p class="kicker" data-detail-secondary-kicker>ITA#</p>
           <select
             class="detail-select"
             aria-label="Select ITA number"
+            data-secondary-select
             data-selected="{{ .Params.ita_number }}"
+            data-selected-ita="{{ .Params.ita_number }}"
+            data-selected-nc="{{ .Params.n_c }}"
             onchange="if (this.value) window.location = this.value;"
           ></select>
         </div>
@@ -140,21 +143,18 @@
             </div>
             <div class="metric">
               <label>
-                HM Symbol Full
+                HM Symbol Unicode
                 {{
                   partial "info_dot.html" (dict
-                    "general" "A full Hermann-Mauguin symbol gives a more expanded notation of the symmetry content than the short form."
+                    "general" "Unicode forms of Hermann-Mauguin symbols are useful for direct copy-and-paste in documents and notes."
                   )
                 }}
               </label>
-              {{ $fullHM := .Params.hm_full_latex }}
-              <strong>
-                {{ if $fullHM }}
-                  <span class="math-content">\({{ $fullHM }}\)</span>
-                {{ else }}
-                  <span>{{ partial "value.html" .Params.hm_full }}</span>
-                {{ end }}
-              </strong>
+              {{ $hmUnicode := default .Params.hm_short_unicode .Params.short_hm_symbol_unicode }}
+              {{ if not $hmUnicode }}{{ $hmUnicode = .Params.hm_full_unicode }}{{ end }}
+              {{ if not $hmUnicode }}{{ $hmUnicode = .Params.hm_universal_unicode }}{{ end }}
+              {{ if not $hmUnicode }}{{ $hmUnicode = default .Params.hm_short .Params.short_hm_symbol }}{{ end }}
+              <strong class="metric-value-unicode">{{ partial "value.html" $hmUnicode }}</strong>
             </div>
             <div class="metric">
               <label>
@@ -194,18 +194,21 @@
             </div>
             <div class="metric">
               <label>
-                HM Symbol Unicode
+                HM Symbol Full
                 {{
                   partial "info_dot.html" (dict
-                    "general" "Unicode forms of Hermann-Mauguin symbols are useful for direct copy-and-paste in documents and notes."
+                    "general" "A full Hermann-Mauguin symbol gives a more expanded notation of the symmetry content than the short form."
                   )
                 }}
               </label>
-              {{ $hmUnicode := default .Params.hm_short_unicode .Params.short_hm_symbol_unicode }}
-              {{ if not $hmUnicode }}{{ $hmUnicode = .Params.hm_full_unicode }}{{ end }}
-              {{ if not $hmUnicode }}{{ $hmUnicode = .Params.hm_universal_unicode }}{{ end }}
-              {{ if not $hmUnicode }}{{ $hmUnicode = default .Params.hm_short .Params.short_hm_symbol }}{{ end }}
-              <strong class="metric-value-unicode">{{ partial "value.html" $hmUnicode }}</strong>
+              {{ $fullHM := .Params.hm_full_latex }}
+              <strong>
+                {{ if $fullHM }}
+                  <span class="math-content">\({{ $fullHM }}\)</span>
+                {{ else }}
+                  <span>{{ partial "value.html" .Params.hm_full }}</span>
+                {{ end }}
+              </strong>
             </div>
             <div class="metric">
               <label>
@@ -237,7 +240,7 @@
               </label>
               <strong>{{ partial "value.html" .Params.laue_class }}</strong>
             </div>
-            <div class="metric metric-span-two">
+            <div class="metric">
               <label>
                 Crystal System
                 {{

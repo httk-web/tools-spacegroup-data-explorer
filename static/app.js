@@ -805,6 +805,13 @@ const updateIndexControlVisibility = () => {
   }
 };
 
+const updateDetailSecondaryKicker = () => {
+  const isAllMode = settingsMode === SETTINGS_ALL;
+  document.querySelectorAll("[data-detail-secondary-kicker]").forEach((label) => {
+    label.textContent = isAllMode ? "N:C" : "ITA#";
+  });
+};
+
 const updateSettingsConditionalVisibility = () => {
   document.querySelectorAll("[data-hide-when-settings]").forEach((section) => {
     const targetMode = normalizeSettingsMode(section.getAttribute("data-hide-when-settings"));
@@ -1244,6 +1251,7 @@ const buildPointgroupRows = (data) => {
 const buildLists = (rows) => {
   const hmGroups = new Map();
   const itaGroups = new Map();
+  const ncGroups = new Map();
   const hmValues = new Set();
   const itaValues = new Set();
 
@@ -1264,17 +1272,26 @@ const buildLists = (rows) => {
       }
       itaGroups.get(key).push(row);
     }
+    if (row.n_c !== null && row.n_c !== undefined && String(row.n_c).trim() !== "") {
+      const key = Array.isArray(row.n_c) ? row.n_c.join(", ") : String(row.n_c);
+      if (!ncGroups.has(key)) {
+        ncGroups.set(key, []);
+      }
+      ncGroups.get(key).push(row);
+    }
   });
 
   const hmToHall = {};
   const hmDisplay = {};
+  const hmSortRows = {};
   hmGroups.forEach((entries, hm) => {
     const selected = chooseStandardSetting(entries);
     if (selected) {
       hmToHall[hm] = selected.hall_key;
       hmDisplay[hm] = String(
-        selected.hm_full_unicode || selected.hm_full || selected.hm_universal_unicode || selected.hm_universal || hm
+        selected.hm_short_unicode || selected.hm_short || selected.short_hm_symbol_unicode || selected.short_hm_symbol || hm
       );
+      hmSortRows[hm] = selected;
     }
   });
 
@@ -1286,13 +1303,47 @@ const buildLists = (rows) => {
     }
   });
 
+  const ncToHall = {};
+  const ncValues = [];
+  ncGroups.forEach((entries, nc) => {
+    const selected = chooseStandardSetting(entries);
+    if (selected) {
+      ncToHall[nc] = selected.hall_key;
+      ncValues.push(nc);
+    }
+  });
+
+  const hmValuesSorted = Array.from(hmValues).sort((a, b) => {
+    const rowA = hmSortRows[a];
+    const rowB = hmSortRows[b];
+    const labelA = rowA ? hmDisplay[a] : String(a);
+    const labelB = rowB ? hmDisplay[b] : String(b);
+    return String(labelA).localeCompare(String(labelB), undefined, { numeric: true });
+  });
+
+  const hallsSorted = rows
+    .map((row) => ({
+      hallKey: row.hall_key,
+      label: String(row.hall_unicode || row.hall_entry || row.hall_key || "")
+    }))
+    .sort((a, b) => {
+      const byLabel = a.label.localeCompare(b.label, undefined, { numeric: true });
+      if (byLabel !== 0) {
+        return byLabel;
+      }
+      return String(a.hallKey).localeCompare(String(b.hallKey), undefined, { numeric: true });
+    })
+    .map((item) => item.hallKey);
+
   return {
-    halls: rows.map((row) => row.hall_key),
-    hmValues: Array.from(hmValues).sort(),
+    halls: hallsSorted,
+    hmValues: hmValuesSorted,
     itaValues: Array.from(itaValues).sort((a, b) => a - b),
+    ncValues: ncValues.sort((a, b) => String(a).localeCompare(String(b), undefined, { numeric: true })),
     hmToHall,
     hmDisplay,
-    itaToHall
+    itaToHall,
+    ncToHall
   };
 };
 
@@ -1314,17 +1365,21 @@ const populateSelect = (select, items, selectedValue, buildOption) => {
 
 const populateDetailSelects = (lists) => {
   const baseUrl = resolveBase();
+  const rowByHallKey = new Map(allRows.map((row) => [row.hall_key, row]));
   const hallSelects = document.querySelectorAll('select.detail-select[data-selected][aria-label="Select Hall symbol"]');
   const hmSelects = document.querySelectorAll('select.detail-select[data-selected][aria-label="Select HM symbol"]');
-  const itaSelects = document.querySelectorAll('select.detail-select[data-selected][aria-label="Select ITA number"]');
+  const itaSelects = document.querySelectorAll('select.detail-select[data-secondary-select], select.detail-select[data-selected][aria-label="Select ITA number"]');
 
   hallSelects.forEach((select) => {
     const selected = select.dataset.selected;
     populateSelect(select, lists.halls, selected, (hallKey) => {
       const option = document.createElement("option");
       option.value = buildHallUrl(baseUrl, hallKey);
-      const row = allRows.find((item) => item.hall_key === hallKey);
-      option.textContent = row ? row.hall_unicode || row.hall_entry || hallKey : hallKey;
+      const row = rowByHallKey.get(hallKey);
+      const hallLabel = row ? row.hall_unicode || row.hall_entry || hallKey : hallKey;
+      const itaSuffix =
+        row && row.ita_number !== null && row.ita_number !== undefined ? ` #${row.ita_number}` : "";
+      option.textContent = `${hallLabel}${itaSuffix}`;
       option.dataset.matchValue = hallKey;
       return option;
     });
@@ -1334,16 +1389,32 @@ const populateDetailSelects = (lists) => {
     const selected = select.dataset.selected;
     populateSelect(select, lists.hmValues, selected, (hm) => {
       const hall = lists.hmToHall[hm];
+      const row = hall ? rowByHallKey.get(hall) : null;
       const option = document.createElement("option");
       option.value = hall ? buildHallUrl(baseUrl, hall) : "";
-      option.textContent = lists.hmDisplay[hm] || hm;
+      const itaSuffix =
+        row && row.ita_number !== null && row.ita_number !== undefined ? ` #${row.ita_number}` : "";
+      option.textContent = `${lists.hmDisplay[hm] || hm}${itaSuffix}`;
       option.dataset.matchValue = hm;
       return option;
     });
   });
 
   itaSelects.forEach((select) => {
-    const selected = select.dataset.selected;
+    const isAllMode = settingsMode === SETTINGS_ALL;
+    const selected = isAllMode ? select.dataset.selectedNc || select.dataset.selected : select.dataset.selectedIta || select.dataset.selected;
+    if (isAllMode) {
+      populateSelect(select, lists.ncValues || [], selected, (nc) => {
+        const hall = lists.ncToHall[String(nc)];
+        const option = document.createElement("option");
+        option.value = hall ? buildHallUrl(baseUrl, hall) : "";
+        option.textContent = String(nc);
+        option.dataset.matchValue = String(nc);
+        return option;
+      });
+      return;
+    }
+
     populateSelect(select, lists.itaValues, selected, (ita) => {
       const hall = lists.itaToHall[String(ita)];
       const option = document.createElement("option");
@@ -1369,6 +1440,7 @@ const refreshUiState = () => {
   }
 
   updateSettingsButtons();
+  updateDetailSecondaryKicker();
   updateSettingsConditionalVisibility();
   updateThemeButtons();
   updateSectionToggles();
