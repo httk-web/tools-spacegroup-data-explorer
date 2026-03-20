@@ -12,6 +12,9 @@ const INDEX_FIELDS = [
   "hall_entry",
   "hall_latex",
   "hall_unicode",
+  "hall_aliases",
+  "hall_aliases_latex",
+  "hall_aliases_unicode",
   "ita_number",
   "hm_short",
   "hm_short_aliases",
@@ -134,6 +137,9 @@ const normalizeRow = (row) => {
   normalized.hall_entry = firstNonEmpty(row.hall_entry, row.hall_key);
   normalized.hall_latex = firstNonEmpty(row.hall_latex, row.hall_entry, row.hall_key);
   normalized.hall_unicode = firstNonEmpty(row.hall_unicode, row.hall_entry, row.hall_key);
+  normalized.hall_aliases = firstNonEmpty(row.hall_aliases);
+  normalized.hall_aliases_latex = firstNonEmpty(row.hall_aliases_latex);
+  normalized.hall_aliases_unicode = firstNonEmpty(row.hall_aliases_unicode, normalized.hall_aliases);
 
   normalized.hm_short = firstNonEmpty(row.hm_short, row.short_hm_symbol);
   normalized.hm_short_aliases = firstNonEmpty(row.hm_short_aliases, row.short_hm_symbol_aliases);
@@ -532,10 +538,18 @@ const renderHmWithAliases = (row) => {
 
 const renderHallWithLatex = (row) => {
   const hallLatex = firstNonEmpty(row.hall_latex);
-  if (hallLatex) {
-    return renderInlineLatex(hallLatex);
+  const baseLabel = hallLatex ? renderInlineLatex(hallLatex) : escapeHtml(formatValue(row.hall_unicode || row.hall_entry || row.hall_key));
+  const aliasesLatex = getArrayValues(row.hall_aliases_latex);
+  const aliasesUnicode = getArrayValues(row.hall_aliases_unicode);
+  const aliasesPlain = getArrayValues(row.hall_aliases);
+  const aliases = aliasesLatex.length ? aliasesLatex : aliasesUnicode.length ? aliasesUnicode : aliasesPlain;
+  if (!aliases.length) {
+    return baseLabel;
   }
-  return escapeHtml(formatValue(row.hall_unicode || row.hall_entry || row.hall_key));
+  const aliasLabel = aliasesLatex.length
+    ? aliases.map((item) => renderInlineLatex(item)).join(", ")
+    : aliases.map((item) => escapeHtml(formatValue(item))).join(", ");
+  return `${baseLabel} (${aliasLabel})`;
 };
 
 const renderPointgroupSymbol = (row) => {
@@ -616,6 +630,9 @@ const filterSpacegroupRows = (rows, query) => {
       item.hall_entry,
       item.hall_latex,
       item.hall_unicode,
+      Array.isArray(item.hall_aliases) ? item.hall_aliases.join(" ") : item.hall_aliases,
+      Array.isArray(item.hall_aliases_latex) ? item.hall_aliases_latex.join(" ") : item.hall_aliases_latex,
+      Array.isArray(item.hall_aliases_unicode) ? item.hall_aliases_unicode.join(" ") : item.hall_aliases_unicode,
       item.hm_short,
       Array.isArray(item.hm_short_aliases) ? item.hm_short_aliases.join(" ") : item.hm_short_aliases,
       Array.isArray(item.hm_short_aliases_latex) ? item.hm_short_aliases_latex.join(" ") : item.hm_short_aliases_latex,

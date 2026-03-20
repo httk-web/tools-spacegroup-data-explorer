@@ -184,11 +184,37 @@
                 }}
               </label>
               {{ $hallSymbolLatex := .Params.hall_latex }}
+              {{ $hallAliasesLatex := .Params.hall_aliases_latex }}
+              {{ $hallAliases := $hallAliasesLatex }}
+              {{ $hallAliasesAreLatex := true }}
+              {{ if not $hallAliases }}
+                {{ $hallAliases = .Params.hall_aliases_unicode }}
+                {{ $hallAliasesAreLatex = false }}
+              {{ end }}
+              {{ if not $hallAliases }}
+                {{ $hallAliases = .Params.hall_aliases }}
+                {{ $hallAliasesAreLatex = false }}
+              {{ end }}
               <strong>
                 {{ if $hallSymbolLatex }}
                   <span class="math-content">\({{ $hallSymbolLatex }}\)</span>
                 {{ else }}
                   <span>{{ partial "value.html" (default .Params.hall_entry .Params.hall_key) }}</span>
+                {{ end }}
+                {{ if $hallAliases }}
+                  <span class="hm-aliases-inline">
+                    {{ if $hallAliasesAreLatex }}
+                      {{ if reflect.IsSlice $hallAliases }}
+                        {{ range $idx, $alias := $hallAliases }}
+                          {{ if gt $idx 0 }}, {{ end }}<span class="math-content">\({{ $alias }}\)</span>
+                        {{ end }}
+                      {{ else }}
+                        <span class="math-content">\({{ $hallAliases }}\)</span>
+                      {{ end }}
+                    {{ else }}
+                      {{ partial "value.html" $hallAliases }}
+                    {{ end }}
+                  </span>
                 {{ end }}
               </strong>
             </div>

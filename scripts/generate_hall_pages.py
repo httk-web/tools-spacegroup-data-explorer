@@ -24,6 +24,9 @@ INDEX_FIELDS = [
     "hall_entry",
     "hall_latex",
     "hall_unicode",
+    "hall_aliases",
+    "hall_aliases_latex",
+    "hall_aliases_unicode",
     "ita_number",
     "hm_short",
     "hm_short_aliases",
@@ -131,6 +134,9 @@ def _normalize_entry(hall_key: str, raw_entry: Any) -> Dict[str, Any]:
     normalized["hall_entry"] = hall_entry
     normalized["hall_latex"] = hall_latex
     normalized["hall_unicode"] = hall_unicode
+    normalized["hall_aliases"] = _first_non_empty(entry.get("hall_aliases"))
+    normalized["hall_aliases_latex"] = _first_non_empty(entry.get("hall_aliases_latex"))
+    normalized["hall_aliases_unicode"] = _first_non_empty(entry.get("hall_aliases_unicode"), normalized["hall_aliases"])
     normalized["hm_short"] = hm_short
     normalized["hm_short_aliases"] = hm_short_aliases
     normalized["hm_short_aliases_latex"] = hm_short_aliases_latex
@@ -154,8 +160,91 @@ def _normalize_entry(hall_key: str, raw_entry: Any) -> Dict[str, Any]:
     normalized["schoenflies"] = _first_non_empty(entry.get("schoenflies"))
     normalized["schoenflies_latex"] = _first_non_empty(entry.get("schoenflies_latex"), normalized["schoenflies"])
     normalized["schoenflies_unicode"] = _first_non_empty(entry.get("schoenflies_unicode"), normalized["schoenflies"])
+    normalized["symops"] = _normalize_spacegroup_symops(entry)
 
     return normalized
+
+
+def _normalize_spacegroup_symops(entry: Dict[str, Any]) -> List[Dict[str, Any]]:
+    raw_symops = entry.get("symops")
+    raw_xyz = entry.get("symops_xyz")
+
+    symops = raw_symops if isinstance(raw_symops, list) else []
+    xyz_list = raw_xyz if isinstance(raw_xyz, list) else []
+
+    if not symops:
+        return []
+
+    normalized_ops: List[Dict[str, Any]] = []
+    for idx, op in enumerate(symops):
+        if not isinstance(op, dict):
+            continue
+        op_normalized = dict(op)
+        xyz = op_normalized.get("xyz")
+        if xyz is None and idx < len(xyz_list):
+            xyz = xyz_list[idx]
+        op_normalized["xyz"] = xyz
+        normalized_ops.append(op_normalized)
+
+    return normalized_ops
+
+
+def attach_hall_aliases(data: Dict[str, Dict[str, Any]]) -> None:
+    def _as_alias_keys(raw_value: Any) -> List[str]:
+        if isinstance(raw_value, list):
+            values = raw_value
+        elif raw_value is None:
+            values = []
+        else:
+            values = [raw_value]
+        keys: List[str] = []
+        for value in values:
+            text = str(value).strip()
+            if text:
+                keys.append(text)
+        return keys
+
+    by_key_or_entry: Dict[str, Dict[str, Any]] = {}
+    for hall_key, entry in data.items():
+        by_key_or_entry[hall_key] = entry
+        hall_entry = str(entry.get("hall_entry") or "").strip()
+        if hall_entry and hall_entry not in by_key_or_entry:
+            by_key_or_entry[hall_entry] = entry
+
+    for hall_key, entry in data.items():
+        alias_keys = _as_alias_keys(entry.get("hall_aliases"))
+        if not alias_keys:
+            continue
+
+        aliases_plain: List[str] = []
+        aliases_latex: List[str] = []
+        aliases_unicode: List[str] = []
+        seen: set[str] = set()
+
+        for alias_key in alias_keys:
+            if alias_key == hall_key or alias_key in seen:
+                continue
+            seen.add(alias_key)
+
+            alias_entry = by_key_or_entry.get(alias_key) or {}
+            alias_plain = _first_non_empty(alias_entry.get("hall_entry"), alias_key)
+            alias_latex = _first_non_empty(alias_entry.get("hall_latex"))
+            alias_unicode = _first_non_empty(alias_entry.get("hall_unicode"), alias_plain)
+
+            aliases_plain.append(str(alias_plain))
+            if alias_latex is not None:
+                aliases_latex.append(str(alias_latex))
+            aliases_unicode.append(str(alias_unicode))
+
+        if not aliases_plain:
+            continue
+
+        entry["hall_aliases"] = aliases_plain
+        entry["hall_aliases_unicode"] = aliases_unicode
+        if len(aliases_latex) == len(aliases_plain):
+            entry["hall_aliases_latex"] = aliases_latex
+        else:
+            entry["hall_aliases_latex"] = None
 
 
 def load_data() -> Dict[str, Dict[str, Any]]:
@@ -174,6 +263,7 @@ def load_data() -> Dict[str, Dict[str, Any]]:
     for raw_hall_key, raw_entry in raw_data.items():
         hall_key = str(raw_hall_key)
         normalized[hall_key] = _normalize_entry(hall_key, raw_entry)
+    attach_hall_aliases(normalized)
     return normalized
 
 
