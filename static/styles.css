@@ -409,6 +409,33 @@ h2 {
   outline: none;
 }
 
+.table-head-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.table-sort-btn {
+  font-size: 10px;
+}
+
+.field-doc-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+}
+
+.field-doc-link:hover,
+.field-doc-link:focus-visible {
+  color: var(--accent);
+  outline: none;
+}
+
+.table-doc-link {
+  white-space: nowrap;
+}
+
 .sg-row:hover {
   background: rgba(var(--accent-rgb), 0.08);
 }
@@ -689,6 +716,11 @@ html[data-theme="dark"] .section-anchor-icon {
 
 .metric-span-two {
   grid-column: span 2;
+}
+
+.metric-tall-two-rows {
+  grid-column: 4;
+  grid-row: 1 / span 2;
 }
 
 .hm-aliases-inline {
@@ -1034,6 +1066,11 @@ html[data-theme="dark"] .mapping-tab-external-icon {
 
   .metric-span-two {
     grid-column: span 1;
+  }
+
+  .metric-tall-two-rows {
+    grid-column: span 1;
+    grid-row: auto;
   }
 
   .toolbar {

@@ -48,6 +48,7 @@ INDEX_FIELDS = [
     "hm_universal_unicode",
     "n_c",
     "n_c_aliases",
+    "setting_plaintext",
     "crystal_system",
     "point_group",
     "laue_class",
@@ -104,7 +105,8 @@ def _normalize_entry(hall_key: str, raw_entry: Any) -> Dict[str, Any]:
     hall_latex = _first_non_empty(entry.get("hall_latex"), entry.get("hall"), hall_entry)
     hall_unicode = _first_non_empty(entry.get("hall_unicode"), hall_entry)
 
-    hm_short = _first_non_empty(entry.get("hm_short"), entry.get("hm_full"), entry.get("hm_extended"), entry.get("hm_universal"))
+    hm_universal_source = _first_non_empty(entry.get("hm_universal"), entry.get("hm_cctbx_universal"))
+    hm_short = _first_non_empty(entry.get("hm_short"), entry.get("hm_full"), entry.get("hm_extended"), hm_universal_source)
     hm_short_aliases = _first_non_empty(entry.get("hm_short_aliases"))
     hm_short_aliases_latex = _first_non_empty(entry.get("hm_short_aliases_latex"), hm_short_aliases)
     hm_short_aliases_unicode = _first_non_empty(entry.get("hm_short_aliases_unicode"), hm_short_aliases)
@@ -119,7 +121,7 @@ def _normalize_entry(hall_key: str, raw_entry: Any) -> Dict[str, Any]:
     hm_extended_latex = _first_non_empty(entry.get("hm_extended_latex"), hm_full_latex, hm_extended)
     hm_extended_unicode = _first_non_empty(entry.get("hm_extended_unicode"), hm_full_unicode, hm_extended)
 
-    hm_universal = _first_non_empty(entry.get("hm_universal"), hm_extended)
+    hm_universal = _first_non_empty(hm_universal_source, hm_extended)
     hm_universal_aliases = _first_non_empty(entry.get("hm_universal_aliases"))
     hm_universal_aliases_latex = _first_non_empty(entry.get("hm_universal_aliases_latex"), hm_universal_aliases)
     hm_universal_aliases_unicode = _first_non_empty(entry.get("hm_universal_aliases_unicode"), hm_universal_aliases)
@@ -131,6 +133,7 @@ def _normalize_entry(hall_key: str, raw_entry: Any) -> Dict[str, Any]:
     normalized = dict(entry)
     normalized["hall_key"] = hall_key
     normalized["ita_number"] = _first_non_empty(entry.get("ita_number"), entry.get("it_number"))
+    normalized["it_number"] = _first_non_empty(entry.get("it_number"), entry.get("ita_number"))
     normalized["hall_entry"] = hall_entry
     normalized["hall_latex"] = hall_latex
     normalized["hall_unicode"] = hall_unicode
@@ -156,6 +159,30 @@ def _normalize_entry(hall_key: str, raw_entry: Any) -> Dict[str, Any]:
     normalized["hm_universal_latex"] = hm_universal_latex
     normalized["hm_universal_unicode"] = hm_universal_unicode
     normalized["n_c_aliases"] = n_c_aliases
+    normalized["setting"] = _first_non_empty(entry.get("setting"))
+    normalized["setting_plaintext"] = _first_non_empty(entry.get("setting_plaintext"), entry.get("settings_plaintext"))
+    normalized["settings_plaintext"] = normalized["setting_plaintext"]
+    normalized["qualifier"] = _first_non_empty(entry.get("qualifier"), normalized["setting"])
+
+    normalized["centering_translation_vector_count"] = _first_non_empty(
+        entry.get("centering_translation_vector_count"),
+        entry.get("n_ltr"),
+    )
+    normalized["pointgroup_symop_count"] = _first_non_empty(
+        entry.get("pointgroup_symop_count"),
+        entry.get("n_smx"),
+    )
+    normalized["symop_count"] = _first_non_empty(
+        entry.get("symop_count"),
+        entry.get("order_z"),
+    )
+    # Legacy aliases retained for template/backward compatibility.
+    normalized["n_ltr"] = _first_non_empty(entry.get("n_ltr"), normalized["centering_translation_vector_count"])
+    normalized["n_smx"] = _first_non_empty(entry.get("n_smx"), normalized["pointgroup_symop_count"])
+    normalized["order_z"] = _first_non_empty(entry.get("order_z"), normalized["symop_count"])
+
+    normalized["asu_ascii"] = _first_non_empty(entry.get("asu_ascii"), entry.get("asym_unit"))
+    normalized["asym_unit"] = _first_non_empty(entry.get("asym_unit"), normalized["asu_ascii"])
 
     normalized["schoenflies"] = _first_non_empty(entry.get("schoenflies"))
     normalized["schoenflies_latex"] = _first_non_empty(entry.get("schoenflies_latex"), normalized["schoenflies"])

@@ -94,10 +94,14 @@
           )
         }}
         <div data-section-body="identity">
+          {{ $docSymopsXYZ := "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symmetry_operations_xyz" }}
+          {{ $docHall := "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hall" }}
+          {{ $docHMShort := "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hermann_mauguin" }}
+          {{ $docHMExtended := "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hermann_mauguin_extended" }}
           <div class="identity-grid">
             <div class="metric">
               <label>
-                HM Symbol Short
+                {{ partial "field_label.html" (dict "text" "HM Symbol Short" "url" $docHMShort) }}
                 {{
                   partial "info_dot.html" (dict
                     "general" "A short Hermann-Mauguin symbol is a compact way to express the main symmetry content of a group."
@@ -143,21 +147,6 @@
             </div>
             <div class="metric">
               <label>
-                HM Symbol Unicode
-                {{
-                  partial "info_dot.html" (dict
-                    "general" "Unicode forms of Hermann-Mauguin symbols are useful for direct copy-and-paste in documents and notes."
-                  )
-                }}
-              </label>
-              {{ $hmUnicode := default .Params.hm_short_unicode .Params.short_hm_symbol_unicode }}
-              {{ if not $hmUnicode }}{{ $hmUnicode = .Params.hm_full_unicode }}{{ end }}
-              {{ if not $hmUnicode }}{{ $hmUnicode = .Params.hm_universal_unicode }}{{ end }}
-              {{ if not $hmUnicode }}{{ $hmUnicode = default .Params.hm_short .Params.short_hm_symbol }}{{ end }}
-              <strong class="metric-value-unicode">{{ partial "value.html" $hmUnicode }}</strong>
-            </div>
-            <div class="metric">
-              <label>
                 N:C
                 {{
                   partial "info_dot.html" (dict
@@ -173,9 +162,21 @@
                 {{ if $nCAliases }}<span class="hm-aliases-inline">({{ partial "value.html" $nCAliases }})</span>{{ end }}
               </strong>
             </div>
+            <div class="metric metric-span-two">
+              <label>
+                Settings
+                {{
+                  partial "info_dot.html" (dict
+                    "general" "Setting text gives a human-readable description of axis/origin conventions for this Hall setting."
+                    "context" "This field uses settings_plaintext when available."
+                  )
+                }}
+              </label>
+              <strong>{{ partial "value.html" (default .Params.settings_plaintext .Params.setting_plaintext) }}</strong>
+            </div>
             <div class="metric">
               <label>
-                Hall Symbol
+                {{ partial "field_label.html" (dict "text" "Hall Symbol" "url" $docHall) }}
                 {{
                   partial "info_dot.html" (dict
                     "general" "Hall symbols encode space-group symmetry in a form designed to fix generators and origin choices unambiguously."
@@ -215,6 +216,25 @@
                       {{ partial "value.html" $hallAliases }}
                     {{ end }}
                   </span>
+                {{ end }}
+              </strong>
+            </div>
+            <div class="metric metric-tall-two-rows">
+              <label>
+                {{ partial "field_label.html" (dict "text" "HM SYMBOL EXTENDED" "url" $docHMExtended) }}
+                {{
+                  partial "info_dot.html" (dict
+                    "general" "Extended Hermann-Mauguin notation preserves setting-specific details beyond the short symbol."
+                    "context" "This larger identity tile highlights the extended symbol rendered in math notation when available."
+                  )
+                }}
+              </label>
+              {{ $extendedHM := .Params.hm_extended_latex }}
+              <strong>
+                {{ if $extendedHM }}
+                  <span class="math-content">\({{ $extendedHM }}\)</span>
+                {{ else }}
+                  <span>{{ partial "value.html" .Params.hm_extended }}</span>
                 {{ end }}
               </strong>
             </div>
@@ -268,6 +288,25 @@
             </div>
             <div class="metric">
               <label>
+                Schoenflies
+                {{
+                  partial "info_dot.html" (dict
+                    "general" "Schoenflies notation is an alternative symmetry-label system common in spectroscopy and molecular-group contexts."
+                    "context" "This identity field prefers the LaTeX rendering for typographic consistency with other symbols."
+                  )
+                }}
+              </label>
+              {{ $schoenfliesLatex := .Params.schoenflies_latex }}
+              <strong>
+                {{ if $schoenfliesLatex }}
+                  <span class="math-content">\({{ $schoenfliesLatex }}\)</span>
+                {{ else }}
+                  <span>{{ partial "value.html" (default .Params.schoenflies_unicode .Params.schoenflies) }}</span>
+                {{ end }}
+              </strong>
+            </div>
+            <div class="metric">
+              <label>
                 Crystal System
                 {{
                   partial "info_dot.html" (dict
@@ -301,23 +340,27 @@
             {{ end }}
           </div>
           <p class="note">
-            Schoenflies
+            HM symbol
             {{
               partial "info_dot.html" (dict
-                "general" "Schoenflies notation is an alternative symmetry-label system common in spectroscopy and molecular-group contexts."
-                "context" "It is shown in the same compact symbol style used throughout this page."
+                "general" "Unicode Hermann-Mauguin symbols are useful for copy-and-paste in notes and documents."
+                "context" "This line keeps a plain-text HM symbol available outside math-rendered identity tiles."
               )
             }}:
-            {{ partial "value.html" .Params.schoenflies }}
+            {{ $hmUnicode := default .Params.hm_short_unicode .Params.short_hm_symbol_unicode }}
+            {{ if not $hmUnicode }}{{ $hmUnicode = .Params.hm_full_unicode }}{{ end }}
+            {{ if not $hmUnicode }}{{ $hmUnicode = .Params.hm_universal_unicode }}{{ end }}
+            {{ if not $hmUnicode }}{{ $hmUnicode = default .Params.hm_short .Params.short_hm_symbol }}{{ end }}
+            {{ partial "value.html" $hmUnicode }}
           </p>
           <p class="note">
-            Qualifier
+            Setting key
             {{
               partial "info_dot.html" (dict
-                "general" "Qualifiers are extra labels used to disambiguate variants that share a closely related base symbol."
+                "general" "Setting keys are compact raw suffixes used to disambiguate variants that share a closely related base symbol."
               )
             }}:
-            {{ partial "value.html" .Params.qualifier }}
+            {{ partial "value.html" (default .Params.setting .Params.qualifier) }}
           </p>
           <p class="note">
             Asymmetric unit
@@ -330,33 +373,34 @@
             {{ partial "value.html" .Params.asym_unit }}
           </p>
           <p class="note">
-            Lattice translations
+            Centering translation vectors
             {{
               partial "info_dot.html" (dict
-                "general" "Lattice translations are shifts that map the crystal lattice onto itself without changing local structure."
-                "context" "This count reflects the number of listed lattice-translation components in this entry."
+                "general" "Centering translation vectors are centering offsets applied to the conventional cell."
+                "context" "This count comes from centering_translation_vector_count in the normalized payload."
               )
             }}:
-            {{ partial "value.html" .Params.n_ltr }}
+            {{ partial "value.html" (default .Params.centering_translation_vector_count .Params.n_ltr) }}
           </p>
           <p class="note">
-            Symmetry operations count
+            Point-group symmetry operations
             {{
               partial "info_dot.html" (dict
-                "general" "A space group is defined by all operations that preserve the structure, including rotations, reflections, inversions, and translations."
-                "context" "This is the precomputed operation count used in the full operation table below."
+                "general" "Point-group symmetry operations count the representative rotational/reflection operations."
+                "context" "This value comes from pointgroup_symop_count (legacy alias n_smx)."
               )
             }}:
-            {{ partial "value.html" .Params.n_smx }}
+            {{ partial "value.html" (default .Params.pointgroup_symop_count .Params.n_smx) }}
           </p>
           <p class="note">
-            Order Z
+            Space-group symmetry operations
             {{
               partial "info_dot.html" (dict
-                "general" "Z commonly denotes multiplicity-related counts per conventional unit cell in crystallographic tables."
+                "general" "Space-group symmetry operations count all operations listed for the setting."
+                "context" "This value comes from symop_count (legacy alias order_z)."
               )
             }}:
-            {{ partial "value.html" .Params.order_z }}
+            {{ partial "value.html" (default .Params.symop_count .Params.order_z) }}
           </p>
         </div>
       </article>
@@ -379,7 +423,7 @@
                 <tr>
                   <th>#</th>
                   <th>
-                    xyz
+                    {{ partial "field_label.html" (dict "text" "xyz" "url" $docSymopsXYZ) }}
                     {{ partial "info_dot.html" (dict "general" "Coordinate-form operations express transformed x, y, z values." "context" "This column uses the exact textual xyz form stored for each operation.") }}
                   </th>
                   <th>
@@ -739,7 +783,7 @@
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>xyz</th>
+                          <th>{{ partial "field_label.html" (dict "text" "xyz" "url" $docSymopsXYZ) }}</th>
                           <th>rot_type</th>
                           <th>screw/glide</th>
                           <th>origin_shift</th>

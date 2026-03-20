@@ -55,6 +55,13 @@ const POINTGROUP_BASICS_DATA_PATH = "data/pointgroup_basics.json.gz";
 
 const DATASET_SPACEGROUPS = "spacegroups";
 const DATASET_POINTGROUPS = "pointgroups";
+const FIELD_DOC_URLS = {
+  symops_xyz: "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symmetry_operations_xyz",
+  hall: "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hall",
+  hm_short: "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hermann_mauguin",
+  hm_extended: "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hermann_mauguin_extended",
+  it_number: "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_it_number"
+};
 
 const SETTINGS_ALL = "all";
 const SETTINGS_ITA = "ita";
@@ -567,9 +574,9 @@ const TABLE_CONFIGS = {
     emptyLabel: "spacegroups",
     defaultSortKey: "ita_number",
     columns: [
-      { key: "short_hm_symbol", label: "Hermann-Mauguin", render: (row) => renderHmWithAliases(row) },
-      { key: "ita_number", label: "ITA #", render: (row) => escapeHtml(formatValue(row.ita_number)) },
-      { key: "hall_key", label: "Hall Symbol", render: (row) => renderHallWithLatex(row) },
+      { key: "short_hm_symbol", label: "Hermann-Mauguin", docUrl: FIELD_DOC_URLS.hm_short, render: (row) => renderHmWithAliases(row) },
+      { key: "ita_number", label: "ITA #", docUrl: FIELD_DOC_URLS.it_number, render: (row) => escapeHtml(formatValue(row.ita_number)) },
+      { key: "hall_key", label: "Hall Symbol", docUrl: FIELD_DOC_URLS.hall, render: (row) => renderHallWithLatex(row) },
       { key: "crystal_system", label: "Crystal System", muted: true, render: (row) => escapeHtml(formatValue(row.crystal_system)) },
       { key: "point_group", label: "Point Group", muted: true, render: (row) => escapeHtml(formatValue(row.point_group)) },
       { key: "n_c", label: "n:c", muted: true, render: (row) => escapeHtml(formatValue(row.n_c)) }
@@ -736,7 +743,12 @@ const renderTableHeader = () => {
   }
   const config = getActiveTableConfig();
   tableHead.innerHTML = `<tr>${config.columns
-    .map((column) => `<th><button class="sort-btn" data-sort="${column.key}">${escapeHtml(column.label)}</button></th>`)
+    .map((column) => {
+      const labelHtml = column.docUrl
+        ? `<a class="field-doc-link table-doc-link" href="${escapeHtml(column.docUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(column.label)}</a>`
+        : escapeHtml(column.label);
+      return `<th><div class="table-head-controls">${labelHtml}<button class="sort-btn table-sort-btn" data-sort="${column.key}" aria-label="Sort by ${escapeHtml(column.label)}">sort</button></div></th>`;
+    })
     .join("")}</tr>`;
 };
 
@@ -1271,8 +1283,68 @@ const buildLists = (rows) => {
   const ncGroups = new Map();
   const hmValues = new Set();
   const itaValues = new Set();
+  const hallOptions = [];
+  const hmOptions = [];
+
+  const asArray = (value) => {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+    return value
+      .map((item) => String(item ?? "").trim())
+      .filter((item) => item !== "");
+  };
+
+  const dedupeStrings = (items) => {
+    const seen = new Set();
+    const out = [];
+    items.forEach((item) => {
+      if (seen.has(item)) {
+        return;
+      }
+      seen.add(item);
+      out.push(item);
+    });
+    return out;
+  };
+
+  const settingLabelForHm = (row) => {
+    if (row && row.is_reference_setting) {
+      return "ITA";
+    }
+    const hm = String((row && (row.hm_universal || row.universal_hm)) || "");
+    const suffixMatch = hm.match(/\([^)]*\)\s*$/);
+    if (suffixMatch && suffixMatch[0]) {
+      return suffixMatch[0];
+    }
+    return "\u2014";
+  };
 
   rows.forEach((row) => {
+    const hallKey = String(row.hall_key || "");
+    const hallLabel = String(row.hall_unicode || row.hall_entry || hallKey || "");
+    if (hallKey) {
+      hallOptions.push({
+        matchValue: hallKey,
+        hallKey,
+        label: hallLabel,
+        itaNumber: row.ita_number
+      });
+    }
+
+    const hallAliasLabels = dedupeStrings([
+      ...asArray(row.hall_aliases_unicode),
+      ...asArray(row.hall_aliases)
+    ]);
+    hallAliasLabels.forEach((aliasLabel) => {
+      hallOptions.push({
+        matchValue: aliasLabel,
+        hallKey,
+        label: aliasLabel,
+        itaNumber: row.ita_number
+      });
+    });
+
     if (row.hm_universal || row.universal_hm) {
       const key = String(row.hm_universal || row.universal_hm);
       hmValues.add(key);
@@ -1280,6 +1352,34 @@ const buildLists = (rows) => {
         hmGroups.set(key, []);
       }
       hmGroups.get(key).push(row);
+
+      const hmDisplay = String(
+        row.hm_short_unicode || row.hm_short || row.short_hm_symbol_unicode || row.short_hm_symbol || key
+      );
+      hmOptions.push({
+        matchValue: key,
+        hallKey,
+        label: hmDisplay,
+        itaNumber: row.ita_number,
+        qualifier: settingLabelForHm(row)
+      });
+
+      const hmAliasLabels = dedupeStrings([
+        ...asArray(row.hm_short_aliases_unicode),
+        ...asArray(row.hm_short_aliases),
+        ...asArray(row.short_hm_symbol_aliases),
+        ...asArray(row.hm_universal_aliases_unicode),
+        ...asArray(row.hm_universal_aliases)
+      ]);
+      hmAliasLabels.forEach((aliasLabel) => {
+        hmOptions.push({
+          matchValue: aliasLabel,
+          hallKey,
+          label: aliasLabel,
+          itaNumber: row.ita_number,
+          qualifier: settingLabelForHm(row)
+        });
+      });
     }
     if (row.ita_number !== null && row.ita_number !== undefined) {
       const key = Number(row.ita_number);
@@ -1338,22 +1438,35 @@ const buildLists = (rows) => {
     return String(labelA).localeCompare(String(labelB), undefined, { numeric: true });
   });
 
-  const hallsSorted = rows
-    .map((row) => ({
-      hallKey: row.hall_key,
-      label: String(row.hall_unicode || row.hall_entry || row.hall_key || "")
-    }))
-    .sort((a, b) => {
-      const byLabel = a.label.localeCompare(b.label, undefined, { numeric: true });
-      if (byLabel !== 0) {
-        return byLabel;
-      }
-      return String(a.hallKey).localeCompare(String(b.hallKey), undefined, { numeric: true });
-    })
-    .map((item) => item.hallKey);
+  const hallOptionsSorted = hallOptions.sort((a, b) => {
+    const byLabel = String(a.label).localeCompare(String(b.label), undefined, { numeric: true });
+    if (byLabel !== 0) {
+      return byLabel;
+    }
+    return String(a.hallKey).localeCompare(String(b.hallKey), undefined, { numeric: true });
+  });
+
+  const hmLabelCounts = new Map();
+  hmOptions.forEach((item) => {
+    const key = String(item.label || "");
+    hmLabelCounts.set(key, (hmLabelCounts.get(key) || 0) + 1);
+  });
+  hmOptions.forEach((item) => {
+    if ((hmLabelCounts.get(String(item.label || "")) || 0) > 1) {
+      item.label = `${item.label}: ${item.qualifier || "\u2014"}`;
+    }
+  });
+  const hmOptionsSorted = hmOptions.sort((a, b) => {
+    const byLabel = String(a.label).localeCompare(String(b.label), undefined, { numeric: true });
+    if (byLabel !== 0) {
+      return byLabel;
+    }
+    return String(a.hallKey).localeCompare(String(b.hallKey), undefined, { numeric: true });
+  });
 
   return {
-    halls: hallsSorted,
+    halls: hallOptionsSorted,
+    hmOptions: hmOptionsSorted,
     hmValues: hmValuesSorted,
     itaValues: Array.from(itaValues).sort((a, b) => a - b),
     ncValues: ncValues.sort((a, b) => String(a).localeCompare(String(b), undefined, { numeric: true })),
@@ -1382,7 +1495,6 @@ const populateSelect = (select, items, selectedValue, buildOption) => {
 
 const populateDetailSelects = (lists) => {
   const baseUrl = resolveBase();
-  const rowByHallKey = new Map(allRows.map((row) => [row.hall_key, row]));
   const hallSelects = document.querySelectorAll('select.detail-select[data-selected][aria-label="Select Hall symbol"]');
   const hmSelects = document.querySelectorAll('select.detail-select[data-selected][aria-label="Select HM symbol"]');
   const itaSelects = document.querySelectorAll('select.detail-select[data-secondary-select], select.detail-select[data-selected][aria-label="Select ITA number"]');
@@ -1391,28 +1503,24 @@ const populateDetailSelects = (lists) => {
     const selected = select.dataset.selected;
     populateSelect(select, lists.halls, selected, (hallKey) => {
       const option = document.createElement("option");
-      option.value = buildHallUrl(baseUrl, hallKey);
-      const row = rowByHallKey.get(hallKey);
-      const hallLabel = row ? row.hall_unicode || row.hall_entry || hallKey : hallKey;
+      option.value = hallKey.hallKey ? buildHallUrl(baseUrl, hallKey.hallKey) : "";
       const itaSuffix =
-        row && row.ita_number !== null && row.ita_number !== undefined ? ` - (#${row.ita_number})` : "";
-      option.textContent = `${hallLabel}${itaSuffix}`;
-      option.dataset.matchValue = hallKey;
+        hallKey.itaNumber !== null && hallKey.itaNumber !== undefined ? ` - (#${hallKey.itaNumber})` : "";
+      option.textContent = `${hallKey.label}${itaSuffix}`;
+      option.dataset.matchValue = hallKey.matchValue;
       return option;
     });
   });
 
   hmSelects.forEach((select) => {
     const selected = select.dataset.selected;
-    populateSelect(select, lists.hmValues, selected, (hm) => {
-      const hall = lists.hmToHall[hm];
-      const row = hall ? rowByHallKey.get(hall) : null;
+    populateSelect(select, lists.hmOptions || [], selected, (hmOption) => {
       const option = document.createElement("option");
-      option.value = hall ? buildHallUrl(baseUrl, hall) : "";
+      option.value = hmOption.hallKey ? buildHallUrl(baseUrl, hmOption.hallKey) : "";
       const itaSuffix =
-        row && row.ita_number !== null && row.ita_number !== undefined ? ` - (#${row.ita_number})` : "";
-      option.textContent = `${lists.hmDisplay[hm] || hm}${itaSuffix}`;
-      option.dataset.matchValue = hm;
+        hmOption.itaNumber !== null && hmOption.itaNumber !== undefined ? ` - (#${hmOption.itaNumber})` : "";
+      option.textContent = `${hmOption.label}${itaSuffix}`;
+      option.dataset.matchValue = hmOption.matchValue;
       return option;
     });
   });
