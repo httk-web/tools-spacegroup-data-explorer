@@ -11,7 +11,6 @@ from typing import Any, Dict, List
 HUGO_ROOT = Path(__file__).resolve().parents[1]
 DATA_ROOT = HUGO_ROOT / "static" / "data"
 SYMMETRY_BASICS_PATH = DATA_ROOT / "symmetry_basics.json"
-POINTGROUP_BASICS_PATH = DATA_ROOT / "pointgroup_basics.json"
 BARNIGHAUSEN_PATH = HUGO_ROOT / "static" / "data" / "barnighausen_hall.json"
 EUCLIDIAN_NORMALIZER_PATH = DATA_ROOT / "euclidian_normalizer.json"
 CONTINUOUS_EUCLIDIAN_NORMALIZER_PATH = DATA_ROOT / "continuous_euclidian_normalizer_hall.json"
@@ -98,8 +97,8 @@ def _write_json_gz(path: Path, payload: Any) -> None:
 def _normalize_entry(hall_key: str, raw_entry: Any) -> Dict[str, Any]:
     entry = dict(raw_entry) if isinstance(raw_entry, dict) else {}
 
-    hall_entry = _first_non_empty(entry.get("hall_entry"), hall_key)
-    hall_latex = _first_non_empty(entry.get("hall_latex"), hall_entry)
+    hall_entry = _first_non_empty(entry.get("hall_entry"), entry.get("hall_symbol"), hall_key)
+    hall_latex = _first_non_empty(entry.get("hall_latex"), entry.get("hall"), hall_entry)
     hall_unicode = _first_non_empty(entry.get("hall_unicode"), hall_entry)
 
     hm_short = _first_non_empty(entry.get("hm_short"), entry.get("hm_full"), entry.get("hm_extended"), entry.get("hm_universal"))
@@ -128,6 +127,7 @@ def _normalize_entry(hall_key: str, raw_entry: Any) -> Dict[str, Any]:
 
     normalized = dict(entry)
     normalized["hall_key"] = hall_key
+    normalized["ita_number"] = _first_non_empty(entry.get("ita_number"), entry.get("it_number"))
     normalized["hall_entry"] = hall_entry
     normalized["hall_latex"] = hall_latex
     normalized["hall_unicode"] = hall_unicode
@@ -165,8 +165,13 @@ def load_data() -> Dict[str, Dict[str, Any]]:
     if not isinstance(payload, dict):
         raise TypeError("Expected spacegroup data payload to be an object keyed by hall_key")
 
+    # Newer payloads store entries under "spacegroups"; older payloads were direct maps.
+    raw_data = payload.get("spacegroups") if isinstance(payload.get("spacegroups"), dict) else payload
+    if not isinstance(raw_data, dict):
+        raise TypeError("Expected symmetry basics spacegroups payload to be an object keyed by hall_key")
+
     normalized: Dict[str, Dict[str, Any]] = {}
-    for raw_hall_key, raw_entry in payload.items():
+    for raw_hall_key, raw_entry in raw_data.items():
         hall_key = str(raw_hall_key)
         normalized[hall_key] = _normalize_entry(hall_key, raw_entry)
     return normalized
@@ -200,16 +205,18 @@ def _normalize_pointgroup_entry(pointgroup_key: str, raw_entry: Any) -> Dict[str
 
 
 def load_pointgroup_data() -> Dict[str, Dict[str, Any]]:
-    if not _resolve_input_path(POINTGROUP_BASICS_PATH).exists():
-        _log("Pointgroup basics data not found; pointgroup pages and table will be empty")
-        return {}
-    _log(f"Loading pointgroup basics from {_resolve_input_path(POINTGROUP_BASICS_PATH)}")
-    payload = _load_json(POINTGROUP_BASICS_PATH)
+    _log(f"Loading pointgroup basics from {_resolve_input_path(SYMMETRY_BASICS_PATH)}")
+    payload = _load_json(SYMMETRY_BASICS_PATH)
     if not isinstance(payload, dict):
         return {}
 
+    # Newer payloads store entries under "pointgroups"; older payloads were direct maps.
+    raw_data = payload.get("pointgroups") if isinstance(payload.get("pointgroups"), dict) else payload
+    if not isinstance(raw_data, dict):
+        return {}
+
     normalized: Dict[str, Dict[str, Any]] = {}
-    for raw_key, raw_entry in payload.items():
+    for raw_key, raw_entry in raw_data.items():
         pointgroup_key = str(raw_key)
         normalized[pointgroup_key] = _normalize_pointgroup_entry(pointgroup_key, raw_entry)
     return normalized
@@ -321,6 +328,9 @@ def load_barnighausen_data() -> Dict[str, Dict[str, Dict[str, Any]]]:
     payload = _load_json(BARNIGHAUSEN_PATH)
     if not isinstance(payload, dict):
         return {}
+    entries = payload.get("entries")
+    if isinstance(entries, dict):
+        return entries
     return payload
 
 
@@ -332,6 +342,9 @@ def load_euclidian_normalizer_data() -> Dict[str, Dict[str, Any]]:
     payload = _load_json(EUCLIDIAN_NORMALIZER_PATH)
     if not isinstance(payload, dict):
         return {}
+    entries = payload.get("entries")
+    if isinstance(entries, dict):
+        return entries
     return payload
 
 
@@ -343,6 +356,9 @@ def load_continuous_euclidian_normalizer_data() -> Dict[str, Dict[str, Any]]:
     payload = _load_json(CONTINUOUS_EUCLIDIAN_NORMALIZER_PATH)
     if not isinstance(payload, dict):
         return {}
+    entries = payload.get("entries")
+    if isinstance(entries, dict):
+        return entries
     return payload
 
 
@@ -354,6 +370,9 @@ def load_cell_commensurator_data() -> Dict[str, Dict[str, Any]]:
     payload = _load_json(CELL_COMMENSURATOR_PATH)
     if not isinstance(payload, dict):
         return {}
+    entries = payload.get("entries")
+    if isinstance(entries, dict):
+        return entries
     return payload
 
 
