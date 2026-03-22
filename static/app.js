@@ -11,28 +11,36 @@ const INDEX_FIELDS = [
   "hall_key",
   "hall_entry",
   "hall_latex",
+  "hall_html",
   "hall_unicode",
   "hall_aliases",
   "hall_aliases_latex",
+  "hall_aliases_html",
   "hall_aliases_unicode",
   "ita_number",
   "hm_short",
   "hm_short_aliases",
   "hm_short_aliases_latex",
+  "hm_short_aliases_html",
   "hm_short_aliases_unicode",
   "hm_short_latex",
+  "hm_short_html",
   "hm_short_unicode",
   "hm_full",
   "hm_full_latex",
+  "hm_full_html",
   "hm_full_unicode",
   "hm_extended",
   "hm_extended_latex",
+  "hm_extended_html",
   "hm_extended_unicode",
   "hm_universal",
   "hm_universal_aliases",
   "hm_universal_aliases_latex",
+  "hm_universal_aliases_html",
   "hm_universal_aliases_unicode",
   "hm_universal_latex",
+  "hm_universal_html",
   "hm_universal_unicode",
   "short_hm_symbol",
   "short_hm_symbol_latex",
@@ -45,6 +53,7 @@ const INDEX_FIELDS = [
   "n_c",
   "crystal_system",
   "point_group",
+  "schoenflies_html",
   "is_reference_setting"
 ];
 
@@ -142,31 +151,39 @@ const normalizeRow = (row) => {
   const normalized = { ...row };
 
   normalized.hall_entry = firstNonEmpty(row.hall_entry, row.hall_key);
+  normalized.hall_html = firstNonEmpty(row.hall_html, row.hall_unicode, row.hall_entry, row.hall_key);
   normalized.hall_latex = firstNonEmpty(row.hall_latex, row.hall_entry, row.hall_key);
   normalized.hall_unicode = firstNonEmpty(row.hall_unicode, row.hall_entry, row.hall_key);
   normalized.hall_aliases = firstNonEmpty(row.hall_aliases);
   normalized.hall_aliases_latex = firstNonEmpty(row.hall_aliases_latex);
+  normalized.hall_aliases_html = firstNonEmpty(row.hall_aliases_html);
   normalized.hall_aliases_unicode = firstNonEmpty(row.hall_aliases_unicode, normalized.hall_aliases);
 
   normalized.hm_short = firstNonEmpty(row.hm_short, row.short_hm_symbol);
   normalized.hm_short_aliases = firstNonEmpty(row.hm_short_aliases, row.short_hm_symbol_aliases);
   normalized.hm_short_aliases_latex = firstNonEmpty(row.hm_short_aliases_latex, row.short_hm_symbol_aliases_latex);
+  normalized.hm_short_aliases_html = firstNonEmpty(row.hm_short_aliases_html);
   normalized.hm_short_aliases_unicode = firstNonEmpty(row.hm_short_aliases_unicode, row.hm_short_aliases, row.short_hm_symbol_aliases);
+  normalized.hm_short_html = firstNonEmpty(row.hm_short_html, row.hm_short);
   normalized.hm_short_latex = firstNonEmpty(row.hm_short_latex, row.short_hm_symbol_latex, row.hm_short);
   normalized.hm_short_unicode = firstNonEmpty(row.hm_short_unicode, row.short_hm_symbol_unicode, row.hm_short);
 
   normalized.hm_full = firstNonEmpty(row.hm_full);
+  normalized.hm_full_html = firstNonEmpty(row.hm_full_html, row.hm_full);
   normalized.hm_full_latex = firstNonEmpty(row.hm_full_latex, row.hm_full);
   normalized.hm_full_unicode = firstNonEmpty(row.hm_full_unicode, row.hm_full);
 
   normalized.hm_extended = firstNonEmpty(row.hm_extended);
+  normalized.hm_extended_html = firstNonEmpty(row.hm_extended_html, row.hm_extended);
   normalized.hm_extended_latex = firstNonEmpty(row.hm_extended_latex, row.hm_extended);
   normalized.hm_extended_unicode = firstNonEmpty(row.hm_extended_unicode, row.hm_extended);
 
   normalized.hm_universal = firstNonEmpty(row.hm_universal, row.universal_hm);
   normalized.hm_universal_aliases = firstNonEmpty(row.hm_universal_aliases);
   normalized.hm_universal_aliases_latex = firstNonEmpty(row.hm_universal_aliases_latex, row.hm_universal_aliases);
+  normalized.hm_universal_aliases_html = firstNonEmpty(row.hm_universal_aliases_html);
   normalized.hm_universal_aliases_unicode = firstNonEmpty(row.hm_universal_aliases_unicode, row.hm_universal_aliases);
+  normalized.hm_universal_html = firstNonEmpty(row.hm_universal_html, row.hm_universal);
   normalized.hm_universal_latex = firstNonEmpty(row.hm_universal_latex, row.universal_hm_latex, row.hm_universal);
   normalized.hm_universal_unicode = firstNonEmpty(row.hm_universal_unicode, row.universal_hm_unicode, row.hm_universal);
 
@@ -207,6 +224,7 @@ const normalizePointgroupRow = (row) => {
   normalized.pointgroup_key = firstNonEmpty(row.pointgroup_key, row.hm_symbol);
   normalized.hm_symbol = firstNonEmpty(row.hm_symbol, row.pointgroup_key);
   normalized.schoenflies = firstNonEmpty(row.schoenflies);
+  normalized.schoenflies_html = firstNonEmpty(row.schoenflies_html, row.schoenflies);
   normalized.schoenflies_unicode = firstNonEmpty(row.schoenflies_unicode, row.schoenflies);
   normalized.schoenflies_latex = firstNonEmpty(row.schoenflies_latex, row.schoenflies);
   normalized.crystal_system = firstNonEmpty(row.crystal_system);
@@ -636,31 +654,41 @@ const filterSpacegroupRows = (rows, query) => {
       item.hall_key,
       item.hall_entry,
       item.hall_latex,
+      item.hall_html,
       item.hall_unicode,
       Array.isArray(item.hall_aliases) ? item.hall_aliases.join(" ") : item.hall_aliases,
       Array.isArray(item.hall_aliases_latex) ? item.hall_aliases_latex.join(" ") : item.hall_aliases_latex,
+      Array.isArray(item.hall_aliases_html) ? item.hall_aliases_html.join(" ") : item.hall_aliases_html,
       Array.isArray(item.hall_aliases_unicode) ? item.hall_aliases_unicode.join(" ") : item.hall_aliases_unicode,
       item.hm_short,
       Array.isArray(item.hm_short_aliases) ? item.hm_short_aliases.join(" ") : item.hm_short_aliases,
       Array.isArray(item.hm_short_aliases_latex) ? item.hm_short_aliases_latex.join(" ") : item.hm_short_aliases_latex,
+      Array.isArray(item.hm_short_aliases_html) ? item.hm_short_aliases_html.join(" ") : item.hm_short_aliases_html,
       Array.isArray(item.hm_short_aliases_unicode) ? item.hm_short_aliases_unicode.join(" ") : item.hm_short_aliases_unicode,
       item.hm_short_latex,
+      item.hm_short_html,
       item.hm_short_unicode,
       item.hm_full,
       item.hm_full_latex,
+      item.hm_full_html,
       item.hm_full_unicode,
       item.hm_extended,
       item.hm_extended_latex,
+      item.hm_extended_html,
       item.hm_extended_unicode,
       item.hm_universal,
       Array.isArray(item.hm_universal_aliases) ? item.hm_universal_aliases.join(" ") : item.hm_universal_aliases,
       Array.isArray(item.hm_universal_aliases_latex)
         ? item.hm_universal_aliases_latex.join(" ")
         : item.hm_universal_aliases_latex,
+      Array.isArray(item.hm_universal_aliases_html)
+        ? item.hm_universal_aliases_html.join(" ")
+        : item.hm_universal_aliases_html,
       Array.isArray(item.hm_universal_aliases_unicode)
         ? item.hm_universal_aliases_unicode.join(" ")
         : item.hm_universal_aliases_unicode,
       item.hm_universal_latex,
+      item.hm_universal_html,
       item.hm_universal_unicode,
       item.short_hm_symbol,
       item.short_hm_symbol_latex,
@@ -695,6 +723,7 @@ const filterPointgroupRows = (rows, query) => {
       item.pointgroup_key,
       item.hm_symbol,
       item.schoenflies,
+      item.schoenflies_html,
       item.schoenflies_unicode,
       item.schoenflies_latex,
       item.crystal_system,

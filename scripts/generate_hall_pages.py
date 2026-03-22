@@ -11,6 +11,8 @@ from typing import Any, Dict, List
 HUGO_ROOT = Path(__file__).resolve().parents[1]
 DATA_ROOT = HUGO_ROOT / "static" / "data"
 SYMMETRY_BASICS_PATH = DATA_ROOT / "symmetry_basics.json"
+POINTGROUP_BASICS_PATH = DATA_ROOT / "pointgroup_basics.json"
+TRANSFORMATIONS_HALL_PATH = DATA_ROOT / "transformations_hall.json"
 BARNIGHAUSEN_PATH = HUGO_ROOT / "static" / "data" / "barnighausen_hall.json"
 EUCLIDIAN_NORMALIZER_PATH = DATA_ROOT / "euclidian_normalizer.json"
 CONTINUOUS_EUCLIDIAN_NORMALIZER_PATH = DATA_ROOT / "continuous_euclidian_normalizer_hall.json"
@@ -23,28 +25,36 @@ INDEX_FIELDS = [
     "hall_key",
     "hall_entry",
     "hall_latex",
+    "hall_html",
     "hall_unicode",
     "hall_aliases",
     "hall_aliases_latex",
+    "hall_aliases_html",
     "hall_aliases_unicode",
     "ita_number",
     "hm_short",
     "hm_short_aliases",
     "hm_short_aliases_latex",
+    "hm_short_aliases_html",
     "hm_short_aliases_unicode",
     "hm_short_latex",
+    "hm_short_html",
     "hm_short_unicode",
     "hm_full",
     "hm_full_latex",
+    "hm_full_html",
     "hm_full_unicode",
     "hm_extended",
     "hm_extended_latex",
+    "hm_extended_html",
     "hm_extended_unicode",
     "hm_universal",
     "hm_universal_aliases",
     "hm_universal_aliases_latex",
+    "hm_universal_aliases_html",
     "hm_universal_aliases_unicode",
     "hm_universal_latex",
+    "hm_universal_html",
     "hm_universal_unicode",
     "n_c",
     "n_c_aliases",
@@ -55,9 +65,13 @@ INDEX_FIELDS = [
     "qualifier",
     "schoenflies",
     "schoenflies_latex",
+    "schoenflies_html",
     "schoenflies_unicode",
     "is_reference_setting",
 ]
+
+
+_TRANSFORMATIONS_PAYLOAD: Dict[str, Any] | None = None
 
 
 def _log(message: str) -> None:
@@ -98,34 +112,94 @@ def _write_json_gz(path: Path, payload: Any) -> None:
         handle.write("\n")
 
 
+def _load_transformations_payload() -> Dict[str, Any]:
+    global _TRANSFORMATIONS_PAYLOAD
+    if _TRANSFORMATIONS_PAYLOAD is not None:
+        return _TRANSFORMATIONS_PAYLOAD
+
+    source = _resolve_input_path(TRANSFORMATIONS_HALL_PATH)
+    if not source.exists():
+        _TRANSFORMATIONS_PAYLOAD = {}
+        return _TRANSFORMATIONS_PAYLOAD
+
+    _log(f"Loading transformations datasets from {source}")
+    payload = _load_json(TRANSFORMATIONS_HALL_PATH)
+    _TRANSFORMATIONS_PAYLOAD = payload if isinstance(payload, dict) else {}
+    return _TRANSFORMATIONS_PAYLOAD
+
+
+def _pick_dataset(payload: Any, *keys: str) -> Dict[str, Any]:
+    if not isinstance(payload, dict):
+        return {}
+
+    for key in keys:
+        value = payload.get(key)
+        if isinstance(value, dict):
+            return value
+
+    entries = payload.get("entries")
+    if isinstance(entries, dict):
+        for key in keys:
+            value = entries.get(key)
+            if isinstance(value, dict):
+                return value
+    return {}
+
+
+def _looks_like_pointgroup_map(raw_data: Any) -> bool:
+    if not isinstance(raw_data, dict) or not raw_data:
+        return False
+    sample = next((value for value in raw_data.values() if isinstance(value, dict)), None)
+    if sample is None:
+        return False
+    return any(
+        key in sample
+        for key in (
+            "hm_symbol",
+            "schoenflies",
+            "symops",
+            "conjugacy_classes",
+            "character_table_real",
+            "character_table_complex",
+        )
+    )
+
+
 def _normalize_entry(hall_key: str, raw_entry: Any) -> Dict[str, Any]:
     entry = dict(raw_entry) if isinstance(raw_entry, dict) else {}
 
     hall_entry = _first_non_empty(entry.get("hall_entry"), entry.get("hall_symbol"), hall_key)
-    hall_latex = _first_non_empty(entry.get("hall_latex"), entry.get("hall"), hall_entry)
-    hall_unicode = _first_non_empty(entry.get("hall_unicode"), hall_entry)
+    hall_latex = _first_non_empty(entry.get("hall_latex"))
+    hall_html = _first_non_empty(entry.get("hall_html"), entry.get("hall_unicode"), entry.get("hall"), hall_entry)
+    hall_unicode = _first_non_empty(entry.get("hall_unicode"), entry.get("hall"), hall_entry)
 
     hm_universal_source = _first_non_empty(entry.get("hm_universal"), entry.get("hm_cctbx_universal"))
     hm_short = _first_non_empty(entry.get("hm_short"), entry.get("hm_full"), entry.get("hm_extended"), hm_universal_source)
     hm_short_aliases = _first_non_empty(entry.get("hm_short_aliases"))
-    hm_short_aliases_latex = _first_non_empty(entry.get("hm_short_aliases_latex"), hm_short_aliases)
+    hm_short_aliases_latex = _first_non_empty(entry.get("hm_short_aliases_latex"), entry.get("hm_short_nonstd_aliases_latex"))
+    hm_short_aliases_html = _first_non_empty(entry.get("hm_short_aliases_html"), entry.get("hm_short_nonstd_aliases_html"))
     hm_short_aliases_unicode = _first_non_empty(entry.get("hm_short_aliases_unicode"), hm_short_aliases)
-    hm_short_latex = _first_non_empty(entry.get("hm_short_latex"), hm_short)
+    hm_short_latex = _first_non_empty(entry.get("hm_short_latex"), entry.get("hm_short_nonstd_latex"), entry.get("hm_short_std_latex"))
+    hm_short_html = _first_non_empty(entry.get("hm_short_html"), entry.get("hm_short_nonstd_html"), entry.get("hm_short_std_html"), hm_short)
     hm_short_unicode = _first_non_empty(entry.get("hm_short_unicode"), hm_short)
 
     hm_full = _first_non_empty(entry.get("hm_full"), hm_short)
-    hm_full_latex = _first_non_empty(entry.get("hm_full_latex"), hm_short_latex, hm_full)
+    hm_full_latex = _first_non_empty(entry.get("hm_full_latex"), entry.get("hm_full_nonstd_latex"), entry.get("hm_full_std_latex"))
+    hm_full_html = _first_non_empty(entry.get("hm_full_html"), entry.get("hm_full_nonstd_html"), entry.get("hm_full_std_html"), hm_full)
     hm_full_unicode = _first_non_empty(entry.get("hm_full_unicode"), hm_short_unicode, hm_full)
 
     hm_extended = _first_non_empty(entry.get("hm_extended"), hm_full)
-    hm_extended_latex = _first_non_empty(entry.get("hm_extended_latex"), hm_full_latex, hm_extended)
+    hm_extended_latex = _first_non_empty(entry.get("hm_extended_latex"))
+    hm_extended_html = _first_non_empty(entry.get("hm_extended_html"), hm_full_html, hm_extended)
     hm_extended_unicode = _first_non_empty(entry.get("hm_extended_unicode"), hm_full_unicode, hm_extended)
 
     hm_universal = _first_non_empty(hm_universal_source, hm_extended)
-    hm_universal_aliases = _first_non_empty(entry.get("hm_universal_aliases"))
-    hm_universal_aliases_latex = _first_non_empty(entry.get("hm_universal_aliases_latex"), hm_universal_aliases)
+    hm_universal_aliases = _first_non_empty(entry.get("hm_universal_aliases"), entry.get("hm_extended_aliases"))
+    hm_universal_aliases_latex = _first_non_empty(entry.get("hm_universal_aliases_latex"), entry.get("hm_extended_aliases_latex"))
+    hm_universal_aliases_html = _first_non_empty(entry.get("hm_universal_aliases_html"), entry.get("hm_extended_aliases_html"))
     hm_universal_aliases_unicode = _first_non_empty(entry.get("hm_universal_aliases_unicode"), hm_universal_aliases)
-    hm_universal_latex = _first_non_empty(entry.get("hm_universal_latex"), hm_extended_latex, hm_universal)
+    hm_universal_latex = _first_non_empty(entry.get("hm_universal_latex"))
+    hm_universal_html = _first_non_empty(entry.get("hm_universal_html"), hm_extended_html, hm_universal)
     hm_universal_unicode = _first_non_empty(entry.get("hm_universal_unicode"), hm_extended_unicode, hm_universal)
 
     n_c_aliases = _first_non_empty(entry.get("n_c_aliases"))
@@ -136,27 +210,35 @@ def _normalize_entry(hall_key: str, raw_entry: Any) -> Dict[str, Any]:
     normalized["it_number"] = _first_non_empty(entry.get("it_number"), entry.get("ita_number"))
     normalized["hall_entry"] = hall_entry
     normalized["hall_latex"] = hall_latex
+    normalized["hall_html"] = hall_html
     normalized["hall_unicode"] = hall_unicode
     normalized["hall_aliases"] = _first_non_empty(entry.get("hall_aliases"))
     normalized["hall_aliases_latex"] = _first_non_empty(entry.get("hall_aliases_latex"))
+    normalized["hall_aliases_html"] = _first_non_empty(entry.get("hall_aliases_html"))
     normalized["hall_aliases_unicode"] = _first_non_empty(entry.get("hall_aliases_unicode"), normalized["hall_aliases"])
     normalized["hm_short"] = hm_short
     normalized["hm_short_aliases"] = hm_short_aliases
     normalized["hm_short_aliases_latex"] = hm_short_aliases_latex
+    normalized["hm_short_aliases_html"] = hm_short_aliases_html
     normalized["hm_short_aliases_unicode"] = hm_short_aliases_unicode
     normalized["hm_short_latex"] = hm_short_latex
+    normalized["hm_short_html"] = hm_short_html
     normalized["hm_short_unicode"] = hm_short_unicode
     normalized["hm_full"] = hm_full
     normalized["hm_full_latex"] = hm_full_latex
+    normalized["hm_full_html"] = hm_full_html
     normalized["hm_full_unicode"] = hm_full_unicode
     normalized["hm_extended"] = hm_extended
     normalized["hm_extended_latex"] = hm_extended_latex
+    normalized["hm_extended_html"] = hm_extended_html
     normalized["hm_extended_unicode"] = hm_extended_unicode
     normalized["hm_universal"] = hm_universal
     normalized["hm_universal_aliases"] = hm_universal_aliases
     normalized["hm_universal_aliases_latex"] = hm_universal_aliases_latex
+    normalized["hm_universal_aliases_html"] = hm_universal_aliases_html
     normalized["hm_universal_aliases_unicode"] = hm_universal_aliases_unicode
     normalized["hm_universal_latex"] = hm_universal_latex
+    normalized["hm_universal_html"] = hm_universal_html
     normalized["hm_universal_unicode"] = hm_universal_unicode
     normalized["n_c_aliases"] = n_c_aliases
     normalized["setting"] = _first_non_empty(entry.get("setting"))
@@ -185,7 +267,8 @@ def _normalize_entry(hall_key: str, raw_entry: Any) -> Dict[str, Any]:
     normalized["asym_unit"] = _first_non_empty(entry.get("asym_unit"), normalized["asu_ascii"])
 
     normalized["schoenflies"] = _first_non_empty(entry.get("schoenflies"))
-    normalized["schoenflies_latex"] = _first_non_empty(entry.get("schoenflies_latex"), normalized["schoenflies"])
+    normalized["schoenflies_latex"] = _first_non_empty(entry.get("schoenflies_latex"))
+    normalized["schoenflies_html"] = _first_non_empty(entry.get("schoenflies_html"), normalized["schoenflies"])
     normalized["schoenflies_unicode"] = _first_non_empty(entry.get("schoenflies_unicode"), normalized["schoenflies"])
     normalized["symops"] = _normalize_spacegroup_symops(entry)
 
@@ -245,6 +328,7 @@ def attach_hall_aliases(data: Dict[str, Dict[str, Any]]) -> None:
 
         aliases_plain: List[str] = []
         aliases_latex: List[str] = []
+        aliases_html: List[str] = []
         aliases_unicode: List[str] = []
         seen: set[str] = set()
 
@@ -256,11 +340,14 @@ def attach_hall_aliases(data: Dict[str, Dict[str, Any]]) -> None:
             alias_entry = by_key_or_entry.get(alias_key) or {}
             alias_plain = _first_non_empty(alias_entry.get("hall_entry"), alias_key)
             alias_latex = _first_non_empty(alias_entry.get("hall_latex"))
+            alias_html = _first_non_empty(alias_entry.get("hall_html"), alias_entry.get("hall_unicode"), alias_plain)
             alias_unicode = _first_non_empty(alias_entry.get("hall_unicode"), alias_plain)
 
             aliases_plain.append(str(alias_plain))
             if alias_latex is not None:
                 aliases_latex.append(str(alias_latex))
+            if alias_html is not None:
+                aliases_html.append(str(alias_html))
             aliases_unicode.append(str(alias_unicode))
 
         if not aliases_plain:
@@ -272,17 +359,17 @@ def attach_hall_aliases(data: Dict[str, Dict[str, Any]]) -> None:
             entry["hall_aliases_latex"] = aliases_latex
         else:
             entry["hall_aliases_latex"] = None
+        if len(aliases_html) == len(aliases_plain):
+            entry["hall_aliases_html"] = aliases_html
+        else:
+            entry["hall_aliases_html"] = None
 
 
 def load_data() -> Dict[str, Dict[str, Any]]:
     _log(f"Loading symmetry basics from {_resolve_input_path(SYMMETRY_BASICS_PATH)}")
     payload = _load_json(SYMMETRY_BASICS_PATH)
 
-    if not isinstance(payload, dict):
-        raise TypeError("Expected spacegroup data payload to be an object keyed by hall_key")
-
-    # Newer payloads store entries under "spacegroups"; older payloads were direct maps.
-    raw_data = payload.get("spacegroups") if isinstance(payload.get("spacegroups"), dict) else payload
+    raw_data = _pick_dataset(payload, "spacegroups")
     if not isinstance(raw_data, dict):
         raise TypeError("Expected symmetry basics spacegroups payload to be an object keyed by hall_key")
 
@@ -303,7 +390,8 @@ def _normalize_pointgroup_entry(pointgroup_key: str, raw_entry: Any) -> Dict[str
     normalized["crystal_system"] = _first_non_empty(entry.get("crystal_system"))
     normalized["laue_class"] = _first_non_empty(entry.get("laue_class"))
     normalized["schoenflies"] = _first_non_empty(entry.get("schoenflies"))
-    normalized["schoenflies_latex"] = _first_non_empty(entry.get("schoenflies_latex"), normalized["schoenflies"])
+    normalized["schoenflies_latex"] = _first_non_empty(entry.get("schoenflies_latex"))
+    normalized["schoenflies_html"] = _first_non_empty(entry.get("schoenflies_html"), normalized["schoenflies"])
     normalized["schoenflies_unicode"] = _first_non_empty(entry.get("schoenflies_unicode"), normalized["schoenflies"])
 
     symops = entry.get("symops")
@@ -324,12 +412,22 @@ def _normalize_pointgroup_entry(pointgroup_key: str, raw_entry: Any) -> Dict[str
 def load_pointgroup_data() -> Dict[str, Dict[str, Any]]:
     _log(f"Loading pointgroup basics from {_resolve_input_path(SYMMETRY_BASICS_PATH)}")
     payload = _load_json(SYMMETRY_BASICS_PATH)
-    if not isinstance(payload, dict):
-        return {}
+    raw_data = _pick_dataset(payload, "pointgroups")
 
-    # Newer payloads store entries under "pointgroups"; older payloads were direct maps.
-    raw_data = payload.get("pointgroups") if isinstance(payload.get("pointgroups"), dict) else payload
-    if not isinstance(raw_data, dict):
+    if not raw_data:
+        pointgroup_source = _resolve_input_path(POINTGROUP_BASICS_PATH)
+        if pointgroup_source.exists():
+            _log(f"Loading pointgroup basics fallback from {pointgroup_source}")
+            fallback_payload = _load_json(POINTGROUP_BASICS_PATH)
+            raw_data = _pick_dataset(fallback_payload, "pointgroups")
+            if not raw_data and isinstance(fallback_payload, dict):
+                entries = fallback_payload.get("entries")
+                if isinstance(entries, dict):
+                    raw_data = entries
+                else:
+                    raw_data = fallback_payload
+
+    if not _looks_like_pointgroup_map(raw_data):
         return {}
 
     normalized: Dict[str, Dict[str, Any]] = {}
@@ -394,6 +492,7 @@ def build_pointgroup_index_rows(pointgroup_data: Dict[str, Dict[str, Any]]) -> L
                 "hm_symbol": entry.get("hm_symbol"),
                 "schoenflies": entry.get("schoenflies"),
                 "schoenflies_latex": entry.get("schoenflies_latex"),
+                "schoenflies_html": entry.get("schoenflies_html"),
                 "schoenflies_unicode": entry.get("schoenflies_unicode"),
                 "crystal_system": entry.get("crystal_system"),
                 "laue_class": entry.get("laue_class"),
@@ -438,6 +537,11 @@ def build_pointgroup_nav_rows(pointgroup_data: Dict[str, Dict[str, Any]]) -> Lis
 
 
 def load_barnighausen_data() -> Dict[str, Dict[str, Dict[str, Any]]]:
+    transformations = _load_transformations_payload()
+    from_transformations = transformations.get("barnighausen")
+    if isinstance(from_transformations, dict):
+        return from_transformations
+
     if not _resolve_input_path(BARNIGHAUSEN_PATH).exists():
         _log("Barnighausen data not found; subgroup mapping tables will be empty")
         return {}
@@ -452,6 +556,11 @@ def load_barnighausen_data() -> Dict[str, Dict[str, Dict[str, Any]]]:
 
 
 def load_euclidian_normalizer_data() -> Dict[str, Dict[str, Any]]:
+    transformations = _load_transformations_payload()
+    from_transformations = transformations.get("euclidian_normalizer")
+    if isinstance(from_transformations, dict):
+        return from_transformations
+
     if not _resolve_input_path(EUCLIDIAN_NORMALIZER_PATH).exists():
         _log("Euclidian normalizer data not found; discrete Euclidian normalizer section will be empty")
         return {}
@@ -466,6 +575,11 @@ def load_euclidian_normalizer_data() -> Dict[str, Dict[str, Any]]:
 
 
 def load_continuous_euclidian_normalizer_data() -> Dict[str, Dict[str, Any]]:
+    transformations = _load_transformations_payload()
+    from_transformations = transformations.get("continuous_normalizer")
+    if isinstance(from_transformations, dict):
+        return from_transformations
+
     if not _resolve_input_path(CONTINUOUS_EUCLIDIAN_NORMALIZER_PATH).exists():
         _log("Continuous Euclidian normalizer data not found; continuous Euclidian note box will be empty")
         return {}
@@ -480,6 +594,11 @@ def load_continuous_euclidian_normalizer_data() -> Dict[str, Dict[str, Any]]:
 
 
 def load_cell_commensurator_data() -> Dict[str, Dict[str, Any]]:
+    transformations = _load_transformations_payload()
+    from_transformations = transformations.get("cell_commensurator")
+    if isinstance(from_transformations, dict):
+        return from_transformations
+
     if not _resolve_input_path(CELL_COMMENSURATOR_PATH).exists():
         _log("Cell commensurator data not found; Cell Commensurator section will be empty")
         return {}
@@ -547,16 +666,20 @@ def build_related_settings(
                     "hall_key": item["hall_key"],
                     "hall_entry": item.get("hall_entry"),
                     "hall_latex": item.get("hall_latex"),
+                    "hall_html": item.get("hall_html"),
                     "hall_unicode": item.get("hall_unicode"),
                     "qualifier": item.get("qualifier"),
                     "hm_short": _first_non_empty(item.get("hm_short"), item.get("hm_full"), item.get("hm_universal")),
-                    "hm_short_latex": _first_non_empty(item.get("hm_short_latex"), item.get("hm_full_latex"), item.get("hm_short")),
+                    "hm_short_latex": item.get("hm_short_latex"),
+                    "hm_short_html": _first_non_empty(item.get("hm_short_html"), item.get("hm_full_html"), item.get("hm_short")),
                     "hm_short_unicode": _first_non_empty(item.get("hm_short_unicode"), item.get("hm_full_unicode"), item.get("hm_short")),
                     "hm_short_aliases": _first_non_empty(item.get("hm_short_aliases")),
-                    "hm_short_aliases_latex": _first_non_empty(item.get("hm_short_aliases_latex"), item.get("hm_short_aliases")),
+                    "hm_short_aliases_latex": item.get("hm_short_aliases_latex"),
+                    "hm_short_aliases_html": _first_non_empty(item.get("hm_short_aliases_html"), item.get("hm_short_aliases")),
                     "hm_short_aliases_unicode": _first_non_empty(item.get("hm_short_aliases_unicode"), item.get("hm_short_aliases")),
                     "hm_universal": _first_non_empty(item.get("hm_universal"), item.get("hm_extended"), item.get("hm_full")),
-                    "hm_universal_latex": _first_non_empty(item.get("hm_universal_latex"), item.get("hm_extended_latex"), item.get("hm_universal")),
+                    "hm_universal_latex": item.get("hm_universal_latex"),
+                    "hm_universal_html": _first_non_empty(item.get("hm_universal_html"), item.get("hm_extended_html"), item.get("hm_universal")),
                     "hm_universal_unicode": _first_non_empty(
                         item.get("hm_universal_unicode"), item.get("hm_extended_unicode"), item.get("hm_universal")
                     ),
@@ -577,30 +700,35 @@ def _mapping_with_target_metadata(
         "hall_key": target_hall_key,
         "hall_entry": target.get("hall_entry"),
         "hall_latex": target.get("hall_latex"),
+        "hall_html": target.get("hall_html"),
         "hall_unicode": target.get("hall_unicode"),
         "hm_short": _first_non_empty(target.get("hm_short"), target.get("hm_full"), target.get("hm_universal")),
         "hm_short_aliases": _first_non_empty(target.get("hm_short_aliases")),
-        "hm_short_aliases_latex": _first_non_empty(target.get("hm_short_aliases_latex"), target.get("hm_short_aliases")),
+        "hm_short_aliases_latex": target.get("hm_short_aliases_latex"),
+        "hm_short_aliases_html": _first_non_empty(target.get("hm_short_aliases_html"), target.get("hm_short_aliases")),
         "hm_short_aliases_unicode": _first_non_empty(target.get("hm_short_aliases_unicode"), target.get("hm_short_aliases")),
-        "hm_short_latex": _first_non_empty(target.get("hm_short_latex"), target.get("hm_full_latex"), target.get("hm_short")),
+        "hm_short_latex": target.get("hm_short_latex"),
+        "hm_short_html": _first_non_empty(target.get("hm_short_html"), target.get("hm_full_html"), target.get("hm_short")),
         "hm_short_unicode": _first_non_empty(
             target.get("hm_short_unicode"), target.get("hm_full_unicode"), target.get("hm_short")
         ),
         "hm_full": _first_non_empty(target.get("hm_full"), target.get("hm_short")),
-        "hm_full_latex": _first_non_empty(target.get("hm_full_latex"), target.get("hm_short_latex"), target.get("hm_full")),
+        "hm_full_latex": target.get("hm_full_latex"),
+        "hm_full_html": _first_non_empty(target.get("hm_full_html"), target.get("hm_short_html"), target.get("hm_full")),
         "hm_full_unicode": _first_non_empty(target.get("hm_full_unicode"), target.get("hm_short_unicode"), target.get("hm_full")),
         "hm_extended": _first_non_empty(target.get("hm_extended"), target.get("hm_full")),
-        "hm_extended_latex": _first_non_empty(
-            target.get("hm_extended_latex"), target.get("hm_full_latex"), target.get("hm_extended")
-        ),
+        "hm_extended_latex": target.get("hm_extended_latex"),
+        "hm_extended_html": _first_non_empty(target.get("hm_extended_html"), target.get("hm_full_html"), target.get("hm_extended")),
         "hm_extended_unicode": _first_non_empty(target.get("hm_extended_unicode"), target.get("hm_full_unicode"), target.get("hm_extended")),
         "hm_universal": _first_non_empty(target.get("hm_universal"), target.get("hm_extended"), target.get("hm_full")),
         "hm_universal_aliases": _first_non_empty(target.get("hm_universal_aliases")),
-        "hm_universal_aliases_latex": _first_non_empty(target.get("hm_universal_aliases_latex"), target.get("hm_universal_aliases")),
+        "hm_universal_aliases_latex": target.get("hm_universal_aliases_latex"),
+        "hm_universal_aliases_html": _first_non_empty(target.get("hm_universal_aliases_html"), target.get("hm_universal_aliases")),
         "hm_universal_aliases_unicode": _first_non_empty(
             target.get("hm_universal_aliases_unicode"), target.get("hm_universal_aliases")
         ),
-        "hm_universal_latex": _first_non_empty(target.get("hm_universal_latex"), target.get("hm_extended_latex"), target.get("hm_universal")),
+        "hm_universal_latex": target.get("hm_universal_latex"),
+        "hm_universal_html": _first_non_empty(target.get("hm_universal_html"), target.get("hm_extended_html"), target.get("hm_universal")),
         "hm_universal_unicode": _first_non_empty(
             target.get("hm_universal_unicode"), target.get("hm_extended_unicode"), target.get("hm_universal")
         ),
@@ -608,6 +736,7 @@ def _mapping_with_target_metadata(
         "point_group": target.get("point_group"),
         "schoenflies": target.get("schoenflies"),
         "schoenflies_latex": target.get("schoenflies_latex"),
+        "schoenflies_html": target.get("schoenflies_html"),
         "schoenflies_unicode": target.get("schoenflies_unicode"),
         "ita_number": target.get("ita_number"),
         "is_reference_setting": bool(target.get("is_reference_setting")),
@@ -1082,16 +1211,23 @@ def write_hall_pages(
         payload["minimal_supergroup_mappings"] = minimal_supergroup_mappings.get(hall_key, [])
         payload["normalizer_transformations"] = normalizer_transformations.get(hall_key, [])
         payload["klassengleiche_subgroup_relations"] = klassengleiche_subgroup_relations.get(hall_key, [])
-        payload["euclidian_normalizer"] = (euclidian_normalizer_data.get(hall_key) or {}).get("euclidian_normalizer")
-        payload["continuous_euclidian_normalizer"] = (
-            (continuous_euclidian_normalizer_data.get(hall_key) or {}).get("continuous_euclidian_normalizer")
-        )
+        raw_euclidian = euclidian_normalizer_data.get(hall_key) or {}
+        if isinstance(raw_euclidian, dict):
+            payload["euclidian_normalizer"] = raw_euclidian.get("euclidian_normalizer", raw_euclidian)
+        else:
+            payload["euclidian_normalizer"] = None
+
+        raw_continuous = continuous_euclidian_normalizer_data.get(hall_key) or {}
+        if isinstance(raw_continuous, dict):
+            payload["continuous_euclidian_normalizer"] = raw_continuous.get("continuous_euclidian_normalizer", raw_continuous)
+        else:
+            payload["continuous_euclidian_normalizer"] = None
+
         point_group_symbol = str(payload.get("point_group") or "").strip()
         payload["point_group_slug"] = pointgroup_slug_lookup.get(point_group_symbol)
-        payload["cell_commensurator"] = _build_cell_commensurator_items(
-            (cell_commensurator_data.get(hall_key) or {}).get("affine_commensurator"),
-            entry,
-        )
+        raw_commensurator = cell_commensurator_data.get(hall_key) or {}
+        commensurator_items = raw_commensurator.get("affine_commensurator") if isinstance(raw_commensurator, dict) else None
+        payload["cell_commensurator"] = _build_cell_commensurator_items(commensurator_items, entry)
 
         json_text = json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True)
         content = f"{json_text}\n"
