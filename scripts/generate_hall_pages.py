@@ -15,6 +15,7 @@ POINTGROUP_BASICS_PATH = DATA_ROOT / "pointgroup_basics.json"
 TRANSFORMATIONS_HALL_PATH = DATA_ROOT / "transformations_hall.json"
 BARNIGHAUSEN_PATH = HUGO_ROOT / "static" / "data" / "barnighausen_hall.json"
 EUCLIDIAN_NORMALIZER_PATH = DATA_ROOT / "euclidian_normalizer.json"
+AFFINE_NORMALIZER_PATH = DATA_ROOT / "affine_normalizer_hall.json"
 CONTINUOUS_EUCLIDIAN_NORMALIZER_PATH = DATA_ROOT / "continuous_euclidian_normalizer_hall.json"
 CELL_COMMENSURATOR_PATH = DATA_ROOT / "cell_commensurator_hall.json"
 CONTENT_ROOT = HUGO_ROOT / "content"
@@ -214,7 +215,7 @@ def _normalize_entry(hall_key: str, raw_entry: Any) -> Dict[str, Any]:
     normalized["hall_unicode"] = hall_unicode
     normalized["hall_aliases"] = _first_non_empty(entry.get("hall_aliases"))
     normalized["hall_aliases_latex"] = _first_non_empty(entry.get("hall_aliases_latex"))
-    normalized["hall_aliases_html"] = _first_non_empty(entry.get("hall_aliases_html"))
+    normalized["hall_aliases_html"] = _first_non_empty(entry.get("hall_aliases_html"), entry.get("hall_alias_html"))
     normalized["hall_aliases_unicode"] = _first_non_empty(entry.get("hall_aliases_unicode"), normalized["hall_aliases"])
     normalized["hm_short"] = hm_short
     normalized["hm_short_aliases"] = hm_short_aliases
@@ -320,6 +321,9 @@ def attach_hall_aliases(data: Dict[str, Dict[str, Any]]) -> None:
         hall_entry = str(entry.get("hall_entry") or "").strip()
         if hall_entry and hall_entry not in by_key_or_entry:
             by_key_or_entry[hall_entry] = entry
+        hall_plain = str(entry.get("hall") or "").strip()
+        if hall_plain and hall_plain not in by_key_or_entry:
+            by_key_or_entry[hall_plain] = entry
 
     for hall_key, entry in data.items():
         alias_keys = _as_alias_keys(entry.get("hall_aliases"))
@@ -354,15 +358,17 @@ def attach_hall_aliases(data: Dict[str, Dict[str, Any]]) -> None:
             continue
 
         entry["hall_aliases"] = aliases_plain
-        entry["hall_aliases_unicode"] = aliases_unicode
-        if len(aliases_latex) == len(aliases_plain):
-            entry["hall_aliases_latex"] = aliases_latex
-        else:
-            entry["hall_aliases_latex"] = None
-        if len(aliases_html) == len(aliases_plain):
-            entry["hall_aliases_html"] = aliases_html
-        else:
-            entry["hall_aliases_html"] = None
+        entry["hall_aliases_unicode"] = entry.get("hall_aliases_unicode") if entry.get("hall_aliases_unicode") else aliases_unicode
+        if entry.get("hall_aliases_latex") is None:
+            if len(aliases_latex) == len(aliases_plain):
+                entry["hall_aliases_latex"] = aliases_latex
+            else:
+                entry["hall_aliases_latex"] = None
+        if not entry.get("hall_aliases_html"):
+            if len(aliases_html) == len(aliases_plain):
+                entry["hall_aliases_html"] = aliases_html
+            else:
+                entry["hall_aliases_html"] = None
 
 
 def load_data() -> Dict[str, Dict[str, Any]]:
@@ -585,6 +591,25 @@ def load_continuous_euclidian_normalizer_data() -> Dict[str, Dict[str, Any]]:
         return {}
     _log(f"Loading continuous Euclidian normalizer data from {_resolve_input_path(CONTINUOUS_EUCLIDIAN_NORMALIZER_PATH)}")
     payload = _load_json(CONTINUOUS_EUCLIDIAN_NORMALIZER_PATH)
+    if not isinstance(payload, dict):
+        return {}
+    entries = payload.get("entries")
+    if isinstance(entries, dict):
+        return entries
+    return payload
+
+
+def load_affine_normalizer_data() -> Dict[str, Dict[str, Any]]:
+    transformations = _load_transformations_payload()
+    from_transformations = transformations.get("affine_normalizer")
+    if isinstance(from_transformations, dict):
+        return from_transformations
+
+    if not _resolve_input_path(AFFINE_NORMALIZER_PATH).exists():
+        _log("Affine normalizer data not found; discrete affine normalizer section will be empty")
+        return {}
+    _log(f"Loading affine normalizer data from {_resolve_input_path(AFFINE_NORMALIZER_PATH)}")
+    payload = _load_json(AFFINE_NORMALIZER_PATH)
     if not isinstance(payload, dict):
         return {}
     entries = payload.get("entries")
@@ -1184,6 +1209,7 @@ def write_pointgroup_pages(
 def write_hall_pages(
     data: Dict[str, Dict[str, Any]],
     euclidian_normalizer_data: Dict[str, Dict[str, Any]],
+    affine_normalizer_data: Dict[str, Dict[str, Any]],
     continuous_euclidian_normalizer_data: Dict[str, Dict[str, Any]],
     cell_commensurator_data: Dict[str, Dict[str, Any]],
     pointgroup_slug_lookup: Dict[str, str],
@@ -1217,6 +1243,12 @@ def write_hall_pages(
         else:
             payload["euclidian_normalizer"] = None
 
+        raw_affine = affine_normalizer_data.get(hall_key) or {}
+        if isinstance(raw_affine, dict):
+            payload["affine_normalizer"] = raw_affine.get("affine_normalizer", raw_affine)
+        else:
+            payload["affine_normalizer"] = None
+
         raw_continuous = continuous_euclidian_normalizer_data.get(hall_key) or {}
         if isinstance(raw_continuous, dict):
             payload["continuous_euclidian_normalizer"] = raw_continuous.get("continuous_euclidian_normalizer", raw_continuous)
@@ -1248,6 +1280,8 @@ def main() -> None:
     _log(f"Loaded Barnighausen mappings for {len(barnighausen)} source Hall entries")
     euclidian_normalizer_data = load_euclidian_normalizer_data()
     _log(f"Loaded Euclidian normalizer entries for {len(euclidian_normalizer_data)} Hall entries")
+    affine_normalizer_data = load_affine_normalizer_data()
+    _log(f"Loaded affine normalizer entries for {len(affine_normalizer_data)} Hall entries")
     continuous_euclidian_normalizer_data = load_continuous_euclidian_normalizer_data()
     _log(f"Loaded continuous Euclidian normalizer entries for {len(continuous_euclidian_normalizer_data)} Hall entries")
     cell_commensurator_data = load_cell_commensurator_data()
@@ -1276,6 +1310,7 @@ def main() -> None:
     write_hall_pages(
         data,
         euclidian_normalizer_data,
+        affine_normalizer_data,
         continuous_euclidian_normalizer_data,
         cell_commensurator_data,
         pointgroup_slug_lookup,

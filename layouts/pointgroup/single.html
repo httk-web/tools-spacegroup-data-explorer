@@ -63,7 +63,14 @@
                   )
                 }}
               </label>
-              <strong>{{ partial "value.html" .Params.schoenflies_unicode }}</strong>
+              {{ $schoenfliesHtml := .Params.schoenflies_html }}
+              <strong>
+                {{ if $schoenfliesHtml }}
+                  <span>{{ $schoenfliesHtml | safeHTML }}</span>
+                {{ else }}
+                  {{ partial "value.html" .Params.schoenflies_unicode }}
+                {{ end }}
+              </strong>
             </div>
             <div class="metric">
               <label>

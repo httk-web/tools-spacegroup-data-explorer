@@ -25,6 +25,7 @@
   --bg-base-b: #efe8d9;
   --shadow: 0 18px 40px rgba(17, 43, 46, 0.12);
   --radius: 18px;
+  --data-font: "STIX Two Text", "Cambria Math", "Latin Modern Math", "Times New Roman", Georgia, serif;
 }
 
 html[data-theme="dark"] {
@@ -452,6 +453,11 @@ h2 {
   color: var(--ink-soft);
 }
 
+.table-aliases-muted {
+  color: var(--ink-soft);
+  font-size: 0.82em;
+}
+
 .empty-state {
   margin: 0;
   padding: 28px 16px;
@@ -705,11 +711,12 @@ html[data-theme="dark"] .section-anchor-icon {
 
 .metric strong {
   font-size: 20px;
-  font-family: "Fraunces", Georgia, serif;
+  font-family: var(--data-font);
+  font-weight: 500;
 }
 
 .metric strong.metric-value-unicode {
-  font-family: "DejaVu Sans", "Noto Sans", "Segoe UI Symbol", "Arial Unicode MS", sans-serif;
+  font-family: var(--data-font);
   font-size: 18px;
   letter-spacing: 0.01em;
 }
@@ -727,6 +734,14 @@ html[data-theme="dark"] .section-anchor-icon {
   font-size: 15px;
   color: var(--ink-soft);
   margin-left: 6px;
+}
+
+.metric-aliases-block {
+  margin-top: 4px;
+  color: var(--ink-soft);
+  font-size: 14px;
+  line-height: 1.35;
+  font-family: var(--data-font);
 }
 
 .info-dot {
@@ -860,6 +875,10 @@ html[data-theme="dark"] .section-anchor-icon {
   text-align: left;
   padding: 8px 6px;
   font-size: 14px;
+}
+
+.data-table td {
+  font-family: var(--data-font);
 }
 
 .data-table th {

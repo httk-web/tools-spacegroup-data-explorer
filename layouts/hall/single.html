@@ -7,7 +7,7 @@
           <select
             class="detail-select"
             aria-label="Select HM symbol"
-            data-selected="{{ default .Params.hm_universal .Params.universal_hm }}"
+            data-selected="{{ default .Params.hm_short_unicode .Params.hm_short }}"
             onchange="if (this.value) window.location = this.value;"
           ></select>
         </div>
@@ -35,7 +35,7 @@
         <div class="detail-meta-item settings-meta-item">
           <p class="kicker">Show settings</p>
           <button class="settings-toggle" type="button" data-settings-toggle aria-label="Toggle settings mode">
-            <span class="settings-label settings-label-ita" aria-hidden="true">ITA</span>
+            <span class="settings-label settings-label-ita" aria-hidden="true">STD</span>
             <span class="settings-toggle-track" aria-hidden="true"><span class="settings-toggle-thumb"></span></span>
             <span class="settings-label settings-label-all" aria-hidden="true">ALL</span>
           </button>
@@ -109,11 +109,18 @@
                   )
                 }}
               </label>
+              {{ $shortHMHtml := default .Params.hm_short_html .Params.short_hm_symbol_html }}
               {{ $shortHM := default .Params.hm_short_latex .Params.short_hm_symbol_latex }}
+              {{ $shortHMAliasesHtml := .Params.hm_short_aliases_html }}
               {{ $shortHMAliasesLatex := .Params.hm_short_aliases_latex }}
               {{ if not $shortHMAliasesLatex }}{{ $shortHMAliasesLatex = .Params.short_hm_symbol_aliases_latex }}{{ end }}
-              {{ $shortHMAliases := $shortHMAliasesLatex }}
-              {{ $shortHMAliasesAreLatex := true }}
+              {{ $shortHMAliases := $shortHMAliasesHtml }}
+              {{ $shortHMAliasesAreHtml := true }}
+              {{ if not $shortHMAliases }}
+                {{ $shortHMAliases = $shortHMAliasesLatex }}
+                {{ $shortHMAliasesAreHtml = false }}
+              {{ end }}
+              {{ $shortHMAliasesAreLatex := not $shortHMAliasesAreHtml }}
               {{ if not $shortHMAliases }}
                 {{ $shortHMAliases = .Params.hm_short_aliases }}
                 {{ $shortHMAliasesAreLatex = false }}
@@ -123,27 +130,37 @@
                 {{ $shortHMAliasesAreLatex = false }}
               {{ end }}
               <strong>
-                {{ if $shortHM }}
+                {{ if $shortHMHtml }}
+                  <span>{{ $shortHMHtml | safeHTML }}</span>
+                {{ else if $shortHM }}
                   <span class="math-content">\({{ $shortHM }}\)</span>
                 {{ else }}
                   <span>{{ partial "value.html" (default .Params.hm_short .Params.short_hm_symbol) }}</span>
                 {{ end }}
-                {{ if $shortHMAliases }}
-                  <span class="hm-aliases-inline">
-                    {{ if $shortHMAliasesAreLatex }}
-                      {{ if reflect.IsSlice $shortHMAliases }}
-                        {{ range $idx, $alias := $shortHMAliases }}
-                          {{ if gt $idx 0 }}, {{ end }}<span class="math-content">\({{ $alias }}\)</span>
-                        {{ end }}
-                      {{ else }}
-                        <span class="math-content">\({{ $shortHMAliases }}\)</span>
+              </strong>
+              {{ if $shortHMAliases }}
+                <div class="metric-aliases-block">
+                  {{ if $shortHMAliasesAreHtml }}
+                    {{ if reflect.IsSlice $shortHMAliases }}
+                      {{ range $idx, $alias := $shortHMAliases }}
+                        {{ if gt $idx 0 }}, {{ end }}<span>{{ $alias | safeHTML }}</span>
                       {{ end }}
                     {{ else }}
-                      {{ partial "value.html" $shortHMAliases }}
+                      <span>{{ $shortHMAliases | safeHTML }}</span>
                     {{ end }}
-                  </span>
-                {{ end }}
-              </strong>
+                  {{ else if $shortHMAliasesAreLatex }}
+                    {{ if reflect.IsSlice $shortHMAliases }}
+                      {{ range $idx, $alias := $shortHMAliases }}
+                        {{ if gt $idx 0 }}, {{ end }}<span class="math-content">\({{ $alias }}\)</span>
+                      {{ end }}
+                    {{ else }}
+                      <span class="math-content">\({{ $shortHMAliases }}\)</span>
+                    {{ end }}
+                  {{ else }}
+                    {{ partial "value.html" $shortHMAliases }}
+                  {{ end }}
+                </div>
+              {{ end }}
             </div>
             <div class="metric">
               <label>
@@ -159,8 +176,10 @@
               {{ if not $nCAliases }}{{ $nCAliases = .Params.n_c_alias }}{{ end }}
               <strong>
                 {{ partial "value.html" .Params.n_c }}
-                {{ if $nCAliases }}<span class="hm-aliases-inline">({{ partial "value.html" $nCAliases }})</span>{{ end }}
               </strong>
+              {{ if $nCAliases }}
+                <div class="metric-aliases-block">{{ partial "value.html" $nCAliases }}</div>
+              {{ end }}
             </div>
             <div class="metric metric-span-two">
               <label>
@@ -184,10 +203,17 @@
                   )
                 }}
               </label>
+              {{ $hallSymbolHtml := .Params.hall_html }}
               {{ $hallSymbolLatex := .Params.hall_latex }}
+              {{ $hallAliasesHtml := .Params.hall_aliases_html }}
               {{ $hallAliasesLatex := .Params.hall_aliases_latex }}
-              {{ $hallAliases := $hallAliasesLatex }}
-              {{ $hallAliasesAreLatex := true }}
+              {{ $hallAliases := $hallAliasesHtml }}
+              {{ $hallAliasesAreHtml := true }}
+              {{ if not $hallAliases }}
+                {{ $hallAliases = $hallAliasesLatex }}
+                {{ $hallAliasesAreHtml = false }}
+              {{ end }}
+              {{ $hallAliasesAreLatex := not $hallAliasesAreHtml }}
               {{ if not $hallAliases }}
                 {{ $hallAliases = .Params.hall_aliases_unicode }}
                 {{ $hallAliasesAreLatex = false }}
@@ -197,27 +223,37 @@
                 {{ $hallAliasesAreLatex = false }}
               {{ end }}
               <strong>
-                {{ if $hallSymbolLatex }}
+                {{ if $hallSymbolHtml }}
+                  <span>{{ $hallSymbolHtml | safeHTML }}</span>
+                {{ else if $hallSymbolLatex }}
                   <span class="math-content">\({{ $hallSymbolLatex }}\)</span>
                 {{ else }}
                   <span>{{ partial "value.html" (default .Params.hall_entry .Params.hall_key) }}</span>
                 {{ end }}
-                {{ if $hallAliases }}
-                  <span class="hm-aliases-inline">
-                    {{ if $hallAliasesAreLatex }}
-                      {{ if reflect.IsSlice $hallAliases }}
-                        {{ range $idx, $alias := $hallAliases }}
-                          {{ if gt $idx 0 }}, {{ end }}<span class="math-content">\({{ $alias }}\)</span>
-                        {{ end }}
-                      {{ else }}
-                        <span class="math-content">\({{ $hallAliases }}\)</span>
+              </strong>
+              {{ if $hallAliases }}
+                <div class="metric-aliases-block">
+                  {{ if $hallAliasesAreHtml }}
+                    {{ if reflect.IsSlice $hallAliases }}
+                      {{ range $idx, $alias := $hallAliases }}
+                        {{ if gt $idx 0 }}, {{ end }}<span>{{ $alias | safeHTML }}</span>
                       {{ end }}
                     {{ else }}
-                      {{ partial "value.html" $hallAliases }}
+                      <span>{{ $hallAliases | safeHTML }}</span>
                     {{ end }}
-                  </span>
-                {{ end }}
-              </strong>
+                  {{ else if $hallAliasesAreLatex }}
+                    {{ if reflect.IsSlice $hallAliases }}
+                      {{ range $idx, $alias := $hallAliases }}
+                        {{ if gt $idx 0 }}, {{ end }}<span class="math-content">\({{ $alias }}\)</span>
+                      {{ end }}
+                    {{ else }}
+                      <span class="math-content">\({{ $hallAliases }}\)</span>
+                    {{ end }}
+                  {{ else }}
+                    {{ partial "value.html" $hallAliases }}
+                  {{ end }}
+                </div>
+              {{ end }}
             </div>
             <div class="metric metric-tall-two-rows">
               <label>
@@ -229,9 +265,12 @@
                   )
                 }}
               </label>
+              {{ $extendedHMHtml := .Params.hm_extended_html }}
               {{ $extendedHM := .Params.hm_extended_latex }}
               <strong>
-                {{ if $extendedHM }}
+                {{ if $extendedHMHtml }}
+                  <span>{{ $extendedHMHtml | safeHTML }}</span>
+                {{ else if $extendedHM }}
                   <span class="math-content">\({{ $extendedHM }}\)</span>
                 {{ else }}
                   <span>{{ partial "value.html" .Params.hm_extended }}</span>
@@ -247,9 +286,12 @@
                   )
                 }}
               </label>
+              {{ $fullHMHtml := .Params.hm_full_html }}
               {{ $fullHM := .Params.hm_full_latex }}
               <strong>
-                {{ if $fullHM }}
+                {{ if $fullHMHtml }}
+                  <span>{{ $fullHMHtml | safeHTML }}</span>
+                {{ else if $fullHM }}
                   <span class="math-content">\({{ $fullHM }}\)</span>
                 {{ else }}
                   <span>{{ partial "value.html" .Params.hm_full }}</span>
@@ -296,9 +338,12 @@
                   )
                 }}
               </label>
+              {{ $schoenfliesHtml := .Params.schoenflies_html }}
               {{ $schoenfliesLatex := .Params.schoenflies_latex }}
               <strong>
-                {{ if $schoenfliesLatex }}
+                {{ if $schoenfliesHtml }}
+                  <span>{{ $schoenfliesHtml | safeHTML }}</span>
+                {{ else if $schoenfliesLatex }}
                   <span class="math-content">\({{ $schoenfliesLatex }}\)</span>
                 {{ else }}
                   <span>{{ partial "value.html" (default .Params.schoenflies_unicode .Params.schoenflies) }}</span>
@@ -528,6 +573,7 @@
             <div class="mapping-box" data-mapping-box>
               <div class="mapping-tabs" role="tablist" aria-label="Maximal subgroup mappings">
                 {{ range $idx, $item := $maxSubs }}
+                  {{ $hmLabelHtml := default $item.hm_short_html $item.hm_full_html }}
                   {{ $hmLabel := default $item.hall_key (default $item.hm_short $item.hm_short_unicode) }}
                   {{ $tabId := printf "max-tab-%d" $idx }}
                   <div class="mapping-tab-item" data-mapping-tab-item>
@@ -542,7 +588,7 @@
                       aria-controls="{{ printf "max-panel-%d" $idx }}"
                       aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
                     >
-                      <span>{{ $hmLabel }} #{{ partial "value.html" $item.ita_number }} ({{ partial "value.html" $item.index }})</span>
+                      <span>{{ if $hmLabelHtml }}{{ $hmLabelHtml | safeHTML }}{{ else }}{{ $hmLabel }}{{ end }} #{{ partial "value.html" $item.ita_number }} ({{ partial "value.html" $item.index }})</span>
                     </button>
                     {{ with $item.hall_key }}
                       <a
@@ -650,6 +696,7 @@
             <div class="mapping-box" data-mapping-box>
               <div class="mapping-tabs" role="tablist" aria-label="Minimal supergroup mappings">
                 {{ range $idx, $item := $minSup }}
+                  {{ $hmLabelHtml := default $item.hm_short_html $item.hm_full_html }}
                   {{ $hmLabel := default $item.hall_key (default $item.hm_short $item.hm_short_unicode) }}
                   {{ $tabId := printf "min-tab-%d" $idx }}
                   <div class="mapping-tab-item" data-mapping-tab-item>
@@ -664,7 +711,7 @@
                       aria-controls="{{ printf "min-panel-%d" $idx }}"
                       aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
                     >
-                      <span>{{ $hmLabel }} #{{ partial "value.html" $item.ita_number }} ({{ partial "value.html" $item.index }})</span>
+                      <span>{{ if $hmLabelHtml }}{{ $hmLabelHtml | safeHTML }}{{ else }}{{ $hmLabel }}{{ end }} #{{ partial "value.html" $item.ita_number }} ({{ partial "value.html" $item.index }})</span>
                     </button>
                     {{ with $item.hall_key }}
                       <a
@@ -759,7 +806,7 @@
       <article class="detail-card panel section-wide">
         {{
           partial "section_heading.html" (dict
-            "title" "Euclidian Normalizer"
+            "title" "Normalizer"
             "id" "euclidian-normalizer"
             "toggle_key" "normalizer"
             "info_general" "A normalizer captures transformations that map a group to itself under conjugation, helping classify equivalent embeddings."
@@ -768,8 +815,9 @@
         }}
         <div data-section-body="normalizer">
           {{ $euclidian := .Params.euclidian_normalizer }}
+          {{ $affine := .Params.affine_normalizer }}
           {{ $continuous := .Params.continuous_euclidian_normalizer }}
-          {{ if or $euclidian $continuous }}
+          {{ if or $euclidian $affine $continuous }}
             <div class="normalizer-stack">
               <div class="mapping-box">
                 <p class="note">
@@ -810,10 +858,49 @@
                 {{ end }}
               </div>
 
+              <div class="mapping-box normalizer-inner-box">
+                <p class="note">
+                  Discrete Affine normalizer operations
+                  {{ partial "info_dot.html" (dict "general" "Discrete affine normalizer operations include affine self-maps compatible with the current group." "context" "These rows use the same xyz-style fields as other operation tables in the explorer.") }}
+                </p>
+                {{ if $affine }}
+                  {{ $symops := $affine.symops }}
+                  {{ if $symops }}
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>{{ partial "field_label.html" (dict "text" "xyz" "url" $docSymopsXYZ) }}</th>
+                          <th>rot_type</th>
+                          <th>screw/glide</th>
+                          <th>origin_shift</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {{ range $index, $op := $symops }}
+                          <tr>
+                            <td>{{ add $index 1 }}</td>
+                            <td>{{ partial "value.html" $op.xyz }}</td>
+                            <td>{{ partial "value.html" $op.rot_type }}</td>
+                            <td>{{ partial "value.html" $op.screw_glide }}</td>
+                            <td>{{ partial "value.html" $op.origin_shift }}</td>
+                          </tr>
+                        {{ end }}
+                      </tbody>
+                    </table>
+                    <p class="note">Showing all {{ len $symops }} discrete affine normalizer operations.</p>
+                  {{ else }}
+                    <p class="note">No discrete affine normalizer operations available.</p>
+                  {{ end }}
+                {{ else }}
+                  <p class="note">No discrete affine normalizer data available.</p>
+                {{ end }}
+              </div>
+
               {{ if $continuous }}
                 <div class="mapping-box normalizer-inner-box">
                   <p class="note">
-                    Continuous Euclidian normalizer
+                    Continous normalizer operations
                     {{ partial "info_dot.html" (dict "general" "Continuous normalizer components form parameterized families of compatible transformations." "context" "When available, we show the basis vectors used to describe that continuous subspace.") }}
                   </p>
                   {{ $basis := $continuous.basis_vectors }}
@@ -835,13 +922,13 @@
                       </tbody>
                     </table>
                   {{ else }}
-                    <p class="note">No basis vectors listed for the continuous Euclidian normalizer.</p>
+                    <p class="note">No basis vectors listed for the continous normalizer operations.</p>
                   {{ end }}
                 </div>
               {{ end }}
             </div>
           {{ else }}
-            <p class="note">No Euclidian normalizer data available.</p>
+            <p class="note">No normalizer data available.</p>
           {{ end }}
         </div>
       </article>

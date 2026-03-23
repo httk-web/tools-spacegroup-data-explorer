@@ -156,7 +156,7 @@ const normalizeRow = (row) => {
   normalized.hall_unicode = firstNonEmpty(row.hall_unicode, row.hall_entry, row.hall_key);
   normalized.hall_aliases = firstNonEmpty(row.hall_aliases);
   normalized.hall_aliases_latex = firstNonEmpty(row.hall_aliases_latex);
-  normalized.hall_aliases_html = firstNonEmpty(row.hall_aliases_html);
+  normalized.hall_aliases_html = firstNonEmpty(row.hall_aliases_html, row.hall_alias_html);
   normalized.hall_aliases_unicode = firstNonEmpty(row.hall_aliases_unicode, normalized.hall_aliases);
 
   normalized.hm_short = firstNonEmpty(row.hm_short, row.short_hm_symbol);
@@ -189,11 +189,14 @@ const normalizeRow = (row) => {
 
   // Backfill legacy keys so older UI paths continue to work.
   normalized.short_hm_symbol = normalized.hm_short;
+  normalized.short_hm_symbol_html = normalized.hm_short_html;
   normalized.short_hm_symbol_latex = normalized.hm_short_latex;
   normalized.short_hm_symbol_unicode = normalized.hm_short_unicode;
   normalized.short_hm_symbol_aliases = normalized.hm_short_aliases;
+  normalized.short_hm_symbol_aliases_html = normalized.hm_short_aliases_html;
   normalized.short_hm_symbol_aliases_latex = normalized.hm_short_aliases_latex;
   normalized.universal_hm = normalized.hm_universal;
+  normalized.universal_hm_html = normalized.hm_universal_html;
   normalized.universal_hm_latex = normalized.hm_universal_latex;
   normalized.universal_hm_unicode = normalized.hm_universal_unicode;
 
@@ -536,45 +539,83 @@ const renderInlineLatex = (value) => {
   return `<span class="math-content">\\(${escapeHtml(String(value))}\\)</span>`;
 };
 
+const renderInlineHtml = (value) => {
+  if (value === null || value === undefined || String(value).trim() === "") {
+    return escapeHtml(formatValue(value));
+  }
+  return `<span>${String(value)}</span>`;
+};
+
+const htmlToPlainText = (value) => {
+  if (value === null || value === undefined) {
+    return "";
+  }
+  const text = String(value);
+  if (!text.includes("<") && !text.includes("&")) {
+    return text.trim();
+  }
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = text;
+  return String(wrapper.textContent || wrapper.innerText || "").trim();
+};
+
 const getArrayValues = (value) => {
-  if (!Array.isArray(value)) {
+  if (Array.isArray(value)) {
+    return value.filter((item) => item !== null && item !== undefined && String(item).trim() !== "");
+  }
+  if (value === null || value === undefined) {
     return [];
   }
-  return value.filter((item) => item !== null && item !== undefined && String(item).trim() !== "");
+  const text = String(value).trim();
+  return text ? [value] : [];
 };
 
 const renderHmWithAliases = (row) => {
+  const shortHtml = firstNonEmpty(row.hm_short_html, row.short_hm_symbol_html);
   const shortLatex = firstNonEmpty(row.hm_short_latex, row.short_hm_symbol_latex);
-  const baseLabel = shortLatex
-    ? renderInlineLatex(shortLatex)
-    : escapeHtml(formatValue(row.hm_short_unicode || row.hm_short || row.short_hm_symbol));
+  const baseLabel = shortHtml
+    ? renderInlineHtml(shortHtml)
+    : shortLatex
+      ? renderInlineLatex(shortLatex)
+      : escapeHtml(formatValue(row.hm_short_unicode || row.hm_short || row.short_hm_symbol));
+  const aliasesHtml = getArrayValues(row.hm_short_aliases_html || row.short_hm_symbol_aliases_html);
   const aliasesLatex = getArrayValues(row.hm_short_aliases_latex || row.short_hm_symbol_aliases_latex);
   const aliasesUnicode = getArrayValues(row.hm_short_aliases_unicode);
   const aliasesPlain = getArrayValues(row.hm_short_aliases || row.short_hm_symbol_aliases);
-  const aliases = aliasesLatex.length ? aliasesLatex : aliasesUnicode.length ? aliasesUnicode : aliasesPlain;
+  const aliases = aliasesHtml.length ? aliasesHtml : aliasesLatex.length ? aliasesLatex : aliasesUnicode.length ? aliasesUnicode : aliasesPlain;
   if (!aliases.length) {
     return baseLabel;
   }
-  const aliasLabel = aliasesLatex.length
-    ? aliases.map((item) => renderInlineLatex(item)).join(", ")
-    : aliases.map((item) => escapeHtml(formatValue(item))).join(", ");
-  return `${baseLabel} (${aliasLabel})`;
+  const aliasLabel = aliasesHtml.length
+    ? aliases.map((item) => renderInlineHtml(item)).join(", ")
+    : aliasesLatex.length
+      ? aliases.map((item) => renderInlineLatex(item)).join(", ")
+      : aliases.map((item) => escapeHtml(formatValue(item))).join(", ");
+  return `${baseLabel}&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;&nbsp;<span class="table-aliases-muted">(${aliasLabel})</span>`;
 };
 
 const renderHallWithLatex = (row) => {
+  const hallHtml = firstNonEmpty(row.hall_html);
   const hallLatex = firstNonEmpty(row.hall_latex);
-  const baseLabel = hallLatex ? renderInlineLatex(hallLatex) : escapeHtml(formatValue(row.hall_unicode || row.hall_entry || row.hall_key));
+  const baseLabel = hallHtml
+    ? renderInlineHtml(hallHtml)
+    : hallLatex
+      ? renderInlineLatex(hallLatex)
+      : escapeHtml(formatValue(row.hall_unicode || row.hall_entry || row.hall_key));
+  const aliasesHtml = getArrayValues(row.hall_aliases_html);
   const aliasesLatex = getArrayValues(row.hall_aliases_latex);
   const aliasesUnicode = getArrayValues(row.hall_aliases_unicode);
   const aliasesPlain = getArrayValues(row.hall_aliases);
-  const aliases = aliasesLatex.length ? aliasesLatex : aliasesUnicode.length ? aliasesUnicode : aliasesPlain;
+  const aliases = aliasesHtml.length ? aliasesHtml : aliasesLatex.length ? aliasesLatex : aliasesUnicode.length ? aliasesUnicode : aliasesPlain;
   if (!aliases.length) {
     return baseLabel;
   }
-  const aliasLabel = aliasesLatex.length
-    ? aliases.map((item) => renderInlineLatex(item)).join(", ")
-    : aliases.map((item) => escapeHtml(formatValue(item))).join(", ");
-  return `${baseLabel} (${aliasLabel})`;
+  const aliasLabel = aliasesHtml.length
+    ? aliases.map((item) => renderInlineHtml(item)).join(", ")
+    : aliasesLatex.length
+      ? aliases.map((item) => renderInlineLatex(item)).join(", ")
+      : aliases.map((item) => escapeHtml(formatValue(item))).join(", ");
+  return `${baseLabel}&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;&nbsp;<span class="table-aliases-muted">(${aliasLabel})</span>`;
 };
 
 const renderPointgroupSymbol = (row) => {
@@ -582,6 +623,9 @@ const renderPointgroupSymbol = (row) => {
 };
 
 const renderPointgroupSchoenflies = (row) => {
+  if (row.schoenflies_html) {
+    return renderInlineHtml(row.schoenflies_html);
+  }
   return renderMaybeMath(row.schoenflies_unicode || row.schoenflies || row.schoenflies_latex);
 };
 
@@ -1349,6 +1393,18 @@ const buildLists = (rows) => {
     return "\u2014";
   };
 
+  const hmOptionBaseLabel = (row, fallback = "") =>
+    String(
+      firstNonEmpty(
+        htmlToPlainText(row.hm_short_html || row.short_hm_symbol_html),
+        row.hm_short_unicode,
+        row.hm_short,
+        row.short_hm_symbol_unicode,
+        row.short_hm_symbol,
+        fallback
+      ) || ""
+    );
+
   rows.forEach((row) => {
     const hallKey = String(row.hall_key || "");
     const hallLabel = String(row.hall_unicode || row.hall_entry || hallKey || "");
@@ -1374,41 +1430,42 @@ const buildLists = (rows) => {
       });
     });
 
-    if (row.hm_universal || row.universal_hm) {
-      const key = String(row.hm_universal || row.universal_hm);
-      hmValues.add(key);
-      if (!hmGroups.has(key)) {
-        hmGroups.set(key, []);
-      }
-      hmGroups.get(key).push(row);
+    if (row.hm_short || row.short_hm_symbol || row.hm_short_unicode || row.hm_short_html) {
+      const key = hmOptionBaseLabel(row);
+      if (key) {
+        hmValues.add(key);
+        if (!hmGroups.has(key)) {
+          hmGroups.set(key, []);
+        }
+        hmGroups.get(key).push(row);
 
-      const hmDisplay = String(
-        row.hm_short_unicode || row.hm_short || row.short_hm_symbol_unicode || row.short_hm_symbol || key
-      );
-      hmOptions.push({
-        matchValue: key,
-        hallKey,
-        label: hmDisplay,
-        itaNumber: row.ita_number,
-        qualifier: settingLabelForHm(row)
-      });
-
-      const hmAliasLabels = dedupeStrings([
-        ...asArray(row.hm_short_aliases_unicode),
-        ...asArray(row.hm_short_aliases),
-        ...asArray(row.short_hm_symbol_aliases),
-        ...asArray(row.hm_universal_aliases_unicode),
-        ...asArray(row.hm_universal_aliases)
-      ]);
-      hmAliasLabels.forEach((aliasLabel) => {
+        const hmDisplay = hmOptionBaseLabel(row, key);
         hmOptions.push({
-          matchValue: aliasLabel,
+          matchValue: key,
           hallKey,
-          label: aliasLabel,
+          label: hmDisplay,
           itaNumber: row.ita_number,
           qualifier: settingLabelForHm(row)
         });
-      });
+
+        const hmAliasLabels = dedupeStrings([
+          ...asArray(row.hm_short_aliases_html).map((item) => htmlToPlainText(item)),
+          ...asArray(row.hm_short_aliases_unicode),
+          ...asArray(row.hm_short_aliases),
+          ...asArray(row.short_hm_symbol_aliases_html).map((item) => htmlToPlainText(item)),
+          ...asArray(row.short_hm_symbol_aliases_unicode),
+          ...asArray(row.short_hm_symbol_aliases)
+        ]);
+        hmAliasLabels.forEach((aliasLabel) => {
+          hmOptions.push({
+            matchValue: aliasLabel,
+            hallKey,
+            label: aliasLabel,
+            itaNumber: row.ita_number,
+            qualifier: settingLabelForHm(row)
+          });
+        });
+      }
     }
     if (row.ita_number !== null && row.ita_number !== undefined) {
       const key = Number(row.ita_number);
@@ -1434,9 +1491,7 @@ const buildLists = (rows) => {
     const selected = chooseStandardSetting(entries);
     if (selected) {
       hmToHall[hm] = selected.hall_key;
-      hmDisplay[hm] = String(
-        selected.hm_short_unicode || selected.hm_short || selected.short_hm_symbol_unicode || selected.short_hm_symbol || hm
-      );
+      hmDisplay[hm] = hmOptionBaseLabel(selected, hm);
       hmSortRows[hm] = selected;
     }
   });
