@@ -377,76 +377,78 @@
           )
         }}
         <div data-section-body="details">
-          <div class="flag-row">
-            {{ $flags := slice "is_centric" "is_chiral" "is_enantiomorphic" "is_reference_setting" }}
-            {{ range $flags }}
-              {{ $value := index $.Params . }}
-              <span class="flag-pill {{ if $value }}true{{ else }}false{{ end }}">{{ replace . "_" " " }}: {{ if $value }}yes{{ else }}no{{ end }}</span>
-            {{ end }}
+          <div class="mapping-box">
+            <div class="flag-row">
+              {{ $flags := slice "is_centric" "is_chiral" "is_enantiomorphic" "is_reference_setting" }}
+              {{ range $flags }}
+                {{ $value := index $.Params . }}
+                <span class="flag-pill {{ if $value }}true{{ else }}false{{ end }}">{{ replace . "_" " " }}: {{ if $value }}yes{{ else }}no{{ end }}</span>
+              {{ end }}
+            </div>
+            <p class="note">
+              HM symbol
+              {{
+                partial "info_dot.html" (dict
+                  "general" "Unicode Hermann-Mauguin symbols are useful for copy-and-paste in notes and documents."
+                  "context" "This line keeps a plain-text HM symbol available outside math-rendered identity tiles."
+                )
+              }}:
+              {{ $hmUnicode := default .Params.hm_short_unicode .Params.short_hm_symbol_unicode }}
+              {{ if not $hmUnicode }}{{ $hmUnicode = .Params.hm_full_unicode }}{{ end }}
+              {{ if not $hmUnicode }}{{ $hmUnicode = .Params.hm_universal_unicode }}{{ end }}
+              {{ if not $hmUnicode }}{{ $hmUnicode = default .Params.hm_short .Params.short_hm_symbol }}{{ end }}
+              {{ partial "value.html" $hmUnicode }}
+            </p>
+            <p class="note">
+              Setting key
+              {{
+                partial "info_dot.html" (dict
+                  "general" "Setting keys are compact raw suffixes used to disambiguate variants that share a closely related base symbol."
+                )
+              }}:
+              {{ partial "value.html" (default .Params.setting .Params.qualifier) }}
+            </p>
+            <p class="note">
+              Asymmetric unit
+              {{
+                partial "info_dot.html" (dict
+                  "general" "The asymmetric unit is the smallest region that generates the full crystal under all symmetry operations."
+                  "context" "On this page, bounds are shown as compact coordinate intervals."
+                )
+              }}:
+              {{ partial "value.html" .Params.asym_unit }}
+            </p>
+            <p class="note">
+              Centering translation vectors
+              {{
+                partial "info_dot.html" (dict
+                  "general" "Centering translation vectors are centering offsets applied to the conventional cell."
+                  "context" "This count comes from centering_translation_vector_count in the normalized payload."
+                )
+              }}:
+              {{ partial "value.html" (default .Params.centering_translation_vector_count .Params.n_ltr) }}
+            </p>
+            <p class="note">
+              Point-group symmetry operations
+              {{
+                partial "info_dot.html" (dict
+                  "general" "Point-group symmetry operations count the representative rotational/reflection operations."
+                  "context" "This value comes from pointgroup_symop_count (legacy alias n_smx)."
+                )
+              }}:
+              {{ partial "value.html" (default .Params.pointgroup_symop_count .Params.n_smx) }}
+            </p>
+            <p class="note">
+              Space-group symmetry operations
+              {{
+                partial "info_dot.html" (dict
+                  "general" "Space-group symmetry operations count all operations listed for the setting."
+                  "context" "This value comes from symop_count (legacy alias order_z)."
+                )
+              }}:
+              {{ partial "value.html" (default .Params.symop_count .Params.order_z) }}
+            </p>
           </div>
-          <p class="note">
-            HM symbol
-            {{
-              partial "info_dot.html" (dict
-                "general" "Unicode Hermann-Mauguin symbols are useful for copy-and-paste in notes and documents."
-                "context" "This line keeps a plain-text HM symbol available outside math-rendered identity tiles."
-              )
-            }}:
-            {{ $hmUnicode := default .Params.hm_short_unicode .Params.short_hm_symbol_unicode }}
-            {{ if not $hmUnicode }}{{ $hmUnicode = .Params.hm_full_unicode }}{{ end }}
-            {{ if not $hmUnicode }}{{ $hmUnicode = .Params.hm_universal_unicode }}{{ end }}
-            {{ if not $hmUnicode }}{{ $hmUnicode = default .Params.hm_short .Params.short_hm_symbol }}{{ end }}
-            {{ partial "value.html" $hmUnicode }}
-          </p>
-          <p class="note">
-            Setting key
-            {{
-              partial "info_dot.html" (dict
-                "general" "Setting keys are compact raw suffixes used to disambiguate variants that share a closely related base symbol."
-              )
-            }}:
-            {{ partial "value.html" (default .Params.setting .Params.qualifier) }}
-          </p>
-          <p class="note">
-            Asymmetric unit
-            {{
-              partial "info_dot.html" (dict
-                "general" "The asymmetric unit is the smallest region that generates the full crystal under all symmetry operations."
-                "context" "On this page, bounds are shown as compact coordinate intervals."
-              )
-            }}:
-            {{ partial "value.html" .Params.asym_unit }}
-          </p>
-          <p class="note">
-            Centering translation vectors
-            {{
-              partial "info_dot.html" (dict
-                "general" "Centering translation vectors are centering offsets applied to the conventional cell."
-                "context" "This count comes from centering_translation_vector_count in the normalized payload."
-              )
-            }}:
-            {{ partial "value.html" (default .Params.centering_translation_vector_count .Params.n_ltr) }}
-          </p>
-          <p class="note">
-            Point-group symmetry operations
-            {{
-              partial "info_dot.html" (dict
-                "general" "Point-group symmetry operations count the representative rotational/reflection operations."
-                "context" "This value comes from pointgroup_symop_count (legacy alias n_smx)."
-              )
-            }}:
-            {{ partial "value.html" (default .Params.pointgroup_symop_count .Params.n_smx) }}
-          </p>
-          <p class="note">
-            Space-group symmetry operations
-            {{
-              partial "info_dot.html" (dict
-                "general" "Space-group symmetry operations count all operations listed for the setting."
-                "context" "This value comes from symop_count (legacy alias order_z)."
-              )
-            }}:
-            {{ partial "value.html" (default .Params.symop_count .Params.order_z) }}
-          </p>
         </div>
       </article>
 
@@ -461,41 +463,43 @@
           )
         }}
         <div data-section-body="symops">
-          {{ $symops := .Params.symops }}
-          {{ if $symops }}
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>
-                    {{ partial "field_label.html" (dict "text" "xyz" "url" $docSymopsXYZ) }}
-                    {{ partial "info_dot.html" (dict "general" "Coordinate-form operations express transformed x, y, z values." "context" "This column uses the exact textual xyz form stored for each operation.") }}
-                  </th>
-                  <th>
-                    rot_type
-                    {{ partial "info_dot.html" (dict "general" "Rotation type labels classify rotational character such as order or inversion pairing." "context" "This column keeps the short rot_type labels shown in the table.") }}
-                  </th>
-                  <th>
-                    screw/glide
-                    {{ partial "info_dot.html" (dict "general" "Screw and glide components add fractional translations to rotational or reflection operations." "context" "This column reports the parsed screw or glide descriptor for each operation when available.") }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {{ range $index, $op := $symops }}
+          <div class="mapping-box">
+            {{ $symops := .Params.symops }}
+            {{ if $symops }}
+              <table class="data-table">
+                <thead>
                   <tr>
-                    <td>{{ add $index 1 }}</td>
-                    <td>{{ partial "value.html" $op.xyz }}</td>
-                    <td>{{ partial "value.html" $op.rot_type }}</td>
-                    <td>{{ partial "value.html" $op.screw_glide }}</td>
+                    <th>#</th>
+                    <th>
+                      {{ partial "field_label.html" (dict "text" "xyz" "url" $docSymopsXYZ) }}
+                      {{ partial "info_dot.html" (dict "general" "Coordinate-form operations express transformed x, y, z values." "context" "This column uses the exact textual xyz form stored for each operation.") }}
+                    </th>
+                    <th>
+                      rot_type
+                      {{ partial "info_dot.html" (dict "general" "Rotation type labels classify rotational character such as order or inversion pairing." "context" "This column keeps the short rot_type labels shown in the table.") }}
+                    </th>
+                    <th>
+                      screw/glide
+                      {{ partial "info_dot.html" (dict "general" "Screw and glide components add fractional translations to rotational or reflection operations." "context" "This column reports the parsed screw or glide descriptor for each operation when available.") }}
+                    </th>
                   </tr>
-                {{ end }}
-              </tbody>
-            </table>
-            <p class="note">Showing all {{ len $symops }} operations.</p>
-          {{ else }}
-            <p class="note">No symmetry operations in this entry.</p>
-          {{ end }}
+                </thead>
+                <tbody>
+                  {{ range $index, $op := $symops }}
+                    <tr>
+                      <td>{{ add $index 1 }}</td>
+                      <td>{{ partial "value.html" $op.xyz }}</td>
+                      <td>{{ partial "value.html" $op.rot_type }}</td>
+                      <td>{{ partial "value.html" $op.screw_glide }}</td>
+                    </tr>
+                  {{ end }}
+                </tbody>
+              </table>
+              <p class="note">Showing all {{ len $symops }} operations.</p>
+            {{ else }}
+              <p class="note">No symmetry operations in this entry.</p>
+            {{ end }}
+          </div>
         </div>
       </article>
 
@@ -510,50 +514,52 @@
           )
         }}
         <div data-section-body="wyckoff">
-          {{ $wyckoffItems := .Params.wyckoff_items }}
-          {{ if $wyckoffItems }}
-            {{ if gt (len $wyckoffItems) 0 }}
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>
-                      Label
-                      {{ partial "info_dot.html" (dict "general" "Wyckoff labels are letter identifiers for site classes within a space group." "context" "Labels are shown directly in their table form.") }}
-                    </th>
-                    <th>
-                      Multiplicity
-                      {{ partial "info_dot.html" (dict "general" "Multiplicity is the number of equivalent points generated from one representative site." "context" "Values here match each listed Wyckoff label in this setting.") }}
-                    </th>
-                    <th>
-                      Site Symmetry
-                      {{ partial "info_dot.html" (dict "general" "Site symmetry is the subgroup that leaves a representative site fixed." "context" "This column uses short site-symmetry text.") }}
-                    </th>
-                    <th>
-                      Full Orbit (xyz)
-                      {{ partial "info_dot.html" (dict "general" "An orbit is the full set of equivalent coordinates generated by symmetry from one site." "context" "Orbit coordinates are rendered in parenthesized xyz tuples for readability.") }}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {{ range $wyckoffItems }}
-                    {{ $orbit := .orbit_xyz }}
-                    {{ $orbitText := partial "orbit.html" $orbit }}
+          <div class="mapping-box">
+            {{ $wyckoffItems := .Params.wyckoff_items }}
+            {{ if $wyckoffItems }}
+              {{ if gt (len $wyckoffItems) 0 }}
+                <table class="data-table">
+                  <thead>
                     <tr>
-                      <td>{{ .label }}</td>
-                      <td>{{ partial "value.html" .multiplicity }}</td>
-                      <td>{{ partial "value.html" .sitesym }}</td>
-                      <td class="orbit-cell">{{ $orbitText }}</td>
+                      <th>
+                        Label
+                        {{ partial "info_dot.html" (dict "general" "Wyckoff labels are letter identifiers for site classes within a space group." "context" "Labels are shown directly in their table form.") }}
+                      </th>
+                      <th>
+                        Multiplicity
+                        {{ partial "info_dot.html" (dict "general" "Multiplicity is the number of equivalent points generated from one representative site." "context" "Values here match each listed Wyckoff label in this setting.") }}
+                      </th>
+                      <th>
+                        Site Symmetry
+                        {{ partial "info_dot.html" (dict "general" "Site symmetry is the subgroup that leaves a representative site fixed." "context" "This column uses short site-symmetry text.") }}
+                      </th>
+                      <th>
+                        Full Orbit (xyz)
+                        {{ partial "info_dot.html" (dict "general" "An orbit is the full set of equivalent coordinates generated by symmetry from one site." "context" "Orbit coordinates are rendered in parenthesized xyz tuples for readability.") }}
+                      </th>
                     </tr>
-                  {{ end }}
-                </tbody>
-              </table>
-              <p class="note">{{ len $wyckoffItems }} Wyckoff position{{ if ne (len $wyckoffItems) 1 }}s{{ end }} listed.</p>
+                  </thead>
+                  <tbody>
+                    {{ range $wyckoffItems }}
+                      {{ $orbit := .orbit_xyz }}
+                      {{ $orbitText := partial "orbit.html" $orbit }}
+                      <tr>
+                        <td>{{ .label }}</td>
+                        <td>{{ partial "value.html" .multiplicity }}</td>
+                        <td>{{ partial "value.html" .sitesym }}</td>
+                        <td class="orbit-cell">{{ $orbitText }}</td>
+                      </tr>
+                    {{ end }}
+                  </tbody>
+                </table>
+                <p class="note">{{ len $wyckoffItems }} Wyckoff position{{ if ne (len $wyckoffItems) 1 }}s{{ end }} listed.</p>
+              {{ else }}
+                <p class="note">No Wyckoff labels present.</p>
+              {{ end }}
             {{ else }}
-              <p class="note">No Wyckoff labels present.</p>
+              <p class="note">No Wyckoff data available.</p>
             {{ end }}
-          {{ else }}
-            <p class="note">No Wyckoff data available.</p>
-          {{ end }}
+          </div>
         </div>
       </article>
 
