@@ -1,5 +1,20 @@
 {{ define "main" }}
   {{ .Content }}
+
+  <details class="index-info panel" aria-label="Info">
+    <summary class="index-info-summary">
+      <span class="index-info-title">Info</span>
+      <span class="index-info-triangle" aria-hidden="true">▸</span>
+    </summary>
+    <div class="index-info-body">
+      <p>
+        This website allows you to explore the spacegroup data part of <em>httk</em>. There are 230 unique spacegroups.
+        Taking into account options for axis ordering and origin choice gives 530 conventional spacegroup settings, of
+        which 527 are symmetrically unique.
+      </p>
+    </div>
+  </details>
+
   <nav class="dataset-tabs" aria-label="Data pages">
     <a class="dataset-tab is-active" href="{{ "" | relURL }}" aria-current="page">Spacegroups</a>
     <a class="dataset-tab" href="{{ "pointgroup/" | relURL }}">Pointgroups</a>

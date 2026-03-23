@@ -546,19 +546,6 @@ const renderInlineHtml = (value) => {
   return `<span>${String(value)}</span>`;
 };
 
-const htmlToPlainText = (value) => {
-  if (value === null || value === undefined) {
-    return "";
-  }
-  const text = String(value);
-  if (!text.includes("<") && !text.includes("&")) {
-    return text.trim();
-  }
-  const wrapper = document.createElement("div");
-  wrapper.innerHTML = text;
-  return String(wrapper.textContent || wrapper.innerText || "").trim();
-};
-
 const getArrayValues = (value) => {
   if (Array.isArray(value)) {
     return value.filter((item) => item !== null && item !== undefined && String(item).trim() !== "");
@@ -1359,55 +1346,12 @@ const buildLists = (rows) => {
   const hallOptions = [];
   const hmOptions = [];
 
-  const asArray = (value) => {
-    if (!Array.isArray(value)) {
-      return [];
-    }
-    return value
-      .map((item) => String(item ?? "").trim())
-      .filter((item) => item !== "");
-  };
-
-  const dedupeStrings = (items) => {
-    const seen = new Set();
-    const out = [];
-    items.forEach((item) => {
-      if (seen.has(item)) {
-        return;
-      }
-      seen.add(item);
-      out.push(item);
-    });
-    return out;
-  };
-
-  const settingLabelForHm = (row) => {
-    if (row && row.is_reference_setting) {
-      return "ITA";
-    }
-    const hm = String((row && (row.hm_universal || row.universal_hm)) || "");
-    const suffixMatch = hm.match(/\([^)]*\)\s*$/);
-    if (suffixMatch && suffixMatch[0]) {
-      return suffixMatch[0];
-    }
-    return "\u2014";
-  };
-
-  const hmOptionBaseLabel = (row, fallback = "") =>
-    String(
-      firstNonEmpty(
-        htmlToPlainText(row.hm_short_html || row.short_hm_symbol_html),
-        row.hm_short_unicode,
-        row.hm_short,
-        row.short_hm_symbol_unicode,
-        row.short_hm_symbol,
-        fallback
-      ) || ""
-    );
+  const hmOptionBaseLabel = (row, fallback = "") => String(firstNonEmpty(row.hm_short_unicode, fallback) || "");
+  const hallOptionBaseLabel = (row, fallback = "") => String(firstNonEmpty(row.hall_unicode, fallback) || "");
 
   rows.forEach((row) => {
     const hallKey = String(row.hall_key || "");
-    const hallLabel = String(row.hall_unicode || row.hall_entry || hallKey || "");
+    const hallLabel = hallOptionBaseLabel(row, hallKey);
     if (hallKey) {
       hallOptions.push({
         matchValue: hallKey,
@@ -1416,19 +1360,6 @@ const buildLists = (rows) => {
         itaNumber: row.ita_number
       });
     }
-
-    const hallAliasLabels = dedupeStrings([
-      ...asArray(row.hall_aliases_unicode),
-      ...asArray(row.hall_aliases)
-    ]);
-    hallAliasLabels.forEach((aliasLabel) => {
-      hallOptions.push({
-        matchValue: aliasLabel,
-        hallKey,
-        label: aliasLabel,
-        itaNumber: row.ita_number
-      });
-    });
 
     if (row.hm_short || row.short_hm_symbol || row.hm_short_unicode || row.hm_short_html) {
       const key = hmOptionBaseLabel(row);
@@ -1444,26 +1375,7 @@ const buildLists = (rows) => {
           matchValue: key,
           hallKey,
           label: hmDisplay,
-          itaNumber: row.ita_number,
-          qualifier: settingLabelForHm(row)
-        });
-
-        const hmAliasLabels = dedupeStrings([
-          ...asArray(row.hm_short_aliases_html).map((item) => htmlToPlainText(item)),
-          ...asArray(row.hm_short_aliases_unicode),
-          ...asArray(row.hm_short_aliases),
-          ...asArray(row.short_hm_symbol_aliases_html).map((item) => htmlToPlainText(item)),
-          ...asArray(row.short_hm_symbol_aliases_unicode),
-          ...asArray(row.short_hm_symbol_aliases)
-        ]);
-        hmAliasLabels.forEach((aliasLabel) => {
-          hmOptions.push({
-            matchValue: aliasLabel,
-            hallKey,
-            label: aliasLabel,
-            itaNumber: row.ita_number,
-            qualifier: settingLabelForHm(row)
-          });
+          itaNumber: row.ita_number
         });
       }
     }
@@ -1529,17 +1441,6 @@ const buildLists = (rows) => {
     }
     return String(a.hallKey).localeCompare(String(b.hallKey), undefined, { numeric: true });
   });
-
-  const hmLabelCounts = new Map();
-  hmOptions.forEach((item) => {
-    const key = String(item.label || "");
-    hmLabelCounts.set(key, (hmLabelCounts.get(key) || 0) + 1);
-  });
-  hmOptions.forEach((item) => {
-    if ((hmLabelCounts.get(String(item.label || "")) || 0) > 1) {
-      item.label = `${item.label}: ${item.qualifier || "\u2014"}`;
-    }
-  });
   const hmOptionsSorted = hmOptions.sort((a, b) => {
     const byLabel = String(a.label).localeCompare(String(b.label), undefined, { numeric: true });
     if (byLabel !== 0) {
@@ -1588,25 +1489,31 @@ const populateDetailSelects = (lists) => {
     populateSelect(select, lists.halls, selected, (hallKey) => {
       const option = document.createElement("option");
       option.value = hallKey.hallKey ? buildHallUrl(baseUrl, hallKey.hallKey) : "";
-      const itaSuffix =
-        hallKey.itaNumber !== null && hallKey.itaNumber !== undefined ? ` - (#${hallKey.itaNumber})` : "";
-      option.textContent = `${hallKey.label}${itaSuffix}`;
+      option.textContent = `${hallKey.label}`;
       option.dataset.matchValue = hallKey.matchValue;
       return option;
     });
   });
 
-  hmSelects.forEach((select) => {
+  hmSelects.forEach((select, idx) => {
     const selected = select.dataset.selected;
+    const selectedHall = (hallSelects[idx] && hallSelects[idx].dataset && hallSelects[idx].dataset.selected) || "";
     populateSelect(select, lists.hmOptions || [], selected, (hmOption) => {
       const option = document.createElement("option");
       option.value = hmOption.hallKey ? buildHallUrl(baseUrl, hmOption.hallKey) : "";
-      const itaSuffix =
-        hmOption.itaNumber !== null && hmOption.itaNumber !== undefined ? ` - (#${hmOption.itaNumber})` : "";
-      option.textContent = `${hmOption.label}${itaSuffix}`;
+      option.textContent = `${hmOption.label}`;
       option.dataset.matchValue = hmOption.matchValue;
+      option.dataset.hallKey = hmOption.hallKey || "";
       return option;
     });
+
+    // Prefer a stable hall-key match over symbol-text matching.
+    if (selectedHall) {
+      const byHall = Array.from(select.options).find((opt) => String(opt.dataset.hallKey || "") === String(selectedHall));
+      if (byHall) {
+        byHall.selected = true;
+      }
+    }
   });
 
   itaSelects.forEach((select) => {

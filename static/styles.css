@@ -270,6 +270,54 @@ h2 {
   margin: 2px 0 14px;
 }
 
+.index-info {
+  margin: 0 0 14px;
+}
+
+.index-info-summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px;
+}
+
+.index-info-summary::-webkit-details-marker {
+  display: none;
+}
+
+.index-info-title {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.index-info-triangle {
+  color: var(--ink-soft);
+  font-size: 16px;
+  line-height: 1;
+  transition: transform 140ms ease, color 140ms ease;
+}
+
+.index-info[open] .index-info-triangle {
+  transform: rotate(90deg);
+  color: var(--accent);
+}
+
+.index-info-body {
+  border-top: 1px solid var(--line);
+  padding: 12px 16px 14px;
+  color: var(--ink-soft);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.index-info-body p {
+  margin: 0;
+}
+
 .dataset-tab {
   text-decoration: none;
   border: 1px solid var(--line);
