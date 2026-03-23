@@ -114,6 +114,16 @@ def _write_json_gz(path: Path, payload: Any) -> None:
         handle.write("\n")
 
 
+def _normalize_schoenflies_html(value: Any) -> Any:
+    if not isinstance(value, str):
+        return value
+    text = value
+    # Keep italic letters in sub/sup, but force numeric-only parts upright.
+    text = re.sub(r"<sub>\s*<i>\s*(\d+)\s*</i>\s*</sub>", r"<sub>\1</sub>", text)
+    text = re.sub(r"<sup>\s*<i>\s*(\d+)\s*</i>\s*</sup>", r"<sup>\1</sup>", text)
+    return text
+
+
 def _load_transformations_payload() -> Dict[str, Any]:
     global _TRANSFORMATIONS_PAYLOAD
     if _TRANSFORMATIONS_PAYLOAD is not None:
@@ -285,7 +295,9 @@ def _normalize_entry(hall_key: str, raw_entry: Any) -> Dict[str, Any]:
 
     normalized["schoenflies"] = _first_non_empty(entry.get("schoenflies"))
     normalized["schoenflies_latex"] = _first_non_empty(entry.get("schoenflies_latex"))
-    normalized["schoenflies_html"] = _first_non_empty(entry.get("schoenflies_html"), normalized["schoenflies"])
+    normalized["schoenflies_html"] = _normalize_schoenflies_html(
+        _first_non_empty(entry.get("schoenflies_html"), normalized["schoenflies"])
+    )
     normalized["schoenflies_unicode"] = _first_non_empty(entry.get("schoenflies_unicode"), normalized["schoenflies"])
     normalized["symops"] = _normalize_spacegroup_symops(entry)
 
@@ -413,7 +425,9 @@ def _normalize_pointgroup_entry(pointgroup_key: str, raw_entry: Any) -> Dict[str
     normalized["laue_class"] = _first_non_empty(entry.get("laue_class"))
     normalized["schoenflies"] = _first_non_empty(entry.get("schoenflies"))
     normalized["schoenflies_latex"] = _first_non_empty(entry.get("schoenflies_latex"))
-    normalized["schoenflies_html"] = _first_non_empty(entry.get("schoenflies_html"), normalized["schoenflies"])
+    normalized["schoenflies_html"] = _normalize_schoenflies_html(
+        _first_non_empty(entry.get("schoenflies_html"), normalized["schoenflies"])
+    )
     normalized["schoenflies_unicode"] = _first_non_empty(entry.get("schoenflies_unicode"), normalized["schoenflies"])
 
     symops = entry.get("symops")

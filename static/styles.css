@@ -680,7 +680,7 @@ html[data-theme="dark"] .section-anchor-icon {
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 10px 12px;
-  background: var(--surface-muted);
+  background: var(--surface);
 }
 
 .metric label {
@@ -888,7 +888,7 @@ html[data-theme="dark"] .section-anchor-icon {
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 10px 12px;
-  background: var(--surface-elevated);
+  background: var(--surface);
 }
 
 .mapping-tabs {
