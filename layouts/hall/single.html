@@ -832,9 +832,10 @@
                         <tr>
                           <th>#</th>
                           <th>{{ partial "field_label.html" (dict "text" "xyz" "url" $docSymopsXYZ) }}</th>
-                          <th>rot_type</th>
-                          <th>screw/glide</th>
-                          <th>origin_shift</th>
+                          <th>operation kind</th>
+                          <th>compatible systems</th>
+                          <th>P det</th>
+                          <th>P orthogonal</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -842,9 +843,10 @@
                           <tr>
                             <td>{{ add $index 1 }}</td>
                             <td>{{ partial "value.html" $op.xyz }}</td>
-                            <td>{{ partial "value.html" $op.rot_type }}</td>
-                            <td>{{ partial "value.html" $op.screw_glide }}</td>
-                            <td>{{ partial "value.html" $op.origin_shift }}</td>
+                            <td>{{ partial "value.html" $op.operation_kind }}</td>
+                            <td>{{ partial "value.html" $op.compatible_systems }}</td>
+                            <td>{{ partial "value.html" $op.P_det }}</td>
+                            <td>{{ partial "value.html" $op.P_is_orthogonal }}</td>
                           </tr>
                         {{ end }}
                       </tbody>
@@ -874,6 +876,9 @@
                           <th>rot_type</th>
                           <th>screw/glide</th>
                           <th>origin_shift</th>
+                          <th>operation kind</th>
+                          <th>P det</th>
+                          <th>P orthogonal</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -884,6 +889,9 @@
                             <td>{{ partial "value.html" $op.rot_type }}</td>
                             <td>{{ partial "value.html" $op.screw_glide }}</td>
                             <td>{{ partial "value.html" $op.origin_shift }}</td>
+                            <td>{{ partial "value.html" $op.operation_kind }}</td>
+                            <td>{{ partial "value.html" $op.P_det }}</td>
+                            <td>{{ partial "value.html" $op.P_is_orthogonal }}</td>
                           </tr>
                         {{ end }}
                       </tbody>

@@ -12,6 +12,7 @@ HUGO_ROOT = Path(__file__).resolve().parents[1]
 DATA_ROOT = HUGO_ROOT / "static" / "data"
 SYMMETRY_BASICS_PATH = DATA_ROOT / "symmetry_basics.json"
 POINTGROUP_BASICS_PATH = DATA_ROOT / "pointgroup_basics.json"
+TRANSFORMATIONS_PATH = DATA_ROOT / "transformations.json"
 TRANSFORMATIONS_HALL_PATH = DATA_ROOT / "transformations_hall.json"
 BARNIGHAUSEN_PATH = HUGO_ROOT / "static" / "data" / "barnighausen_hall.json"
 EUCLIDIAN_NORMALIZER_PATH = DATA_ROOT / "euclidian_normalizer.json"
@@ -118,13 +119,15 @@ def _load_transformations_payload() -> Dict[str, Any]:
     if _TRANSFORMATIONS_PAYLOAD is not None:
         return _TRANSFORMATIONS_PAYLOAD
 
-    source = _resolve_input_path(TRANSFORMATIONS_HALL_PATH)
+    source = _resolve_input_path(TRANSFORMATIONS_PATH)
+    if not source.exists():
+        source = _resolve_input_path(TRANSFORMATIONS_HALL_PATH)
     if not source.exists():
         _TRANSFORMATIONS_PAYLOAD = {}
         return _TRANSFORMATIONS_PAYLOAD
 
     _log(f"Loading transformations datasets from {source}")
-    payload = _load_json(TRANSFORMATIONS_HALL_PATH)
+    payload = _load_json(source.with_suffix("") if source.suffix == ".gz" else source)
     _TRANSFORMATIONS_PAYLOAD = payload if isinstance(payload, dict) else {}
     return _TRANSFORMATIONS_PAYLOAD
 
@@ -138,12 +141,25 @@ def _pick_dataset(payload: Any, *keys: str) -> Dict[str, Any]:
         if isinstance(value, dict):
             return value
 
+    datasets = payload.get("datasets")
+    if isinstance(datasets, dict):
+        for key in keys:
+            value = datasets.get(key)
+            if isinstance(value, dict):
+                return value
+
     entries = payload.get("entries")
     if isinstance(entries, dict):
         for key in keys:
             value = entries.get(key)
             if isinstance(value, dict):
                 return value
+        datasets = entries.get("datasets")
+        if isinstance(datasets, dict):
+            for key in keys:
+                value = datasets.get(key)
+                if isinstance(value, dict):
+                    return value
     return {}
 
 
