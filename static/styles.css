@@ -7,23 +7,21 @@
   --accent: #cf5a2f;
   --accent-rgb: 207, 90, 47;
   --accent-soft: #f1d9c7;
-  --panel: rgba(255, 252, 246, 0.78);
+  --panel: #f8f1e6;
   --surface: #fffdfa;
-  --surface-soft: rgba(255, 255, 255, 0.65);
-  --surface-muted: rgba(255, 255, 255, 0.52);
-  --surface-elevated: rgba(255, 255, 255, 0.45);
+  --surface-soft: #faf4ea;
+  --surface-muted: #f8f1e5;
+  --surface-elevated: #f6ede0;
   --table-head: #f6efe2;
   --tooltip-bg: #113539;
   --tooltip-ink: #ffffff;
-  --noise-dot: rgba(17, 43, 46, 0.4);
-  --noise-opacity: 0.12;
   --control-track: rgba(17, 43, 46, 0.14);
   --control-thumb: #ffffff;
-  --bg-layer-a: #f2dbc4;
-  --bg-layer-b: #d6ece6;
-  --bg-base-a: #f8f3eb;
-  --bg-base-b: #efe8d9;
-  --shadow: 0 18px 40px rgba(17, 43, 46, 0.12);
+  --bg-layer-a: #edd6be;
+  --bg-layer-b: #d2e6e0;
+  --bg-base-a: #f7f1e6;
+  --bg-base-b: #ece2d1;
+  --shadow: 0 12px 26px rgba(17, 43, 46, 0.1);
   --radius: 18px;
   --data-font: "STIX Two Text", "Cambria Math", "Latin Modern Math", "Times New Roman", Georgia, serif;
 }
@@ -37,23 +35,21 @@ html[data-theme="dark"] {
   --accent: #ff9b6d;
   --accent-rgb: 255, 155, 109;
   --accent-soft: rgba(255, 155, 109, 0.2);
-  --panel: rgba(13, 14, 17, 0.84);
+  --panel: #141821;
   --surface: #16181c;
-  --surface-soft: rgba(24, 26, 31, 0.88);
-  --surface-muted: rgba(27, 30, 36, 0.88);
-  --surface-elevated: rgba(24, 27, 33, 0.88);
+  --surface-soft: #1a1f28;
+  --surface-muted: #1b212b;
+  --surface-elevated: #181d26;
   --table-head: #16181c;
   --tooltip-bg: #f2f5fb;
   --tooltip-ink: #0d121a;
-  --noise-dot: rgba(240, 244, 252, 0.16);
-  --noise-opacity: 0.18;
   --control-track: rgba(233, 237, 245, 0.22);
   --control-thumb: #f6f8fd;
-  --bg-layer-a: #242835;
-  --bg-layer-b: #121521;
-  --bg-base-a: #040405;
-  --bg-base-b: #090b0e;
-  --shadow: 0 18px 46px rgba(0, 0, 0, 0.55);
+  --bg-layer-a: #212736;
+  --bg-layer-b: #111724;
+  --bg-base-a: #06080d;
+  --bg-base-b: #0d1118;
+  --shadow: 0 12px 30px rgba(0, 0, 0, 0.42);
 }
 
 html[data-theme="light"] {
@@ -65,23 +61,21 @@ html[data-theme="light"] {
   --accent: #b44f28;
   --accent-rgb: 180, 79, 40;
   --accent-soft: #f8ddd2;
-  --panel: rgba(255, 255, 255, 0.9);
+  --panel: #f9fbff;
   --surface: #ffffff;
-  --surface-soft: rgba(255, 255, 255, 0.94);
-  --surface-muted: rgba(248, 250, 255, 0.9);
-  --surface-elevated: rgba(248, 250, 255, 0.9);
+  --surface-soft: #f6f9ff;
+  --surface-muted: #f3f7fe;
+  --surface-elevated: #eef3fc;
   --table-head: #f4f6fb;
   --tooltip-bg: #1a2b3d;
   --tooltip-ink: #ffffff;
-  --noise-dot: rgba(31, 52, 84, 0.18);
-  --noise-opacity: 0.08;
   --control-track: rgba(28, 42, 58, 0.16);
   --control-thumb: #ffffff;
   --bg-layer-a: #e9f0ff;
-  --bg-layer-b: #f5faf9;
+  --bg-layer-b: #e6f5ee;
   --bg-base-a: #ffffff;
-  --bg-base-b: #f7fbff;
-  --shadow: 0 18px 34px rgba(16, 28, 46, 0.08);
+  --bg-base-b: #f2f8ff;
+  --shadow: 0 12px 26px rgba(16, 28, 46, 0.08);
 }
 
 * {
@@ -94,22 +88,13 @@ body {
   font-family: "Instrument Sans", "Segoe UI", sans-serif;
   color: var(--ink);
   background:
-    radial-gradient(circle at 20% 0%, var(--bg-layer-a), transparent 40%),
-    radial-gradient(circle at 90% 90%, var(--bg-layer-b), transparent 40%),
-    linear-gradient(145deg, var(--bg-base-a), var(--bg-base-b) 70%);
+    radial-gradient(circle at 18% 4%, var(--bg-layer-a), transparent 52%),
+    radial-gradient(circle at 88% 86%, var(--bg-layer-b), transparent 50%),
+    linear-gradient(150deg, var(--bg-base-a), var(--bg-base-b) 72%);
 }
 
 .math-pending .math-content {
   visibility: hidden;
-}
-
-.noise {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: var(--noise-opacity);
-  background-image: radial-gradient(var(--noise-dot) 0.6px, transparent 0.6px);
-  background-size: 4px 4px;
 }
 
 .app-shell {
@@ -273,7 +258,6 @@ h2 {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--panel);
-  backdrop-filter: blur(8px);
   box-shadow: var(--shadow);
 }
 
