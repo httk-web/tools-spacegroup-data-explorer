@@ -84,20 +84,37 @@
       </article>
 
       <article class="detail-card panel section-wide">
-        {{
-          partial "section_heading.html" (dict
-            "title" "Identity"
-            "id" "identity"
-            "toggle_key" "identity"
-            "info_general" "Identity fields summarize how a space group is named and classified across crystallographic notation systems."
-            "info_context" "This section focuses on symbols used on this page and links the point-group field directly to the matching pointgroup detail page when available."
-          )
-        }}
+        <div class="detail-card-head">
+          <button class="section-toggle-btn" type="button" data-section-toggle="identity" aria-expanded="true" aria-label="Collapse section">&#9662;</button>
+          <h3 id="identity" class="section-title">
+            <span>Identity</span>
+            {{ partial "info_dot.html" (dict
+              "general" "Identity fields summarize how a space group is named and classified across crystallographic notation systems."
+              "context" "This section focuses on symbols used on this page and links the point-group field directly to the matching pointgroup detail page when available."
+            ) }}
+            <a class="section-anchor-link" href="#identity" aria-label="Copy link to Identity" title="Copy link to this section">
+              <img class="section-anchor-icon" src="{{ "icons/Hicon_Pack_1/link.svg" | relURL }}" alt="" aria-hidden="true" />
+            </a>
+          </h3>
+          <div class="identity-head-flags">
+            {{ $flags := slice "is_centric" "is_chiral" "is_enantiomorphic" "is_reference_setting" }}
+            {{ range $flags }}
+              {{ $value := index $.Params . }}
+              <span class="flag-pill {{ if $value }}true{{ else }}false{{ end }}">{{ replace . "_" " " }}: {{ if $value }}yes{{ else }}no{{ end }}</span>
+            {{ end }}
+          </div>
+        </div>
         <div data-section-body="identity">
-          {{ $docSymopsXYZ := "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symmetry_operations_xyz" }}
-          {{ $docHall := "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hall" }}
-          {{ $docHMShort := "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hermann_mauguin" }}
-          {{ $docHMExtended := "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hermann_mauguin_extended" }}
+          {{ $docMap := .Params.field_doc_urls }}
+          {{ $docSymopsXYZ := default "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symmetry_operations_xyz" (index $docMap "symops_xyz") }}
+          {{ $docHall := default "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hall" (index $docMap "hall") }}
+          {{ $docHMShort := default "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hermann_mauguin" (index $docMap "hm_short") }}
+          {{ $docHMExtended := default "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hermann_mauguin_extended" (index $docMap "hm_extended") }}
+          {{ $docHMFull := index $docMap "hm_full" }}
+          {{ $docPointGroup := index $docMap "point_group" }}
+          {{ $docLaueClass := index $docMap "laue_class" }}
+          {{ $docSchoenflies := index $docMap "schoenflies" }}
+          {{ $docCrystalSystem := index $docMap "crystal_system" }}
           <div class="identity-grid">
             <div class="metric">
               <label>
@@ -181,9 +198,30 @@
                 <div class="metric-aliases-block">{{ partial "value.html" $nCAliases }}</div>
               {{ end }}
             </div>
+            <div class="metric">
+              <label>
+                {{ partial "field_label.html" (dict "text" "HM Symbol Full" "url" $docHMFull) }}
+                {{
+                  partial "info_dot.html" (dict
+                    "general" "A full Hermann-Mauguin symbol gives a more expanded notation of the symmetry content than the short form."
+                  )
+                }}
+              </label>
+              {{ $fullHMHtml := .Params.hm_full_html }}
+              {{ $fullHM := .Params.hm_full_latex }}
+              <strong>
+                {{ if $fullHMHtml }}
+                  <span>{{ $fullHMHtml | safeHTML }}</span>
+                {{ else if $fullHM }}
+                  <span class="math-content">\({{ $fullHM }}\)</span>
+                {{ else }}
+                  <span>{{ partial "value.html" .Params.hm_full }}</span>
+                {{ end }}
+              </strong>
+            </div>
             <div class="metric metric-span-two">
               <label>
-                Settings
+                Setting
                 {{
                   partial "info_dot.html" (dict
                     "general" "Setting text gives a human-readable description of axis/origin conventions for this Hall setting."
@@ -191,7 +229,8 @@
                   )
                 }}
               </label>
-              <strong>{{ partial "value.html" (default .Params.settings_plaintext .Params.setting_plaintext) }}</strong>
+              {{ $settingText := default .Params.settings_plaintext .Params.setting_plaintext }}
+              <strong>{{ partial "value.html" (default "Standard" $settingText) }}</strong>
             </div>
             <div class="metric">
               <label>
@@ -279,28 +318,7 @@
             </div>
             <div class="metric">
               <label>
-                HM Symbol Full
-                {{
-                  partial "info_dot.html" (dict
-                    "general" "A full Hermann-Mauguin symbol gives a more expanded notation of the symmetry content than the short form."
-                  )
-                }}
-              </label>
-              {{ $fullHMHtml := .Params.hm_full_html }}
-              {{ $fullHM := .Params.hm_full_latex }}
-              <strong>
-                {{ if $fullHMHtml }}
-                  <span>{{ $fullHMHtml | safeHTML }}</span>
-                {{ else if $fullHM }}
-                  <span class="math-content">\({{ $fullHM }}\)</span>
-                {{ else }}
-                  <span>{{ partial "value.html" .Params.hm_full }}</span>
-                {{ end }}
-              </strong>
-            </div>
-            <div class="metric">
-              <label>
-                Point Group
+                {{ partial "field_label.html" (dict "text" "Point Group" "url" $docPointGroup) }}
                 {{
                   partial "info_dot.html" (dict
                     "general" "A point group captures rotational and reflection symmetry while ignoring translations."
@@ -319,7 +337,7 @@
             </div>
             <div class="metric">
               <label>
-                Laue Class
+                {{ partial "field_label.html" (dict "text" "Laue Class" "url" $docLaueClass) }}
                 {{
                   partial "info_dot.html" (dict
                     "general" "Laue classes group crystals by diffraction symmetry and are closely tied to inversion-related point-group behavior."
@@ -330,7 +348,7 @@
             </div>
             <div class="metric">
               <label>
-                Schoenflies
+                {{ partial "field_label.html" (dict "text" "Schoenflies" "url" $docSchoenflies) }}
                 {{
                   partial "info_dot.html" (dict
                     "general" "Schoenflies notation is an alternative symmetry-label system common in spectroscopy and molecular-group contexts."
@@ -352,7 +370,7 @@
             </div>
             <div class="metric">
               <label>
-                Crystal System
+                {{ partial "field_label.html" (dict "text" "Crystal System" "url" $docCrystalSystem) }}
                 {{
                   partial "info_dot.html" (dict
                     "general" "Crystal systems are broad families defined by characteristic symmetry and lattice constraints."
@@ -378,13 +396,6 @@
         }}
         <div data-section-body="details">
           <div class="mapping-box">
-            <div class="flag-row">
-              {{ $flags := slice "is_centric" "is_chiral" "is_enantiomorphic" "is_reference_setting" }}
-              {{ range $flags }}
-                {{ $value := index $.Params . }}
-                <span class="flag-pill {{ if $value }}true{{ else }}false{{ end }}">{{ replace . "_" " " }}: {{ if $value }}yes{{ else }}no{{ end }}</span>
-              {{ end }}
-            </div>
             <p class="note">
               HM symbol
               {{

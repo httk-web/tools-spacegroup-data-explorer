@@ -173,6 +173,26 @@ def _pick_dataset(payload: Any, *keys: str) -> Dict[str, Any]:
     return {}
 
 
+def _extract_field_doc_urls(payload: Any) -> Dict[str, str]:
+    if not isinstance(payload, dict):
+        return {}
+
+    context = payload.get("@context")
+    mappings: Dict[str, Any] = {}
+    if isinstance(context, dict):
+        mappings.update(context)
+    elif isinstance(context, list):
+        for item in context:
+            if isinstance(item, dict):
+                mappings.update(item)
+
+    urls: Dict[str, str] = {}
+    for key, value in mappings.items():
+        if isinstance(value, str) and value.startswith("http"):
+            urls[key] = value
+    return urls
+
+
 def _looks_like_pointgroup_map(raw_data: Any) -> bool:
     if not isinstance(raw_data, dict) or not raw_data:
         return False
@@ -1238,6 +1258,7 @@ def write_pointgroup_pages(
 
 def write_hall_pages(
     data: Dict[str, Dict[str, Any]],
+    field_doc_urls: Dict[str, str],
     euclidian_normalizer_data: Dict[str, Dict[str, Any]],
     affine_normalizer_data: Dict[str, Dict[str, Any]],
     continuous_euclidian_normalizer_data: Dict[str, Dict[str, Any]],
@@ -1261,6 +1282,7 @@ def write_hall_pages(
             "url": f"/hall/{hall_key}/",
         }
         payload.update(entry)
+        payload["field_doc_urls"] = field_doc_urls
         payload["wyckoff_items"] = _build_wyckoff_items(entry)
         payload["related_settings"] = related_settings.get(hall_key, [])
         payload["maximal_subgroup_mappings"] = maximal_subgroup_mappings.get(hall_key, [])
@@ -1300,6 +1322,9 @@ def write_hall_pages(
 
 def main() -> None:
     _log("Starting generation")
+    symmetry_basics_payload = _load_json(SYMMETRY_BASICS_PATH)
+    field_doc_urls = _extract_field_doc_urls(symmetry_basics_payload)
+    _log(f"Loaded {len(field_doc_urls)} field documentation URLs from symmetry basics @context")
     data = load_data()
     _log(f"Loaded {len(data)} Hall entries")
     pointgroup_data = load_pointgroup_data()
@@ -1339,6 +1364,7 @@ def main() -> None:
     write_pointgroup_pages(pointgroup_data, pointgroup_nav)
     write_hall_pages(
         data,
+        field_doc_urls,
         euclidian_normalizer_data,
         affine_normalizer_data,
         continuous_euclidian_normalizer_data,

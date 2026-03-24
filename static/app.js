@@ -557,6 +557,12 @@ const getArrayValues = (value) => {
   return text ? [value] : [];
 };
 
+const normalizeDropdownSymbolLabel = (value) => {
+  const text = String(value ?? "");
+  // Convert combining overline (e.g. A̅) into a prefixed minus form (-A).
+  return text.replace(/(.)\u0305/g, "-$1");
+};
+
 const renderHmWithAliases = (row) => {
   const shortHtml = firstNonEmpty(row.hm_short_html, row.short_hm_symbol_html);
   const shortLatex = firstNonEmpty(row.hm_short_latex, row.short_hm_symbol_latex);
@@ -1346,8 +1352,10 @@ const buildLists = (rows) => {
   const hallOptions = [];
   const hmOptions = [];
 
-  const hmOptionBaseLabel = (row, fallback = "") => String(firstNonEmpty(row.hm_short_unicode, fallback) || "");
-  const hallOptionBaseLabel = (row, fallback = "") => String(firstNonEmpty(row.hall_unicode, fallback) || "");
+  const hmOptionBaseLabel = (row, fallback = "") =>
+    normalizeDropdownSymbolLabel(String(firstNonEmpty(row.hm_short_unicode, fallback) || ""));
+  const hallOptionBaseLabel = (row, fallback = "") =>
+    normalizeDropdownSymbolLabel(String(firstNonEmpty(row.hall_unicode, fallback) || ""));
 
   rows.forEach((row) => {
     const hallKey = String(row.hall_key || "");
@@ -1489,7 +1497,9 @@ const populateDetailSelects = (lists) => {
     populateSelect(select, lists.halls, selected, (hallKey) => {
       const option = document.createElement("option");
       option.value = hallKey.hallKey ? buildHallUrl(baseUrl, hallKey.hallKey) : "";
-      option.textContent = `${hallKey.label}`;
+      const itaSuffix =
+        hallKey.itaNumber !== null && hallKey.itaNumber !== undefined ? `  -  (#${hallKey.itaNumber})` : "";
+      option.textContent = `${hallKey.label}${itaSuffix}`;
       option.dataset.matchValue = hallKey.matchValue;
       return option;
     });
@@ -1501,7 +1511,9 @@ const populateDetailSelects = (lists) => {
     populateSelect(select, lists.hmOptions || [], selected, (hmOption) => {
       const option = document.createElement("option");
       option.value = hmOption.hallKey ? buildHallUrl(baseUrl, hmOption.hallKey) : "";
-      option.textContent = `${hmOption.label}`;
+      const itaSuffix =
+        hmOption.itaNumber !== null && hmOption.itaNumber !== undefined ? `  -  (#${hmOption.itaNumber})` : "";
+      option.textContent = `${hmOption.label}${itaSuffix}`;
       option.dataset.matchValue = hmOption.matchValue;
       option.dataset.hallKey = hmOption.hallKey || "";
       return option;
