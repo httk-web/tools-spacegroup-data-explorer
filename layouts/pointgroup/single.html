@@ -145,51 +145,53 @@
           )
         }}
         <div data-section-body="symops">
-          {{ $symops := .Params.symops }}
-          {{ if $symops }}
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>
-                    xyz
-                    {{ partial "info_dot.html" (dict "general" "xyz notation shows how coordinates are transformed by an operation." "context" "This text is displayed directly from each operation entry.") }}
-                  </th>
-                  <th>
-                    type
-                    {{ partial "info_dot.html" (dict "general" "Operation type classifies the symmetry action, such as rotation or reflection." "context" "This column keeps the short type labels shown in the table.") }}
-                  </th>
-                  <th>
-                    proper
-                    {{ partial "info_dot.html" (dict "general" "Proper operations preserve orientation, while improper operations reverse it." "context" "The column is rendered as Yes/No from the is_proper boolean field.") }}
-                  </th>
-                  <th>
-                    axis
-                    {{ partial "info_dot.html" (dict "general" "An operation axis identifies the direction associated with a rotational or related symmetry action." "context" "Multiple axis components are joined as comma-separated values in this column.") }}
-                  </th>
-                  <th>
-                    sense
-                    {{ partial "info_dot.html" (dict "general" "Sense indicates orientation direction, such as handedness for rotational operations." "context" "The value is the stored sense label from each operation row.") }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {{ range $index, $op := $symops }}
+          <div class="mapping-box">
+            {{ $symops := .Params.symops }}
+            {{ if $symops }}
+              <table class="data-table">
+                <thead>
                   <tr>
-                    <td>{{ add $index 1 }}</td>
-                    <td>{{ partial "value.html" $op.xyz }}</td>
-                    <td>{{ partial "value.html" $op.type }}</td>
-                    <td>{{ if $op.is_proper }}Yes{{ else }}No{{ end }}</td>
-                    <td>{{ partial "value.html" (delimit $op.axis ", ") }}</td>
-                    <td>{{ partial "value.html" $op.sense }}</td>
+                    <th>#</th>
+                    <th>
+                      xyz
+                      {{ partial "info_dot.html" (dict "general" "xyz notation shows how coordinates are transformed by an operation." "context" "This text is displayed directly from each operation entry.") }}
+                    </th>
+                    <th>
+                      type
+                      {{ partial "info_dot.html" (dict "general" "Operation type classifies the symmetry action, such as rotation or reflection." "context" "This column keeps the short type labels shown in the table.") }}
+                    </th>
+                    <th>
+                      proper
+                      {{ partial "info_dot.html" (dict "general" "Proper operations preserve orientation, while improper operations reverse it." "context" "The column is rendered as Yes/No from the is_proper boolean field.") }}
+                    </th>
+                    <th>
+                      axis
+                      {{ partial "info_dot.html" (dict "general" "An operation axis identifies the direction associated with a rotational or related symmetry action." "context" "Multiple axis components are joined as comma-separated values in this column.") }}
+                    </th>
+                    <th>
+                      sense
+                      {{ partial "info_dot.html" (dict "general" "Sense indicates orientation direction, such as handedness for rotational operations." "context" "The value is the stored sense label from each operation row.") }}
+                    </th>
                   </tr>
-                {{ end }}
-              </tbody>
-            </table>
-            <p class="note">Showing all {{ len $symops }} operations.</p>
-          {{ else }}
-            <p class="note">No symmetry operation data available.</p>
-          {{ end }}
+                </thead>
+                <tbody>
+                  {{ range $index, $op := $symops }}
+                    <tr>
+                      <td>{{ add $index 1 }}</td>
+                      <td>{{ partial "value.html" $op.xyz }}</td>
+                      <td>{{ partial "value.html" $op.type }}</td>
+                      <td>{{ if $op.is_proper }}Yes{{ else }}No{{ end }}</td>
+                      <td>{{ partial "value.html" (delimit $op.axis ", ") }}</td>
+                      <td>{{ partial "value.html" $op.sense }}</td>
+                    </tr>
+                  {{ end }}
+                </tbody>
+              </table>
+              <p class="note">Showing all {{ len $symops }} operations.</p>
+            {{ else }}
+              <p class="note">No symmetry operation data available.</p>
+            {{ end }}
+          </div>
         </div>
       </article>
 
@@ -204,62 +206,64 @@
           )
         }}
         <div data-section-body="conjugacy">
-          {{ $classes := .Params.conjugacy_classes }}
-          {{ if $classes }}
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>
-                    Label
-                    {{ partial "info_dot.html" (dict "general" "Class labels name each conjugacy class for quick reference." "context" "If label data is structured, we prefer ascii then fallback to unicode when rendering.") }}
-                  </th>
-                  <th>
-                    Size
-                    {{ partial "info_dot.html" (dict "general" "Class size is the number of operations in that conjugacy class." "context" "This numeric value is taken directly from each class entry.") }}
-                  </th>
-                  <th>
-                    Representative
-                    {{ partial "info_dot.html" (dict "general" "A representative is one selected element standing in for the full class." "context" "The table shows one representative symbol per class.") }}
-                  </th>
-                  <th>
-                    Operation Type
-                    {{ partial "info_dot.html" (dict "general" "Operation type describes the symmetry action category for a class." "context" "Type text mirrors the stored op_type field.") }}
-                  </th>
-                  <th>
-                    Axis
-                    {{ partial "info_dot.html" (dict "general" "Axis indicates directional information associated with class operations." "context" "Axis components are shown as a comma-delimited list.") }}
-                  </th>
-                  <th>
-                    Members
-                    {{ partial "info_dot.html" (dict "general" "Members are the explicit operations contained in a conjugacy class." "context" "Members are displayed as the class element list in this table.") }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {{ range $classes }}
-                  {{ $labelText := "—" }}
-                  {{ with .label }}
-                    {{ if reflect.IsMap . }}
-                      {{ $labelText = default (index . "ascii") (index . "unicode") }}
-                    {{ else }}
-                      {{ $labelText = . }}
-                    {{ end }}
-                  {{ end }}
+          <div class="mapping-box">
+            {{ $classes := .Params.conjugacy_classes }}
+            {{ if $classes }}
+              <table class="data-table">
+                <thead>
                   <tr>
-                    <td>{{ partial "value.html" $labelText }}</td>
-                    <td>{{ partial "value.html" .size }}</td>
-                    <td>{{ partial "value.html" .representative }}</td>
-                    <td>{{ partial "value.html" .op_type }}</td>
-                    <td>{{ partial "value.html" (delimit .op_axis ", ") }}</td>
-                    <td>{{ partial "value.html" .members }}</td>
+                    <th>
+                      Label
+                      {{ partial "info_dot.html" (dict "general" "Class labels name each conjugacy class for quick reference." "context" "If label data is structured, we prefer ascii then fallback to unicode when rendering.") }}
+                    </th>
+                    <th>
+                      Size
+                      {{ partial "info_dot.html" (dict "general" "Class size is the number of operations in that conjugacy class." "context" "This numeric value is taken directly from each class entry.") }}
+                    </th>
+                    <th>
+                      Representative
+                      {{ partial "info_dot.html" (dict "general" "A representative is one selected element standing in for the full class." "context" "The table shows one representative symbol per class.") }}
+                    </th>
+                    <th>
+                      Operation Type
+                      {{ partial "info_dot.html" (dict "general" "Operation type describes the symmetry action category for a class." "context" "Type text mirrors the stored op_type field.") }}
+                    </th>
+                    <th>
+                      Axis
+                      {{ partial "info_dot.html" (dict "general" "Axis indicates directional information associated with class operations." "context" "Axis components are shown as a comma-delimited list.") }}
+                    </th>
+                    <th>
+                      Members
+                      {{ partial "info_dot.html" (dict "general" "Members are the explicit operations contained in a conjugacy class." "context" "Members are displayed as the class element list in this table.") }}
+                    </th>
                   </tr>
-                {{ end }}
-              </tbody>
-            </table>
-            <p class="note">Showing all {{ len $classes }} conjugacy classes.</p>
-          {{ else }}
-            <p class="note">No conjugacy class data available.</p>
-          {{ end }}
+                </thead>
+                <tbody>
+                  {{ range $classes }}
+                    {{ $labelText := "—" }}
+                    {{ with .label }}
+                      {{ if reflect.IsMap . }}
+                        {{ $labelText = default (index . "ascii") (index . "unicode") }}
+                      {{ else }}
+                        {{ $labelText = . }}
+                      {{ end }}
+                    {{ end }}
+                    <tr>
+                      <td>{{ partial "value.html" $labelText }}</td>
+                      <td>{{ partial "value.html" .size }}</td>
+                      <td>{{ partial "value.html" .representative }}</td>
+                      <td>{{ partial "value.html" .op_type }}</td>
+                      <td>{{ partial "value.html" (delimit .op_axis ", ") }}</td>
+                      <td>{{ partial "value.html" .members }}</td>
+                    </tr>
+                  {{ end }}
+                </tbody>
+              </table>
+              <p class="note">Showing all {{ len $classes }} conjugacy classes.</p>
+            {{ else }}
+              <p class="note">No conjugacy class data available.</p>
+            {{ end }}
+          </div>
         </div>
       </article>
 
@@ -274,54 +278,56 @@
           )
         }}
         <div data-section-body="char_real">
-          {{ $rows := .Params.character_table_real }}
-          {{ if $rows }}
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>
-                    Irrep
-                    {{ partial "info_dot.html" (dict "general" "An irrep is an irreducible representation that cannot be decomposed into smaller invariant blocks." "context" "Labels come from the row label fields, preferring unicode when available.") }}
-                  </th>
-                  <th>
-                    Dimension
-                    {{ partial "info_dot.html" (dict "general" "Representation dimension is the size of matrices used for that representation." "context" "This column shows the dimension value for each irrep.") }}
-                  </th>
-                  <th>
-                    Characters
-                    {{ partial "info_dot.html" (dict "general" "Characters are traces of representation matrices and remain constant on conjugacy classes." "context" "Character arrays are rendered with default list formatting in this column.") }}
-                  </th>
-                  <th>
-                    Basis (Linear)
-                    {{ partial "info_dot.html" (dict "general" "Linear basis labels indicate vector-like functions transforming under the irrep." "context" "This column lists common linear basis examples.") }}
-                  </th>
-                  <th>
-                    Basis (Rotation)
-                    {{ partial "info_dot.html" (dict "general" "Rotation basis labels indicate rotational components associated with the irrep." "context" "Displayed values are the stored basis_rotation annotations.") }}
-                  </th>
-                  <th>
-                    Basis (Quadratic)
-                    {{ partial "info_dot.html" (dict "general" "Quadratic basis labels indicate second-order function components transforming under the irrep." "context" "Shown directly from the basis_quadratic metadata field.") }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {{ range $rows }}
+          <div class="mapping-box">
+            {{ $rows := .Params.character_table_real }}
+            {{ if $rows }}
+              <table class="data-table">
+                <thead>
                   <tr>
-                    <td>{{ partial "value.html" (default .label .label_unicode) }}</td>
-                    <td>{{ partial "value.html" .dimension }}</td>
-                    <td>{{ partial "value.html" .characters }}</td>
-                    <td>{{ partial "value.html" .basis_linear }}</td>
-                    <td>{{ partial "value.html" .basis_rotation }}</td>
-                    <td>{{ partial "value.html" .basis_quadratic }}</td>
+                    <th>
+                      Irrep
+                      {{ partial "info_dot.html" (dict "general" "An irrep is an irreducible representation that cannot be decomposed into smaller invariant blocks." "context" "Labels come from the row label fields, preferring unicode when available.") }}
+                    </th>
+                    <th>
+                      Dimension
+                      {{ partial "info_dot.html" (dict "general" "Representation dimension is the size of matrices used for that representation." "context" "This column shows the dimension value for each irrep.") }}
+                    </th>
+                    <th>
+                      Characters
+                      {{ partial "info_dot.html" (dict "general" "Characters are traces of representation matrices and remain constant on conjugacy classes." "context" "Character arrays are rendered with default list formatting in this column.") }}
+                    </th>
+                    <th>
+                      Basis (Linear)
+                      {{ partial "info_dot.html" (dict "general" "Linear basis labels indicate vector-like functions transforming under the irrep." "context" "This column lists common linear basis examples.") }}
+                    </th>
+                    <th>
+                      Basis (Rotation)
+                      {{ partial "info_dot.html" (dict "general" "Rotation basis labels indicate rotational components associated with the irrep." "context" "Displayed values are the stored basis_rotation annotations.") }}
+                    </th>
+                    <th>
+                      Basis (Quadratic)
+                      {{ partial "info_dot.html" (dict "general" "Quadratic basis labels indicate second-order function components transforming under the irrep." "context" "Shown directly from the basis_quadratic metadata field.") }}
+                    </th>
                   </tr>
-                {{ end }}
-              </tbody>
-            </table>
-            <p class="note">Showing all {{ len $rows }} real irreducible representations.</p>
-          {{ else }}
-            <p class="note">No real character table data available.</p>
-          {{ end }}
+                </thead>
+                <tbody>
+                  {{ range $rows }}
+                    <tr>
+                      <td>{{ partial "value.html" (default .label .label_unicode) }}</td>
+                      <td>{{ partial "value.html" .dimension }}</td>
+                      <td>{{ partial "value.html" .characters }}</td>
+                      <td>{{ partial "value.html" .basis_linear }}</td>
+                      <td>{{ partial "value.html" .basis_rotation }}</td>
+                      <td>{{ partial "value.html" .basis_quadratic }}</td>
+                    </tr>
+                  {{ end }}
+                </tbody>
+              </table>
+              <p class="note">Showing all {{ len $rows }} real irreducible representations.</p>
+            {{ else }}
+              <p class="note">No real character table data available.</p>
+            {{ end }}
+          </div>
         </div>
       </article>
 
@@ -336,44 +342,46 @@
           )
         }}
         <div data-section-body="char_complex">
-          {{ $rows := .Params.character_table_complex }}
-          {{ if $rows }}
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>
-                    Irrep
-                    {{ partial "info_dot.html" (dict "general" "An irrep names one irreducible complex representation." "context" "Labels are rendered from row label metadata with unicode fallback support.") }}
-                  </th>
-                  <th>
-                    Dimension
-                    {{ partial "info_dot.html" (dict "general" "Dimension gives the matrix size for the representation." "context" "This numeric dimension is copied from each complex-table row.") }}
-                  </th>
-                  <th>
-                    Characters
-                    {{ partial "info_dot.html" (dict "general" "Characters are conjugacy-class invariants computed as traces of representation matrices." "context" "Character values are shown in compact table form for each irrep.") }}
-                  </th>
-                  <th>
-                    Frobenius-Schur Indicator
-                    {{ partial "info_dot.html" (dict "general" "The Frobenius-Schur indicator helps distinguish real, complex, and quaternionic representation types." "context" "This column shows the stored indicator value for each complex irrep row.") }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {{ range $rows }}
+          <div class="mapping-box">
+            {{ $rows := .Params.character_table_complex }}
+            {{ if $rows }}
+              <table class="data-table">
+                <thead>
                   <tr>
-                    <td>{{ partial "value.html" (default .label .label_unicode) }}</td>
-                    <td>{{ partial "value.html" .dimension }}</td>
-                    <td>{{ partial "value.html" .characters }}</td>
-                    <td>{{ partial "value.html" .frobenius_schur_indicator }}</td>
+                    <th>
+                      Irrep
+                      {{ partial "info_dot.html" (dict "general" "An irrep names one irreducible complex representation." "context" "Labels are rendered from row label metadata with unicode fallback support.") }}
+                    </th>
+                    <th>
+                      Dimension
+                      {{ partial "info_dot.html" (dict "general" "Dimension gives the matrix size for the representation." "context" "This numeric dimension is copied from each complex-table row.") }}
+                    </th>
+                    <th>
+                      Characters
+                      {{ partial "info_dot.html" (dict "general" "Characters are conjugacy-class invariants computed as traces of representation matrices." "context" "Character values are shown in compact table form for each irrep.") }}
+                    </th>
+                    <th>
+                      Frobenius-Schur Indicator
+                      {{ partial "info_dot.html" (dict "general" "The Frobenius-Schur indicator helps distinguish real, complex, and quaternionic representation types." "context" "This column shows the stored indicator value for each complex irrep row.") }}
+                    </th>
                   </tr>
-                {{ end }}
-              </tbody>
-            </table>
-            <p class="note">Showing all {{ len $rows }} complex irreducible representations.</p>
-          {{ else }}
-            <p class="note">No complex character table data available.</p>
-          {{ end }}
+                </thead>
+                <tbody>
+                  {{ range $rows }}
+                    <tr>
+                      <td>{{ partial "value.html" (default .label .label_unicode) }}</td>
+                      <td>{{ partial "value.html" .dimension }}</td>
+                      <td>{{ partial "value.html" .characters }}</td>
+                      <td>{{ partial "value.html" .frobenius_schur_indicator }}</td>
+                    </tr>
+                  {{ end }}
+                </tbody>
+              </table>
+              <p class="note">Showing all {{ len $rows }} complex irreducible representations.</p>
+            {{ else }}
+              <p class="note">No complex character table data available.</p>
+            {{ end }}
+          </div>
         </div>
       </article>
     </div>

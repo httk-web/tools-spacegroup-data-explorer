@@ -590,6 +590,7 @@
             <div class="mapping-box" data-mapping-box>
               <div class="mapping-tabs" role="tablist" aria-label="Maximal subgroup mappings">
                 {{ range $idx, $item := $maxSubs }}
+                  {{ $hmLabelLatex := $item.hm_short_latex }}
                   {{ $hmLabelHtml := default $item.hm_short_html $item.hm_full_html }}
                   {{ $hmLabel := default $item.hall_key (default $item.hm_short $item.hm_short_unicode) }}
                   {{ $tabId := printf "max-tab-%d" $idx }}
@@ -605,7 +606,7 @@
                       aria-controls="{{ printf "max-panel-%d" $idx }}"
                       aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
                     >
-                      <span>{{ if $hmLabelHtml }}{{ $hmLabelHtml | safeHTML }}{{ else }}{{ $hmLabel }}{{ end }} #{{ partial "value.html" $item.ita_number }} ({{ partial "value.html" $item.index }})</span>
+                      <span>{{ if $hmLabelLatex }}<span class="math-content">\({{ $hmLabelLatex }}\)</span>{{ else if $hmLabelHtml }}{{ $hmLabelHtml | safeHTML }}{{ else }}{{ $hmLabel }}{{ end }} #{{ partial "value.html" $item.ita_number }} ({{ partial "value.html" $item.index }})</span>
                     </button>
                     {{ with $item.hall_key }}
                       <a
@@ -713,6 +714,7 @@
             <div class="mapping-box" data-mapping-box>
               <div class="mapping-tabs" role="tablist" aria-label="Minimal supergroup mappings">
                 {{ range $idx, $item := $minSup }}
+                  {{ $hmLabelLatex := $item.hm_short_latex }}
                   {{ $hmLabelHtml := default $item.hm_short_html $item.hm_full_html }}
                   {{ $hmLabel := default $item.hall_key (default $item.hm_short $item.hm_short_unicode) }}
                   {{ $tabId := printf "min-tab-%d" $idx }}
@@ -728,7 +730,7 @@
                       aria-controls="{{ printf "min-panel-%d" $idx }}"
                       aria-selected="{{ if eq $idx 0 }}true{{ else }}false{{ end }}"
                     >
-                      <span>{{ if $hmLabelHtml }}{{ $hmLabelHtml | safeHTML }}{{ else }}{{ $hmLabel }}{{ end }} #{{ partial "value.html" $item.ita_number }} ({{ partial "value.html" $item.index }})</span>
+                      <span>{{ if $hmLabelLatex }}<span class="math-content">\({{ $hmLabelLatex }}\)</span>{{ else if $hmLabelHtml }}{{ $hmLabelHtml | safeHTML }}{{ else }}{{ $hmLabel }}{{ end }} #{{ partial "value.html" $item.ita_number }} ({{ partial "value.html" $item.index }})</span>
                     </button>
                     {{ with $item.hall_key }}
                       <a
@@ -855,7 +857,6 @@
                           <th>screw/glide</th>
                           <th>origin_shift</th>
                           <th>P det</th>
-                          <th>P orthogonal</th>
                           <th>P</th>
                           <th>p</th>
                         </tr>
@@ -871,9 +872,14 @@
                             <td>{{ partial "value.html" $op.screw_glide }}</td>
                             <td>{{ partial "value.html" $op.origin_shift }}</td>
                             <td>{{ partial "value.html" $op.P_det }}</td>
-                            <td>{{ partial "value.html" $op.P_is_orthogonal }}</td>
-                            <td>{{ partial "value.html" $op.P }}</td>
-                            <td>{{ partial "value.html" $op.p }}</td>
+                            <td>
+                              {{ if $op.P }}
+                                {{ range $rowIdx, $row := $op.P }}{{ if gt $rowIdx 0 }}; {{ end }}[{{ delimit $row ", " }}]{{ end }}
+                              {{ else }}
+                                —
+                              {{ end }}
+                            </td>
+                            <td>{{ partial "value.html" (delimit $op.p ", ") }}</td>
                           </tr>
                         {{ end }}
                       </tbody>
@@ -889,10 +895,17 @@
 
               <div class="mapping-box normalizer-inner-box">
                 <p class="note">
-                  Discrete Affine normalizer operations
+                  Nontrivial discrete affine normalizer operations (coset representatives modulo the space group)
                   {{ partial "info_dot.html" (dict "general" "Discrete affine normalizer operations include affine self-maps compatible with the current group." "context" "These rows use the same xyz-style fields as other operation tables in the explorer.") }}
                 </p>
                 {{ if $affine }}
+                  <p class="mapping-meta">
+                    n_ops={{ partial "value.html" $affine.n_ops }};
+                    n_linear_parts={{ partial "value.html" $affine.n_linear_parts }};
+                    n_coset_representatives={{ partial "value.html" $affine.n_coset_representatives }};
+                    n_raw_candidates={{ partial "value.html" $affine.n_raw_candidates }};
+                    n_unique_candidates={{ partial "value.html" $affine.n_unique_candidates }}.
+                  </p>
                   {{ $symops := $affine.symops }}
                   {{ if $symops }}
                     <table class="data-table">
@@ -915,8 +928,14 @@
                             <td>{{ partial "value.html" (delimit $op.compatible_systems ", ") }}</td>
                             <td>{{ partial "value.html" $op.P_det }}</td>
                             <td>{{ partial "value.html" $op.P_is_orthogonal }}</td>
-                            <td>{{ partial "value.html" $op.P }}</td>
-                            <td>{{ partial "value.html" $op.p }}</td>
+                            <td>
+                              {{ if $op.P }}
+                                {{ range $rowIdx, $row := $op.P }}{{ if gt $rowIdx 0 }}; {{ end }}[{{ delimit $row ", " }}]{{ end }}
+                              {{ else }}
+                                —
+                              {{ end }}
+                            </td>
+                            <td>{{ partial "value.html" (delimit $op.p ", ") }}</td>
                           </tr>
                         {{ end }}
                       </tbody>
