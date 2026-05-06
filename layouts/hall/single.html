@@ -12,7 +12,7 @@
           ></select>
         </div>
         <div class="detail-meta-item">
-          <p class="kicker" data-detail-secondary-kicker>ITA#</p>
+          <p class="kicker" data-detail-secondary-kicker>IT#</p>
           <select
             class="detail-select"
             aria-label="Select ITA number"
@@ -111,6 +111,7 @@
           {{ $docHMShort := default "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hermann_mauguin" (index $docMap "hm_short") }}
           {{ $docHMExtended := default "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hermann_mauguin_extended" (index $docMap "hm_extended") }}
           {{ $docHMFull := index $docMap "hm_full" }}
+          {{ $docHMEntry := index $docMap "hm_entry" }}
           {{ $docPointGroup := index $docMap "point_group" }}
           {{ $docLaueClass := index $docMap "laue_class" }}
           {{ $docSchoenflies := index $docMap "schoenflies" }}
@@ -181,11 +182,11 @@
             </div>
             <div class="metric">
               <label>
-                N:C
+                {{ partial "field_label.html" (dict "text" "IT setting n:c" "url" (index $docMap "setting_it_nc")) }}
                 {{
                   partial "info_dot.html" (dict
-                    "general" "Setting labels are often used to distinguish equivalent descriptions of one space-group type."
-                    "context" "Aliases are shown in parentheses when available."
+                    "general" "The n:c label combines the International Tables space-group number n with a coordinate-system code c."
+                    "context" "This is the compact setting identifier used by the generated data tables and selectors."
                   )
                 }}
               </label>
@@ -196,6 +197,31 @@
               </strong>
               {{ if $nCAliases }}
                 <div class="metric-aliases-block">{{ partial "value.html" $nCAliases }}</div>
+              {{ end }}
+            </div>
+            <div class="metric">
+              <label>
+                {{ partial "field_label.html" (dict "text" "H-M Entry" "url" $docHMEntry) }}
+                {{
+                  partial "info_dot.html" (dict
+                    "general" "The H-M entry is the full Hermann-Mauguin entry label used by International Tables Volume B table A1.4.2.7 to distinguish conventional settings."
+                    "context" "Unlike Hall entries, H-M entries distinguish the three duplicated conventional setting pairs in space group 68."
+                  )
+                }}
+              </label>
+              {{ $hmEntryHtml := .Params.hm_entry_html }}
+              {{ $hmEntryLatex := .Params.hm_entry_latex }}
+              <strong>
+                {{ if $hmEntryHtml }}
+                  <span>{{ $hmEntryHtml | safeHTML }}</span>
+                {{ else if $hmEntryLatex }}
+                  <span class="math-content">\({{ $hmEntryLatex }}\)</span>
+                {{ else }}
+                  <span>{{ partial "value.html" .Params.hm_entry }}</span>
+                {{ end }}
+              </strong>
+              {{ if .Params.hm_entry_aliases }}
+                <div class="metric-aliases-block">{{ partial "value.html" .Params.hm_entry_aliases }}</div>
               {{ end }}
             </div>
             <div class="metric">
@@ -826,10 +852,10 @@
         {{
           partial "section_heading.html" (dict
             "title" "Normalizer"
-            "id" "euclidian-normalizer"
+            "id" "euclidean-normalizer"
             "toggle_key" "normalizer"
             "info_general" "A normalizer captures transformations that map a group to itself under conjugation, helping classify equivalent embeddings."
-            "info_context" "This explorer shows discrete Euclidian normalizer operations and, when present, basis vectors for the continuous part."
+            "info_context" "This explorer shows discrete Euclidean normalizer operations and, when present, basis vectors for the continuous part."
           )
         }}
         <div data-section-body="normalizer">
@@ -840,7 +866,7 @@
             <div class="normalizer-stack">
               <div class="mapping-box">
                 <p class="note">
-                  Discrete Euclidian normalizer operations
+                  Discrete Euclidean normalizer operations
                   {{ partial "info_dot.html" (dict "general" "Discrete normalizer operations are isolated symmetry-compatible transformations." "context" "These rows use the same xyz-style fields as other operation tables in the explorer.") }}
                 </p>
                 {{ if $euclidian }}
@@ -884,12 +910,12 @@
                         {{ end }}
                       </tbody>
                     </table>
-                    <p class="note">Showing all {{ len $symops }} discrete Euclidian normalizer operations.</p>
+                    <p class="note">Showing all {{ len $symops }} discrete Euclidean normalizer operations.</p>
                   {{ else }}
-                    <p class="note">No discrete Euclidian normalizer operations available.</p>
+                    <p class="note">No discrete Euclidean normalizer operations available.</p>
                   {{ end }}
                 {{ else }}
-                  <p class="note">No discrete Euclidian normalizer data available.</p>
+                  <p class="note">No discrete Euclidean normalizer data available.</p>
                 {{ end }}
               </div>
 
@@ -952,7 +978,7 @@
               {{ if $continuous }}
                 <div class="mapping-box normalizer-inner-box">
                   <p class="note">
-                    Continous normalizer operations
+                    Continuous normalizer operations
                     {{ partial "info_dot.html" (dict "general" "Continuous normalizer components form parameterized families of compatible transformations." "context" "When available, we show the basis vectors used to describe that continuous subspace.") }}
                   </p>
                   {{ $basis := $continuous.basis_vectors }}
@@ -974,7 +1000,7 @@
                       </tbody>
                     </table>
                   {{ else }}
-                    <p class="note">No basis vectors listed for the continous normalizer operations.</p>
+                    <p class="note">No basis vectors listed for the continuous normalizer operations.</p>
                   {{ end }}
                 </div>
               {{ end }}
@@ -988,10 +1014,10 @@
       <article class="detail-card panel section-wide">
         {{
           partial "section_heading.html" (dict
-            "title" "Cell Commensurator"
-            "id" "cell-commensurator"
+            "title" "Isomorphic Subgroups"
+            "id" "isomorphic-subgroups"
             "toggle_key" "k_subgroups"
-            "info_general" "Cell-commensurator relations describe transformations into commensurate supercells of the same space group."
+            "info_general" "Isomorphic subgroup relations describe transformations into commensurate cells of the same space group."
             "info_context" "Dropdown entries are labeled as No. N (k), where N is the list number and k is the index, typically |det(P)| for transformation matrix P."
           )
         }}
@@ -1000,8 +1026,8 @@
           {{ if $commensurator }}
             <div class="mapping-box" data-mapping-box>
               <div class="mapping-select-wrap">
-                <label class="mapping-select-label" for="commensurator-select">Cell Mapping</label>
-                <select id="commensurator-select" class="mapping-select" data-mapping-select aria-label="Select cell commensurator mapping">
+                <label class="mapping-select-label" for="commensurator-select">Isomorphic subgroup mapping</label>
+                <select id="commensurator-select" class="mapping-select" data-mapping-select aria-label="Select isomorphic subgroup mapping">
                   {{ range $idx, $item := $commensurator }}
                     {{ $panelId := printf "comm-panel-%d" $idx }}
                     <option
@@ -1084,10 +1110,10 @@
                   </table>
                 </div>
               {{ end }}
-              <p class="note">Showing all {{ len $commensurator }} cell commensurator mappings.</p>
+              <p class="note">Showing all {{ len $commensurator }} isomorphic subgroup mappings.</p>
             </div>
           {{ else }}
-            <p class="note">No cell commensurator data available.</p>
+            <p class="note">No isomorphic subgroup data available.</p>
           {{ end }}
         </div>
       </article>

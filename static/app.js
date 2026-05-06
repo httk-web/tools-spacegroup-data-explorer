@@ -10,6 +10,7 @@ const settingsToggleWrapIndex = document.getElementById("settings-toggle-wrap-in
 const INDEX_FIELDS = [
   "hall_key",
   "hall_entry",
+  "hall",
   "hall_latex",
   "hall_html",
   "hall_unicode",
@@ -17,6 +18,11 @@ const INDEX_FIELDS = [
   "hall_aliases_latex",
   "hall_aliases_html",
   "hall_aliases_unicode",
+  "hm_entry",
+  "hm_entry_aliases",
+  "hm_entry_latex",
+  "hm_entry_html",
+  "hm_entry_unicode",
   "ita_number",
   "hm_short",
   "hm_short_aliases",
@@ -51,6 +57,8 @@ const INDEX_FIELDS = [
   "universal_hm_latex",
   "universal_hm_unicode",
   "n_c",
+  "setting_it_nc",
+  "it_coordinate_system_code",
   "crystal_system",
   "point_group",
   "schoenflies_html",
@@ -58,18 +66,20 @@ const INDEX_FIELDS = [
 ];
 
 const INDEX_DATA_PATH = "data/spacegroup_index.json.gz";
-const FULL_DATA_PATH = "data/spacegroup_data.json.gz";
+const SYMMETRY_BASICS_DATA_PATH = "data/symmetry_basics.json.gz";
 const POINTGROUP_INDEX_DATA_PATH = "data/pointgroup_index.json.gz";
-const POINTGROUP_BASICS_DATA_PATH = "data/pointgroup_basics.json.gz";
 
 const DATASET_SPACEGROUPS = "spacegroups";
 const DATASET_POINTGROUPS = "pointgroups";
 const FIELD_DOC_URLS = {
-  symops_xyz: "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symmetry_operations_xyz",
-  hall: "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hall",
-  hm_short: "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hermann_mauguin",
-  hm_extended: "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hermann_mauguin_extended",
-  it_number: "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_it_number"
+  symops_xyz: "https://schemas.anyterial.se/defs/v0.1/properties/spacegroups/symops_xyz",
+  hall: "https://schemas.anyterial.se/defs/v0.1/properties/spacegroups/hall",
+  hm_entry: "https://schemas.anyterial.se/defs/v0.1/properties/spacegroups/hm_entry",
+  hm_short: "https://schemas.anyterial.se/defs/v0.1/properties/spacegroups/hm_short",
+  hm_full: "https://schemas.anyterial.se/defs/v0.1/properties/spacegroups/hm_full",
+  hm_extended: "https://schemas.anyterial.se/defs/v0.1/properties/spacegroups/hm_extended",
+  it_number: "https://schemas.anyterial.se/defs/v0.1/properties/spacegroups/it_number",
+  setting_it_nc: "https://schemas.anyterial.se/defs/v0.1/properties/spacegroups/setting_it_nc"
 };
 
 const SETTINGS_ALL = "all";
@@ -147,36 +157,69 @@ const toMaybeNumber = (value) => {
   return null;
 };
 
+const markupField = (row, base, kind) => {
+  const direct = row[`${base}_${kind}`];
+  if (direct !== null && direct !== undefined) {
+    return direct;
+  }
+  const markup = row[`${base}_markup`];
+  if (markup && typeof markup === "object" && !Array.isArray(markup)) {
+    return markup[kind];
+  }
+  return null;
+};
+
+const aliasesMarkupField = (row, base, kind) => {
+  const direct = row[`${base}_aliases_${kind}`];
+  if (direct !== null && direct !== undefined) {
+    return direct;
+  }
+  const markup = row[`${base}_aliases_markup`];
+  if (Array.isArray(markup)) {
+    const values = markup.map((item) => (item && typeof item === "object" ? item[kind] : null)).filter((item) => item !== null && item !== undefined);
+    return values.length ? values : null;
+  }
+  return null;
+};
+
 const normalizeRow = (row) => {
   const normalized = { ...row };
 
-  normalized.hall_entry = firstNonEmpty(row.hall_entry, row.hall_key);
-  normalized.hall_html = firstNonEmpty(row.hall_html, row.hall_unicode, row.hall_entry, row.hall_key);
-  normalized.hall_latex = firstNonEmpty(row.hall_latex, row.hall_entry, row.hall_key);
-  normalized.hall_unicode = firstNonEmpty(row.hall_unicode, row.hall_entry, row.hall_key);
+  normalized.hall_entry_key = firstNonEmpty(row.hall_entry_key, row.hall_entry, row.hall_key);
+  normalized.hall = firstNonEmpty(row.hall, row.hall_symbol, normalized.hall_entry_key);
+  normalized.hall_entry = firstNonEmpty(row.hall_entry_display, normalized.hall, normalized.hall_entry_key);
+  normalized.hall_html = firstNonEmpty(markupField(row, "hall", "html"), row.hall_html, row.hall_unicode, normalized.hall, normalized.hall_entry_key);
+  normalized.hall_latex = firstNonEmpty(markupField(row, "hall", "latex"), row.hall_latex, normalized.hall, normalized.hall_entry_key);
+  normalized.hall_unicode = firstNonEmpty(markupField(row, "hall", "unicode"), row.hall_unicode, normalized.hall, normalized.hall_entry_key);
   normalized.hall_aliases = firstNonEmpty(row.hall_aliases);
-  normalized.hall_aliases_latex = firstNonEmpty(row.hall_aliases_latex);
-  normalized.hall_aliases_html = firstNonEmpty(row.hall_aliases_html, row.hall_alias_html);
-  normalized.hall_aliases_unicode = firstNonEmpty(row.hall_aliases_unicode, normalized.hall_aliases);
+  normalized.hall_aliases_latex = firstNonEmpty(aliasesMarkupField(row, "hall", "latex"), row.hall_aliases_latex);
+  normalized.hall_aliases_html = firstNonEmpty(aliasesMarkupField(row, "hall", "html"), row.hall_aliases_html, row.hall_alias_html);
+  normalized.hall_aliases_unicode = firstNonEmpty(aliasesMarkupField(row, "hall", "unicode"), row.hall_aliases_unicode, normalized.hall_aliases);
+
+  normalized.hm_entry = firstNonEmpty(row.hm_entry);
+  normalized.hm_entry_aliases = firstNonEmpty(row.hm_entry_aliases);
+  normalized.hm_entry_html = firstNonEmpty(markupField(row, "hm_entry", "html"), row.hm_entry_html, normalized.hm_entry);
+  normalized.hm_entry_latex = firstNonEmpty(markupField(row, "hm_entry", "latex"), row.hm_entry_latex, normalized.hm_entry);
+  normalized.hm_entry_unicode = firstNonEmpty(markupField(row, "hm_entry", "unicode"), row.hm_entry_unicode, normalized.hm_entry);
 
   normalized.hm_short = firstNonEmpty(row.hm_short, row.short_hm_symbol);
   normalized.hm_short_aliases = firstNonEmpty(row.hm_short_aliases, row.short_hm_symbol_aliases);
-  normalized.hm_short_aliases_latex = firstNonEmpty(row.hm_short_aliases_latex, row.short_hm_symbol_aliases_latex);
-  normalized.hm_short_aliases_html = firstNonEmpty(row.hm_short_aliases_html);
-  normalized.hm_short_aliases_unicode = firstNonEmpty(row.hm_short_aliases_unicode, row.hm_short_aliases, row.short_hm_symbol_aliases);
-  normalized.hm_short_html = firstNonEmpty(row.hm_short_html, row.hm_short);
-  normalized.hm_short_latex = firstNonEmpty(row.hm_short_latex, row.short_hm_symbol_latex, row.hm_short);
-  normalized.hm_short_unicode = firstNonEmpty(row.hm_short_unicode, row.short_hm_symbol_unicode, row.hm_short);
+  normalized.hm_short_aliases_latex = firstNonEmpty(aliasesMarkupField(row, "hm_short", "latex"), row.hm_short_aliases_latex, row.short_hm_symbol_aliases_latex);
+  normalized.hm_short_aliases_html = firstNonEmpty(aliasesMarkupField(row, "hm_short", "html"), row.hm_short_aliases_html);
+  normalized.hm_short_aliases_unicode = firstNonEmpty(aliasesMarkupField(row, "hm_short", "unicode"), row.hm_short_aliases_unicode, row.hm_short_aliases, row.short_hm_symbol_aliases);
+  normalized.hm_short_html = firstNonEmpty(markupField(row, "hm_short", "html"), row.hm_short_html, row.hm_short);
+  normalized.hm_short_latex = firstNonEmpty(markupField(row, "hm_short", "latex"), row.hm_short_latex, row.short_hm_symbol_latex, row.hm_short);
+  normalized.hm_short_unicode = firstNonEmpty(markupField(row, "hm_short", "unicode"), row.hm_short_unicode, row.short_hm_symbol_unicode, row.hm_short);
 
   normalized.hm_full = firstNonEmpty(row.hm_full);
-  normalized.hm_full_html = firstNonEmpty(row.hm_full_html, row.hm_full);
-  normalized.hm_full_latex = firstNonEmpty(row.hm_full_latex, row.hm_full);
-  normalized.hm_full_unicode = firstNonEmpty(row.hm_full_unicode, row.hm_full);
+  normalized.hm_full_html = firstNonEmpty(markupField(row, "hm_full", "html"), row.hm_full_html, row.hm_full);
+  normalized.hm_full_latex = firstNonEmpty(markupField(row, "hm_full", "latex"), row.hm_full_latex, row.hm_full);
+  normalized.hm_full_unicode = firstNonEmpty(markupField(row, "hm_full", "unicode"), row.hm_full_unicode, row.hm_full);
 
   normalized.hm_extended = firstNonEmpty(row.hm_extended);
-  normalized.hm_extended_html = firstNonEmpty(row.hm_extended_html, row.hm_extended);
-  normalized.hm_extended_latex = firstNonEmpty(row.hm_extended_latex, row.hm_extended);
-  normalized.hm_extended_unicode = firstNonEmpty(row.hm_extended_unicode, row.hm_extended);
+  normalized.hm_extended_html = firstNonEmpty(markupField(row, "hm_extended", "html"), row.hm_extended_html, row.hm_extended);
+  normalized.hm_extended_latex = firstNonEmpty(markupField(row, "hm_extended", "latex"), row.hm_extended_latex, row.hm_extended);
+  normalized.hm_extended_unicode = firstNonEmpty(markupField(row, "hm_extended", "unicode"), row.hm_extended_unicode, row.hm_extended);
 
   normalized.hm_universal = firstNonEmpty(row.hm_universal, row.universal_hm);
   normalized.hm_universal_aliases = firstNonEmpty(row.hm_universal_aliases);
@@ -199,6 +242,10 @@ const normalizeRow = (row) => {
   normalized.universal_hm_html = normalized.hm_universal_html;
   normalized.universal_hm_latex = normalized.hm_universal_latex;
   normalized.universal_hm_unicode = normalized.hm_universal_unicode;
+  normalized.ita_number = firstNonEmpty(row.ita_number, row.it_number);
+  normalized.it_number = firstNonEmpty(row.it_number, row.ita_number);
+  normalized.n_c = firstNonEmpty(row.n_c, row.setting_it_nc);
+  normalized.setting_it_nc = normalized.n_c;
 
   return normalized;
 };
@@ -227,9 +274,9 @@ const normalizePointgroupRow = (row) => {
   normalized.pointgroup_key = firstNonEmpty(row.pointgroup_key, row.hm_symbol);
   normalized.hm_symbol = firstNonEmpty(row.hm_symbol, row.pointgroup_key);
   normalized.schoenflies = firstNonEmpty(row.schoenflies);
-  normalized.schoenflies_html = firstNonEmpty(row.schoenflies_html, row.schoenflies);
-  normalized.schoenflies_unicode = firstNonEmpty(row.schoenflies_unicode, row.schoenflies);
-  normalized.schoenflies_latex = firstNonEmpty(row.schoenflies_latex, row.schoenflies);
+  normalized.schoenflies_html = firstNonEmpty(markupField(row, "schoenflies", "html"), row.schoenflies_html, row.schoenflies);
+  normalized.schoenflies_unicode = firstNonEmpty(markupField(row, "schoenflies", "unicode"), row.schoenflies_unicode, row.schoenflies);
+  normalized.schoenflies_latex = firstNonEmpty(markupField(row, "schoenflies", "latex"), row.schoenflies_latex, row.schoenflies);
   normalized.crystal_system = firstNonEmpty(row.crystal_system);
   normalized.laue_class = firstNonEmpty(row.laue_class);
   normalized.order = toMaybeNumber(row.order);
@@ -611,6 +658,30 @@ const renderHallWithLatex = (row) => {
   return `${baseLabel}&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;&nbsp;<span class="table-aliases-muted">(${aliasLabel})</span>`;
 };
 
+const renderHmEntry = (row) => {
+  const entryHtml = firstNonEmpty(row.hm_entry_html);
+  const entryLatex = firstNonEmpty(row.hm_entry_latex);
+  const baseLabel = entryHtml
+    ? renderInlineHtml(entryHtml)
+    : entryLatex
+      ? renderInlineLatex(entryLatex)
+      : escapeHtml(formatValue(row.hm_entry || row.hm_full || row.hm_short));
+  const aliasesHtml = getArrayValues(row.hm_entry_aliases_html);
+  const aliasesLatex = getArrayValues(row.hm_entry_aliases_latex);
+  const aliasesUnicode = getArrayValues(row.hm_entry_aliases_unicode);
+  const aliasesPlain = getArrayValues(row.hm_entry_aliases);
+  const aliases = aliasesHtml.length ? aliasesHtml : aliasesLatex.length ? aliasesLatex : aliasesUnicode.length ? aliasesUnicode : aliasesPlain;
+  if (!aliases.length) {
+    return baseLabel;
+  }
+  const aliasLabel = aliasesHtml.length
+    ? aliases.map((item) => renderInlineHtml(item)).join(", ")
+    : aliasesLatex.length
+      ? aliases.map((item) => renderInlineLatex(item)).join(", ")
+      : aliases.map((item) => escapeHtml(formatValue(item))).join(", ");
+  return `${baseLabel}&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;&nbsp;<span class="table-aliases-muted">(${aliasLabel})</span>`;
+};
+
 const renderPointgroupSymbol = (row) => {
   return escapeHtml(formatValue(row.hm_symbol || row.pointgroup_key));
 };
@@ -625,12 +696,13 @@ const renderPointgroupSchoenflies = (row) => {
 const TABLE_CONFIGS = {
   [DATASET_SPACEGROUPS]: {
     ariaLabel: "Spacegroup table",
-    searchPlaceholder: "Hall symbol, HM symbol, ITA, n:c, crystal system...",
+    searchPlaceholder: "Hall symbol, H-M entry, HM symbol, IT number, n:c, crystal system...",
     emptyLabel: "spacegroups",
     defaultSortKey: "ita_number",
     columns: [
       { key: "short_hm_symbol", label: "Hermann-Mauguin", docUrl: FIELD_DOC_URLS.hm_short, render: (row) => renderHmWithAliases(row) },
-      { key: "ita_number", label: "ITA #", docUrl: FIELD_DOC_URLS.it_number, render: (row) => escapeHtml(formatValue(row.ita_number)) },
+      { key: "ita_number", label: "IT #", docUrl: FIELD_DOC_URLS.it_number, render: (row) => escapeHtml(formatValue(row.ita_number)) },
+      { key: "hm_entry", label: "H-M Entry", docUrl: FIELD_DOC_URLS.hm_entry, render: (row) => renderHmEntry(row) },
       { key: "hall_key", label: "Hall Symbol", docUrl: FIELD_DOC_URLS.hall, render: (row) => renderHallWithLatex(row) },
       { key: "crystal_system", label: "Crystal System", muted: true, render: (row) => escapeHtml(formatValue(row.crystal_system)) },
       { key: "point_group", label: "Point Group", muted: true, render: (row) => escapeHtml(formatValue(row.point_group)) },
@@ -690,6 +762,7 @@ const filterSpacegroupRows = (rows, query) => {
     const haystack = [
       item.hall_key,
       item.hall_entry,
+      item.hall,
       item.hall_latex,
       item.hall_html,
       item.hall_unicode,
@@ -697,6 +770,11 @@ const filterSpacegroupRows = (rows, query) => {
       Array.isArray(item.hall_aliases_latex) ? item.hall_aliases_latex.join(" ") : item.hall_aliases_latex,
       Array.isArray(item.hall_aliases_html) ? item.hall_aliases_html.join(" ") : item.hall_aliases_html,
       Array.isArray(item.hall_aliases_unicode) ? item.hall_aliases_unicode.join(" ") : item.hall_aliases_unicode,
+      item.hm_entry,
+      Array.isArray(item.hm_entry_aliases) ? item.hm_entry_aliases.join(" ") : item.hm_entry_aliases,
+      item.hm_entry_latex,
+      item.hm_entry_html,
+      item.hm_entry_unicode,
       item.hm_short,
       Array.isArray(item.hm_short_aliases) ? item.hm_short_aliases.join(" ") : item.hm_short_aliases,
       Array.isArray(item.hm_short_aliases_latex) ? item.hm_short_aliases_latex.join(" ") : item.hm_short_aliases_latex,
@@ -739,8 +817,12 @@ const filterSpacegroupRows = (rows, query) => {
       item.universal_hm_unicode,
       item.ita_number,
       Array.isArray(item.n_c) ? item.n_c.join(" ") : item.n_c,
+      item.setting_it_nc,
+      item.it_coordinate_system_code,
       item.crystal_system,
-      item.point_group
+      item.point_group,
+      item.bravais_type,
+      item.centring_type
     ]
       .map((value) => String(value ?? ""))
       .join(" ")
@@ -903,7 +985,7 @@ const updateIndexControlVisibility = () => {
 const updateDetailSecondaryKicker = () => {
   const isAllMode = settingsMode === SETTINGS_ALL;
   document.querySelectorAll("[data-detail-secondary-kicker]").forEach((label) => {
-    label.textContent = isAllMode ? "N:C" : "ITA#";
+    label.textContent = isAllMode ? "n:c" : "IT#";
   });
 };
 
@@ -1276,6 +1358,35 @@ const chooseStandardSetting = (entries) => {
 };
 
 const buildIndexRows = (data) => {
+  if (data && typeof data === "object" && data.data && Array.isArray(data.data.spacegroups)) {
+    const rows = [];
+    const index = data.indicies && data.indicies.index_hall_entry_to_spacegroups;
+    if (index && typeof index === "object") {
+      Object.entries(index)
+        .sort((a, b) => (Number(a[1]) || 0) - (Number(b[1]) || 0))
+        .forEach(([hallKey, pos]) => {
+          const entry = data.data.spacegroups[pos];
+          if (entry && typeof entry === "object") {
+            rows.push(normalizeRow({ ...entry, hall_key: hallKey }));
+          }
+        });
+    } else {
+      data.data.spacegroups.forEach((entry, idx) => {
+        if (entry && typeof entry === "object") {
+          rows.push(normalizeRow({ ...entry, hall_key: entry.hall_entry || entry.hall || String(idx) }));
+        }
+      });
+    }
+    return rows.sort((a, b) => {
+      const itaA = a.ita_number ?? 0;
+      const itaB = b.ita_number ?? 0;
+      if (itaA !== itaB) {
+        return itaA - itaB;
+      }
+      return String(a.hall_key).localeCompare(String(b.hall_key), undefined, { numeric: true });
+    });
+  }
+
   const rows = Object.entries(data).map(([hallKey, entry]) => {
     const row = { hall_key: hallKey };
     INDEX_FIELDS.forEach((field) => {
@@ -1300,7 +1411,9 @@ const buildIndexRows = (data) => {
 const buildPointgroupRows = (data) => {
   let rows = [];
 
-  if (Array.isArray(data)) {
+  if (data && typeof data === "object" && data.data && Array.isArray(data.data.pointgroups)) {
+    rows = data.data.pointgroups.map((row) => normalizePointgroupRow(row));
+  } else if (Array.isArray(data)) {
     rows = data.map((row) => normalizePointgroupRow(row));
   } else if (data && typeof data === "object") {
     rows = Object.entries(data).map(([pointgroupKey, entry]) => {
@@ -1580,7 +1693,7 @@ const refreshUiState = () => {
 };
 
 const loadSpacegroupRows = async (baseUrl) => {
-  const sources = [INDEX_DATA_PATH, FULL_DATA_PATH];
+  const sources = [INDEX_DATA_PATH, SYMMETRY_BASICS_DATA_PATH];
   for (const source of sources) {
     try {
       const response = await fetch(`${baseUrl}${source}`, { cache: "force-cache" });
@@ -1597,7 +1710,7 @@ const loadSpacegroupRows = async (baseUrl) => {
 };
 
 const loadPointgroupRows = async (baseUrl) => {
-  const sources = [POINTGROUP_INDEX_DATA_PATH, POINTGROUP_BASICS_DATA_PATH];
+  const sources = [POINTGROUP_INDEX_DATA_PATH, SYMMETRY_BASICS_DATA_PATH];
   for (const source of sources) {
     try {
       const response = await fetch(`${baseUrl}${source}`, { cache: "force-cache" });
