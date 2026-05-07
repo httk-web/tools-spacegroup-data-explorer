@@ -1133,6 +1133,7 @@ def _build_wyckoff_items(entry: Dict[str, Any]) -> List[Dict[str, Any]]:
                     "multiplicity": payload.get("multiplicity"),
                     "sitesym": payload.get("sitesym"),
                     "orbit_xyz": payload.get("orbit_xyz"),
+                    "orbit_mod_centering_xyz": payload.get("orbit_mod_centering_xyz"),
                 }
             )
         items.sort(key=lambda item: (not str(item.get("label", "")).islower(), str(item.get("label", "")).lower(), str(item.get("label", ""))))
@@ -1150,6 +1151,7 @@ def _build_wyckoff_items(entry: Dict[str, Any]) -> List[Dict[str, Any]]:
                 "multiplicity": payload.get("multiplicity"),
                 "sitesym": payload.get("sitesym"),
                 "orbit_xyz": payload.get("orbit_xyz"),
+                "orbit_mod_centering_xyz": payload.get("orbit_mod_centering_xyz"),
             }
         )
 
