@@ -107,6 +107,7 @@
         <div data-section-body="identity">
           {{ $docMap := .Params.field_doc_urls }}
           {{ $docSymopsXYZ := default "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symmetry_operations_xyz" (index $docMap "symops_xyz") }}
+          {{ $docSymopsModCenteringXYZ := default "https://schemas.anyterial.se/defs/v0.1/properties/spacegroups/symops_mod_centering_xyz" (index $docMap "symops_mod_centering_xyz") }}
           {{ $docHall := default "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hall" (index $docMap "hall") }}
           {{ $docHMShort := default "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hermann_mauguin" (index $docMap "hm_short") }}
           {{ $docHMExtended := default "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hermann_mauguin_extended" (index $docMap "hm_extended") }}
@@ -559,11 +560,6 @@
                 {{ if not $centeringTranslations }}
                   {{ $centeringTranslations = slice "0,0,0" }}
                 {{ end }}
-                <p class="note">
-                  Centering translations:
-                  <span class="orbit-cell">{{ partial "orbit.html" $centeringTranslations }}</span>.
-                  Each reduced coordinate below is combined with each listed centering translation to obtain the full Wyckoff orbit.
-                </p>
                 <table class="data-table">
                   <thead>
                     <tr>
@@ -580,7 +576,8 @@
                         {{ partial "info_dot.html" (dict "general" "Site symmetry is the subgroup that leaves a representative site fixed." "context" "This column uses short site-symmetry text.") }}
                       </th>
                       <th>
-                        Orbit modulo centering (xyz)
+                        Orbit mod centerings (xyz)
+                        <span class="table-header-subline">{{ partial "orbit.html" $centeringTranslations }}</span>
                         {{ partial "info_dot.html" (dict "general" "This column lists the non-centering part of the Wyckoff orbit." "context" "The full orbit is the Cartesian product of this reduced list with the centering translations shown above, with coordinates understood modulo lattice translations.") }}
                       </th>
                     </tr>
@@ -664,6 +661,14 @@
               </div>
               <p class="note" data-mapping-empty hidden>No ITA-reference subgroup mappings in this mode.</p>
               {{ range $idx, $item := $maxSubs }}
+                {{ $rows := $item.wyckoff_rows }}
+                {{ $targetCentering := $item.centering_translations_xyz }}
+                {{ if and (not $targetCentering) $rows }}
+                  {{ $targetCentering = (index $rows 0).h_centering_translations_xyz }}
+                {{ end }}
+                {{ if not $targetCentering }}
+                  {{ $targetCentering = slice "0,0,0" }}
+                {{ end }}
                 <div
                   class="mapping-panel"
                   id="{{ printf "max-panel-%d" $idx }}"
@@ -684,8 +689,9 @@
                           {{ partial "info_dot.html" (dict "general" "A Wyckoff position in H refers to the corresponding site class in the subgroup." "context" "H WP shows the mapped subgroup position for each row.") }}
                         </th>
                         <th>
-                          H Orbit
-                          {{ partial "info_dot.html" (dict "general" "An H orbit is the representative coordinate orbit in the subgroup setting." "context" "This column shows the first orbit text supplied for each mapped subgroup Wyckoff site.") }}
+                          H Orbit mod centerings
+                          <span class="table-header-subline">{{ partial "orbit.html" $targetCentering }}</span>
+                          {{ partial "info_dot.html" (dict "general" "An H orbit is the representative coordinate orbit in the subgroup setting, reduced modulo centering translations when available." "context" "The full target orbit is obtained by combining these reduced coordinates with the centering translations shown in the header.") }}
                         </th>
                         <th>
                           Algebraic Map
@@ -694,9 +700,10 @@
                       </tr>
                     </thead>
                     <tbody>
-                      {{ $rows := $item.wyckoff_rows }}
                       {{ if $rows }}
                         {{ range $rows }}
+                          {{ $hOrbit := .h_orbit_mod_centering_xyz }}
+                          {{ if not $hOrbit }}{{ $hOrbit = .h_first_orbit_xyz }}{{ end }}
                           <tr>
                             {{ $showGroupCell := true }}
                             {{ if isset . "g_wp_show" }}
@@ -710,7 +717,13 @@
                               <td{{ if gt $rowspan 1 }} rowspan="{{ $rowspan }}"{{ end }}>{{ partial "value.html" (default .g_wp .g_wp_display) }}</td>
                             {{ end }}
                             <td>{{ partial "value.html" (default .h_wp .h_wp_display) }}</td>
-                            <td>{{ partial "value.html" .h_first_orbit_xyz }}</td>
+                            <td class="orbit-cell">
+                              {{ if reflect.IsSlice $hOrbit }}
+                                {{ partial "orbit.html" $hOrbit }}
+                              {{ else }}
+                                {{ partial "value.html" $hOrbit }}
+                              {{ end }}
+                            </td>
                             <td>
                               {{ if and .affine_xyz (ge (len .affine_xyz) 3) }}
                                 x'={{ index .affine_xyz 0 }}; y'={{ index .affine_xyz 1 }}; z'={{ index .affine_xyz 2 }}
@@ -788,6 +801,14 @@
               </div>
               <p class="note" data-mapping-empty hidden>No ITA-reference supergroup mappings in this mode.</p>
               {{ range $idx, $item := $minSup }}
+                {{ $rows := $item.wyckoff_rows }}
+                {{ $targetCentering := $item.centering_translations_xyz }}
+                {{ if and (not $targetCentering) $rows }}
+                  {{ $targetCentering = (index $rows 0).h_centering_translations_xyz }}
+                {{ end }}
+                {{ if not $targetCentering }}
+                  {{ $targetCentering = slice "0,0,0" }}
+                {{ end }}
                 <div
                   class="mapping-panel"
                   id="{{ printf "min-panel-%d" $idx }}"
@@ -808,8 +829,9 @@
                           {{ partial "info_dot.html" (dict "general" "A Wyckoff position in H is the corresponding site class after embedding into the supergroup." "context" "H WP reports the mapped target position in the selected supergroup setting.") }}
                         </th>
                         <th>
-                          H Orbit
-                          {{ partial "info_dot.html" (dict "general" "An orbit lists equivalent coordinates under the target group action." "context" "We show the first listed orbit text from the mapping data.") }}
+                          H Orbit mod centerings
+                          <span class="table-header-subline">{{ partial "orbit.html" $targetCentering }}</span>
+                          {{ partial "info_dot.html" (dict "general" "An orbit lists equivalent coordinates under the target group action, reduced modulo centering translations when available." "context" "The full target orbit is obtained by combining these reduced coordinates with the centering translations shown in the header.") }}
                         </th>
                         <th>
                           Algebraic Map
@@ -818,9 +840,10 @@
                       </tr>
                     </thead>
                     <tbody>
-                      {{ $rows := $item.wyckoff_rows }}
                       {{ if $rows }}
                         {{ range $rows }}
+                          {{ $hOrbit := .h_orbit_mod_centering_xyz }}
+                          {{ if not $hOrbit }}{{ $hOrbit = .h_first_orbit_xyz }}{{ end }}
                           <tr>
                             {{ $showGroupCell := true }}
                             {{ if isset . "g_wp_show" }}
@@ -834,7 +857,13 @@
                               <td{{ if gt $rowspan 1 }} rowspan="{{ $rowspan }}"{{ end }}>{{ partial "value.html" (default .g_wp .g_wp_display) }}</td>
                             {{ end }}
                             <td>{{ partial "value.html" (default .h_wp .h_wp_display) }}</td>
-                            <td>{{ partial "value.html" .h_first_orbit_xyz }}</td>
+                            <td class="orbit-cell">
+                              {{ if reflect.IsSlice $hOrbit }}
+                                {{ partial "orbit.html" $hOrbit }}
+                              {{ else }}
+                                {{ partial "value.html" $hOrbit }}
+                              {{ end }}
+                            </td>
                             <td>
                               {{ if and .affine_xyz (ge (len .affine_xyz) 3) }}
                                 x'={{ index .affine_xyz 0 }}; y'={{ index .affine_xyz 1 }}; z'={{ index .affine_xyz 2 }}
@@ -923,6 +952,64 @@
                     <p class="note">Showing all {{ len $symops }} discrete Euclidean normalizer operations.</p>
                   {{ else }}
                     <p class="note">No discrete Euclidean normalizer operations available.</p>
+                  {{ end }}
+                  {{ $symopsModCentering := $euclidian.symops_mod_centering }}
+                  {{ if $symopsModCentering }}
+                    {{ $normalizerCenteringTranslations := $euclidian.centering_translations_xyz }}
+                    {{ if not $normalizerCenteringTranslations }}
+                      {{ $normalizerCenteringTranslations = .Params.centering_translations_xyz }}
+                    {{ end }}
+                    {{ if not $normalizerCenteringTranslations }}
+                      {{ $normalizerCenteringTranslations = slice "0,0,0" }}
+                    {{ end }}
+                    <div class="normalizer-subtable">
+                      <p class="note">
+                        Discrete Euclidean normalizer operations modulo centering translations.
+                        {{ partial "info_dot.html" (dict "general" "This reduced list keeps one Euclidean normalizer operation for each operation class modulo centering translations." "context" "Combine each listed operation with the centering translations shown in the xyz column header to recover the full centering-expanded operation list.") }}
+                      </p>
+                      <table class="data-table">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>
+                              {{ partial "field_label.html" (dict "text" "xyz mod centerings" "url" $docSymopsModCenteringXYZ) }}
+                              <span class="table-header-subline">{{ partial "orbit.html" $normalizerCenteringTranslations }}</span>
+                            </th>
+                            <th>rot_type</th>
+                            <th>sense</th>
+                            <th>axis</th>
+                            <th>screw/glide</th>
+                            <th>origin_shift</th>
+                            <th>P det</th>
+                            <th>P</th>
+                            <th>p</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {{ range $index, $op := $symopsModCentering }}
+                            <tr>
+                              <td>{{ add $index 1 }}</td>
+                              <td>{{ partial "value.html" $op.xyz }}</td>
+                              <td>{{ partial "value.html" $op.rot_type }}</td>
+                              <td>{{ partial "value.html" $op.sense }}</td>
+                              <td>{{ partial "value.html" (delimit $op.axis ", ") }}</td>
+                              <td>{{ partial "value.html" $op.screw_glide }}</td>
+                              <td>{{ partial "value.html" $op.origin_shift }}</td>
+                              <td>{{ partial "value.html" $op.P_det }}</td>
+                              <td>
+                                {{ if $op.P }}
+                                  {{ range $rowIdx, $row := $op.P }}{{ if gt $rowIdx 0 }}; {{ end }}[{{ delimit $row ", " }}]{{ end }}
+                                {{ else }}
+                                  —
+                                {{ end }}
+                              </td>
+                              <td>{{ partial "value.html" (delimit $op.p ", ") }}</td>
+                            </tr>
+                          {{ end }}
+                        </tbody>
+                      </table>
+                      <p class="note">Showing {{ len $symopsModCentering }} Euclidean normalizer operation{{ if ne (len $symopsModCentering) 1 }}s{{ end }} modulo centering translations.</p>
+                    </div>
                   {{ end }}
                 {{ else }}
                   <p class="note">No discrete Euclidean normalizer data available.</p>
@@ -1052,6 +1139,14 @@
                 </select>
               </div>
               {{ range $idx, $item := $commensurator }}
+                {{ $rows := $item.wyckoff_rows }}
+                {{ $targetCentering := $item.centering_translations_xyz }}
+                {{ if and (not $targetCentering) $rows }}
+                  {{ $targetCentering = (index $rows 0).h_centering_translations_xyz }}
+                {{ end }}
+                {{ if not $targetCentering }}
+                  {{ $targetCentering = slice "0,0,0" }}
+                {{ end }}
                 <div
                   class="mapping-panel"
                   id="{{ printf "comm-panel-%d" $idx }}"
@@ -1077,8 +1172,9 @@
                           {{ partial "info_dot.html" (dict "general" "H WP refers to the target-group Wyckoff position after transformation." "context" "This value is shown from h_wp or h_wp_display depending on availability.") }}
                         </th>
                         <th>
-                          H Orbit
-                          {{ partial "info_dot.html" (dict "general" "An orbit entry lists representative coordinates generated in the target setting." "context" "This column shows the first listed H orbit text for each mapping row.") }}
+                          H Orbit mod centerings
+                          <span class="table-header-subline">{{ partial "orbit.html" $targetCentering }}</span>
+                          {{ partial "info_dot.html" (dict "general" "An orbit entry lists representative coordinates generated in the target setting, reduced modulo centering translations when available." "context" "The full target orbit is obtained by combining these reduced coordinates with the centering translations shown in the header.") }}
                         </th>
                         <th>
                           Algebraic Map
@@ -1087,9 +1183,10 @@
                       </tr>
                     </thead>
                     <tbody>
-                      {{ $rows := $item.wyckoff_rows }}
                       {{ if $rows }}
                         {{ range $rows }}
+                          {{ $hOrbit := .h_orbit_mod_centering_xyz }}
+                          {{ if not $hOrbit }}{{ $hOrbit = .h_first_orbit_xyz }}{{ end }}
                           <tr>
                             {{ $showGroupCell := true }}
                             {{ if isset . "g_wp_show" }}
@@ -1103,7 +1200,13 @@
                               <td{{ if gt $rowspan 1 }} rowspan="{{ $rowspan }}"{{ end }}>{{ partial "value.html" (default .g_wp .g_wp_display) }}</td>
                             {{ end }}
                             <td>{{ partial "value.html" (default .h_wp .h_wp_display) }}</td>
-                            <td>{{ partial "value.html" .h_first_orbit_xyz }}</td>
+                            <td class="orbit-cell">
+                              {{ if reflect.IsSlice $hOrbit }}
+                                {{ partial "orbit.html" $hOrbit }}
+                              {{ else }}
+                                {{ partial "value.html" $hOrbit }}
+                              {{ end }}
+                            </td>
                             <td>
                               {{ if and .affine_xyz (ge (len .affine_xyz) 3) }}
                                 x'={{ index .affine_xyz 0 }}; y'={{ index .affine_xyz 1 }}; z'={{ index .affine_xyz 2 }}

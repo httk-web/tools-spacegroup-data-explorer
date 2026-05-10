@@ -193,13 +193,29 @@ def _normalize_op(raw: Any) -> Dict[str, Any]:
     return op
 
 
+def _normalize_ops_with_xyz(raw_ops: Any, raw_xyz: Any = None) -> List[Dict[str, Any]]:
+    ops = raw_ops if isinstance(raw_ops, list) else []
+    xyz_list = raw_xyz if isinstance(raw_xyz, list) else []
+    normalized_ops: List[Dict[str, Any]] = []
+    for idx, op in enumerate(ops):
+        if not isinstance(op, dict):
+            continue
+        op_normalized = _normalize_op(op)
+        if op_normalized.get("xyz") is None and idx < len(xyz_list):
+            op_normalized["xyz"] = xyz_list[idx]
+        normalized_ops.append(op_normalized)
+    return normalized_ops
+
+
 def _normalize_normalizer_payload(payload: Any) -> Dict[str, Any]:
     if not isinstance(payload, dict):
         return {}
     normalized = dict(payload)
-    symops = payload.get("symops")
-    if isinstance(symops, list):
-        normalized["symops"] = [_normalize_op(op) for op in symops if isinstance(op, dict)]
+    normalized["symops"] = _normalize_ops_with_xyz(payload.get("symops"), payload.get("symops_xyz"))
+    normalized["symops_mod_centering"] = _normalize_ops_with_xyz(
+        payload.get("symops_mod_centering"),
+        payload.get("symops_mod_centering_xyz"),
+    )
     normalized["n_ops"] = _first_non_empty(payload.get("n_ops"), payload.get("n_symops"))
     normalized["n_coset_representatives"] = _first_non_empty(payload.get("n_coset_representatives"), payload.get("n_symops"))
     return normalized
@@ -758,7 +774,10 @@ def load_euclidian_normalizer_data() -> Dict[str, Dict[str, Any]]:
         hall_key = str(row.get("hall_entry") or "").strip()
         payload = row.get("euclidean_normalizer")
         if hall_key and isinstance(payload, dict) and hall_key not in result:
-            result[hall_key] = _normalize_normalizer_payload(payload)
+            normalized = _normalize_normalizer_payload(payload)
+            normalized["centering_translations"] = _first_non_empty(row.get("centering_translations"))
+            normalized["centering_translations_xyz"] = _first_non_empty(row.get("centering_translations_xyz"))
+            result[hall_key] = normalized
     if not result:
         _log("Euclidean normalizer data not found; discrete Euclidean normalizer section will be empty")
     return result
@@ -934,6 +953,10 @@ def _mapping_with_target_metadata(
         "index": mapping.get("index"),
         "transformation_matrix": mapping.get("transformation_matrix"),
         "origin_shift": mapping.get("origin_shift"),
+        "centering_translations_xyz": _first_non_empty(
+            mapping.get("h_centering_translations_xyz"),
+            target.get("centering_translations_xyz"),
+        ),
         "wyckoff_rows": mapping.get("wyckoff_rows"),
     }
 
@@ -1016,6 +1039,54 @@ def _build_wyckoff_multiplicity_map(entry: Dict[str, Any] | None) -> Dict[str, s
     return multiplicity_by_label
 
 
+def _wyckoff_lookup_label(label: Any) -> str:
+    label_text = str(label).strip()
+    return re.sub(r"^\d+", "", label_text)
+
+
+def _orbit_xyz_list(orbit: Any) -> List[str]:
+    if not isinstance(orbit, list):
+        return []
+    out: List[str] = []
+    for item in orbit:
+        if isinstance(item, dict) and item.get("xyz") is not None:
+            out.append(str(item["xyz"]))
+    return out
+
+
+def _build_wyckoff_orbit_mod_map(entry: Dict[str, Any] | None) -> Dict[str, Any]:
+    if not isinstance(entry, dict):
+        return {}
+    wyckoff = entry.get("wyckoff")
+    if isinstance(wyckoff, list):
+        result: Dict[str, Any] = {}
+        for payload in wyckoff:
+            if not isinstance(payload, dict):
+                continue
+            label = payload.get("letter")
+            orbit = _first_non_empty(
+                _orbit_xyz_list(payload.get("orbit_mod_centering")),
+                _orbit_xyz_list(payload.get("orbit")),
+            )
+            if label is not None and orbit:
+                result[_wyckoff_lookup_label(label)] = orbit
+        return result
+    if not isinstance(wyckoff, dict):
+        return {}
+
+    result: Dict[str, Any] = {}
+    for label, payload in wyckoff.items():
+        if not isinstance(payload, dict):
+            continue
+        orbit = _first_non_empty(
+            _orbit_xyz_list(payload.get("orbit_mod_centering")),
+            _orbit_xyz_list(payload.get("orbit")),
+        )
+        if orbit:
+            result[_wyckoff_lookup_label(label)] = orbit
+    return result
+
+
 def _format_wyckoff_label(label: Any, multiplicity_by_label: Dict[str, str]) -> str:
     label_text = str(label).strip()
     if not label_text:
@@ -1051,9 +1122,12 @@ def _build_wyckoff_rows(
     mapping: Dict[str, Any],
     g_multiplicity_by_label: Dict[str, str] | None = None,
     h_multiplicity_by_label: Dict[str, str] | None = None,
+    h_orbit_mod_by_label: Dict[str, Any] | None = None,
+    h_centering_translations_xyz: Any = None,
 ) -> List[Dict[str, Any]]:
     g_mult = g_multiplicity_by_label or {}
     h_mult = h_multiplicity_by_label or {}
+    h_orbit_mod = h_orbit_mod_by_label or {}
     wyckoff = mapping.get("wyckoff_splitting")
     if isinstance(wyckoff, list):
         rows: List[Dict[str, Any]] = []
@@ -1081,6 +1155,11 @@ def _build_wyckoff_rows(
                         "h_wp": h_wp,
                         "h_wp_display": _format_wyckoff_label(h_wp, h_mult),
                         "h_first_orbit_xyz": h_first_orbit,
+                        "h_orbit_mod_centering_xyz": _first_non_empty(
+                            h_orbit_mod.get(_wyckoff_lookup_label(h_wp)),
+                            h_first_orbit,
+                        ),
+                        "h_centering_translations_xyz": h_centering_translations_xyz,
                         "affine_xyz": affine_xyz,
                     }
                 )
@@ -1109,12 +1188,17 @@ def _build_wyckoff_rows(
                 {
                     "g_wp": g_wp,
                     "g_wp_display": _format_wyckoff_label(g_wp, g_mult),
-                    "h_wp": h_wp,
-                    "h_wp_display": _format_wyckoff_label(h_wp, h_mult),
-                    "h_first_orbit_xyz": h_first_orbit,
-                    "affine_xyz": affine_xyz,
-                }
-            )
+                "h_wp": h_wp,
+                "h_wp_display": _format_wyckoff_label(h_wp, h_mult),
+                "h_first_orbit_xyz": h_first_orbit,
+                "h_orbit_mod_centering_xyz": _first_non_empty(
+                    h_orbit_mod.get(_wyckoff_lookup_label(h_wp)),
+                    h_first_orbit,
+                ),
+                "h_centering_translations_xyz": h_centering_translations_xyz,
+                "affine_xyz": affine_xyz,
+            }
+        )
 
     rows.sort(key=lambda item: (str(item.get("g_wp", "")), str(item.get("h_wp", "")), str(item.get("h_first_orbit_xyz", ""))))
     return _annotate_wyckoff_group_rows(rows)
@@ -1132,8 +1216,8 @@ def _build_wyckoff_items(entry: Dict[str, Any]) -> List[Dict[str, Any]]:
                     "label": payload.get("letter"),
                     "multiplicity": payload.get("multiplicity"),
                     "sitesym": payload.get("sitesym"),
-                    "orbit_xyz": payload.get("orbit_xyz"),
-                    "orbit_mod_centering_xyz": payload.get("orbit_mod_centering_xyz"),
+                    "orbit_xyz": _orbit_xyz_list(payload.get("orbit")),
+                    "orbit_mod_centering_xyz": _orbit_xyz_list(payload.get("orbit_mod_centering")),
                 }
             )
         items.sort(key=lambda item: (not str(item.get("label", "")).islower(), str(item.get("label", "")).lower(), str(item.get("label", ""))))
@@ -1150,8 +1234,8 @@ def _build_wyckoff_items(entry: Dict[str, Any]) -> List[Dict[str, Any]]:
                 "label": label,
                 "multiplicity": payload.get("multiplicity"),
                 "sitesym": payload.get("sitesym"),
-                "orbit_xyz": payload.get("orbit_xyz"),
-                "orbit_mod_centering_xyz": payload.get("orbit_mod_centering_xyz"),
+                "orbit_xyz": _orbit_xyz_list(payload.get("orbit")),
+                "orbit_mod_centering_xyz": _orbit_xyz_list(payload.get("orbit_mod_centering")),
             }
         )
 
@@ -1170,6 +1254,10 @@ def _build_cell_commensurator_items(raw_items: Any, source_entry: Dict[str, Any]
         return []
 
     source_mult = _build_wyckoff_multiplicity_map(source_entry)
+    source_orbit_mod = _build_wyckoff_orbit_mod_map(source_entry)
+    source_centering_translations_xyz = (
+        source_entry.get("centering_translations_xyz") if isinstance(source_entry, dict) else None
+    )
 
     items: List[Dict[str, Any]] = []
     for raw in raw_items:
@@ -1193,7 +1281,13 @@ def _build_cell_commensurator_items(raw_items: Any, source_entry: Dict[str, Any]
         matrix_rows = [row for row in matrix[:3] if isinstance(row, list)] if isinstance(matrix, list) else []
         shift_values = shift[:3] if isinstance(shift, list) else []
 
-        wyckoff_rows = _build_wyckoff_rows(raw, source_mult, source_mult)
+        wyckoff_rows = _build_wyckoff_rows(
+            raw,
+            source_mult,
+            source_mult,
+            source_orbit_mod,
+            source_centering_translations_xyz,
+        )
         items.append(
             {
                 "index": index,
@@ -1202,6 +1296,7 @@ def _build_cell_commensurator_items(raw_items: Any, source_entry: Dict[str, Any]
                 "transformation_matrix_text": "; ".join(_format_vector_text(row) for row in matrix_rows) if matrix_rows else None,
                 "origin_shift_text": _format_vector_text(shift_values) if shift_values else None,
                 "wyckoff_rows": wyckoff_rows,
+                "centering_translations_xyz": source_centering_translations_xyz,
                 # Cell commensurator relations are self-relations for the current Hall setting.
                 "is_reference_setting": True,
             }
@@ -1229,6 +1324,7 @@ def build_group_mappings(
     outgoing: Dict[str, List[tuple[str, Dict[str, Any]]]] = {}
     incoming: Dict[str, List[tuple[str, Dict[str, Any]]]] = {}
     wyckoff_mult_by_hall = {hall_key: _build_wyckoff_multiplicity_map(entry) for hall_key, entry in data.items()}
+    wyckoff_orbit_mod_by_hall = {hall_key: _build_wyckoff_orbit_mod_map(entry) for hall_key, entry in data.items()}
 
     for g_hall, targets in barnighausen.items():
         if not isinstance(targets, dict):
@@ -1252,7 +1348,10 @@ def build_group_mappings(
                         mapping,
                         wyckoff_mult_by_hall.get(g_hall, {}),
                         wyckoff_mult_by_hall.get(h_hall, {}),
+                        wyckoff_orbit_mod_by_hall.get(h_hall, {}),
+                        data.get(h_hall, {}).get("centering_translations_xyz"),
                     ),
+                    "h_centering_translations_xyz": data.get(h_hall, {}).get("centering_translations_xyz"),
                 }
                 outgoing.setdefault(g_hall, []).append((h_hall, normalized))
                 incoming.setdefault(h_hall, []).append((g_hall, normalized))

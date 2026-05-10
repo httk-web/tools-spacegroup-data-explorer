@@ -928,6 +928,18 @@ html[data-theme="dark"] .section-anchor-icon {
   color: var(--ink-soft);
 }
 
+.table-header-subline {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--data-font);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.4;
+  text-transform: none;
+  color: var(--ink);
+}
+
 .orbit-cell {
   white-space: normal;
   word-break: break-word;
@@ -1065,6 +1077,10 @@ html[data-theme="dark"] .mapping-tab-external-icon {
 
 .normalizer-inner-box {
   margin-top: 0;
+}
+
+.normalizer-subtable {
+  margin-top: 14px;
 }
 
 .mapping-meta {
