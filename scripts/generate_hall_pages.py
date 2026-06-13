@@ -1727,9 +1727,66 @@ def write_pointgroup_pages(
             _log(f"  wrote {idx}/{total} pointgroup pages")
 
 
+def _hm_entry_slug(value: Any) -> str:
+    """URL slug for an H-M entry: drop spaces and map '/' -> ':' (path-safe)."""
+    return str(value or "").strip().replace(" ", "").replace("/", ":")
+
+
+def build_alias_map(symmetry_basics_payload: Any) -> Dict[str, List[str]]:
+    """Map each Hall page to its stable redirect aliases.
+
+    Aliases are built from the authoritative ``symmetry_basics`` indices so the
+    sets are exactly right (230 IT numbers, 530 n:c codes, 530 H-M entries),
+    each redirecting to the Hall page of the setting it identifies:
+
+    - ``/itn/<it_number>/``           standard (ITA reference) setting per IT number
+    - ``/nc/<setting_it_nc>/``        the specific conventional setting (':' kept verbatim)
+    - ``/hm/<hm_entry slug>/``        the specific conventional setting, by H-M entry
+    """
+    indices = symmetry_basics_payload.get("indicies") if isinstance(symmetry_basics_payload, dict) else None
+    if not isinstance(indices, dict):
+        _log("No 'indicies' in symmetry basics; no /itn//nc//hm/ aliases will be generated")
+        return {}
+
+    hall_index = indices.get("index_hall_entry_to_spacegroups")
+    if not isinstance(hall_index, dict):
+        _log("No index_hall_entry_to_spacegroups; cannot build aliases")
+        return {}
+    pos_to_hall: Dict[int, str] = {pos: hall for hall, pos in hall_index.items() if isinstance(pos, int)}
+
+    aliases_by_hall: Dict[str, List[str]] = {}
+    claimed: Dict[str, str] = {}
+
+    def _add(alias: str, pos: Any) -> None:
+        if not isinstance(pos, int):
+            return
+        hall = pos_to_hall.get(pos)
+        if hall is None:
+            return
+        prior = claimed.get(alias)
+        if prior is not None and prior != hall:
+            _log(f"Alias collision: {alias} claimed by both {prior} and {hall}")
+            return
+        claimed[alias] = hall
+        aliases_by_hall.setdefault(hall, []).append(alias)
+
+    for it_number, pos in (indices.get("index_it_number_to_std_spacegroups") or {}).items():
+        _add(f"/itn/{it_number}/", pos)
+    for nc_code, pos in (indices.get("index_setting_it_nc_to_spacegroups") or {}).items():
+        _add(f"/nc/{nc_code}/", pos)
+    for hm_entry, pos in (indices.get("index_hm_entry_to_spacegroups") or {}).items():
+        _add(f"/hm/{_hm_entry_slug(hm_entry)}/", pos)
+
+    for hall in aliases_by_hall:
+        aliases_by_hall[hall] = sorted(set(aliases_by_hall[hall]))
+    _log(f"Built {len(claimed)} link aliases (itn/nc/hm) across {len(aliases_by_hall)} Hall pages")
+    return aliases_by_hall
+
+
 def write_hall_pages(
     data: Dict[str, Dict[str, Any]],
     field_doc_urls: Dict[str, str],
+    aliases_by_hall: Dict[str, List[str]],
     euclidian_normalizer_data: Dict[str, Dict[str, Any]],
     affine_normalizer_data: Dict[str, Dict[str, Any]],
     continuous_euclidian_normalizer_data: Dict[str, Dict[str, Any]],
@@ -1752,6 +1809,12 @@ def write_hall_pages(
             "url": f"/hall/{hall_key}/",
         }
         payload.update(entry)
+        # Stable redirect links (Hugo aliases): /itn/<n>/ (standard setting per
+        # IT number), /nc/<n:c>/ and /hm/<H-M entry>/ (the specific conventional
+        # setting). Built from the symmetry-basics indices in build_alias_map.
+        page_aliases = aliases_by_hall.get(hall_key)
+        if page_aliases:
+            payload["aliases"] = page_aliases
         payload["field_doc_urls"] = field_doc_urls
         payload["wyckoff_items"] = _build_wyckoff_items(entry)
         payload["related_settings"] = related_settings.get(hall_key, [])
@@ -1831,6 +1894,7 @@ def main() -> None:
     _log(f"Built pointgroup nav rows ({len(pointgroup_nav)})")
     related_settings = build_related_settings(index_rows)
     _log(f"Built related settings map ({len(related_settings)} keys)")
+    aliases_by_hall = build_alias_map(symmetry_basics_payload)
     std_setting_transform_data = load_std_setting_transform_data()
     _log(f"Loaded IT-standard setting transforms for {len(std_setting_transform_data)} Hall entries")
     setting_transforms = build_setting_transforms(related_settings, std_setting_transform_data)
@@ -1849,6 +1913,7 @@ def main() -> None:
     write_hall_pages(
         data,
         field_doc_urls,
+        aliases_by_hall,
         euclidian_normalizer_data,
         affine_normalizer_data,
         continuous_euclidian_normalizer_data,

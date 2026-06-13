@@ -11,6 +11,15 @@
       This website explores the crystallographic space-group and point-group datasets generated for <em>httk</em>.
       The data files used by the site are the current JSON-LD wrapped outputs in <code>data-generators/data</code>, copied into <code>static/data</code>.
     </p>
+    <h2>Deep linking spacegroup data</h2>
+    <p>Individual pages can be linked directly by several stable, site-relative URL schemes (prepend the site base URL):</p>
+    <ul>
+      <li><code>/hall/&lt;hall entry&gt;/</code> &mdash; the canonical page for a specific Hall setting, e.g. <code>/hall/p_1/</code> or <code>/hall/-c_2a_2ac/</code>. The Hall entry is the Hall symbol written in lower case with spaces replaced by underscores.</li>
+      <li><code>/itn/&lt;IT number&gt;/</code> &mdash; the standard (ITA reference) setting of a space-group number, e.g. <code>/itn/68/</code>, <code>/itn/227/</code>.</li>
+      <li><code>/nc/&lt;n:c&gt;/</code> &mdash; a specific conventional setting identified by its International Tables setting code <i>n:c</i>, e.g. <code>/nc/68:1/</code>, <code>/nc/68:1ba-c/</code>, <code>/nc/146:H/</code>.</li>
+      <li><code>/hm/&lt;HM entry&gt;/</code> &mdash; a specific conventional setting identified by its HM entry, written with spaces removed and "/" replaced by ":", e.g. <code>/hm/Ccca:1/</code>, <code>/hm/C2:m11/</code>, <code>/hm/P-1/</code>.</li>
+    </ul>
+    <p>The <code>/itn/</code>, <code>/nc/</code> and <code>/hm/</code> links redirect to the corresponding <code>/hall/</code> page. Because the three equivalent #68 setting pairs share a single page, both conventional labels of a pair (both <i>n:c</i> codes and both HM entries) link to that same page.</p>
     <h2>Things good to know about space groups</h2>
     <ul>
       <li>There are 230 distinct three-dimensional space-group types. They are commonly identified by the sequence number in which they appear in the <a href="https://doi.org/10.1107/97809553602060000114">International Tables for Crystallography</a> (IT), 1−230.</li>
