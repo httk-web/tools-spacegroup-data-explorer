@@ -369,11 +369,11 @@ def _looks_like_pointgroup_map(raw_data: Any) -> bool:
 def _normalize_entry(hall_key: str, raw_entry: Any) -> Dict[str, Any]:
     entry = dict(raw_entry) if isinstance(raw_entry, dict) else {}
 
-    hall_entry_key = _first_non_empty(entry.get("hall_entry"), hall_key)
-    hall_symbol = _first_non_empty(entry.get("hall"), entry.get("hall_symbol"), hall_entry_key)
+    hall_key_normalized = _first_non_empty(entry.get("hall_entry"), hall_key)
+    hall_symbol = _first_non_empty(entry.get("hall"), entry.get("hall_symbol"), hall_key_normalized)
     hall_latex = _first_non_empty(_markup(entry, "hall", "latex"))
-    hall_html = _first_non_empty(_markup(entry, "hall", "html"), _markup(entry, "hall", "unicode"), hall_symbol, hall_entry_key)
-    hall_unicode = _first_non_empty(_markup(entry, "hall", "unicode"), hall_symbol, hall_entry_key)
+    hall_html = _first_non_empty(_markup(entry, "hall", "html"), _markup(entry, "hall", "unicode"), hall_symbol, hall_key_normalized)
+    hall_unicode = _first_non_empty(_markup(entry, "hall", "unicode"), hall_symbol, hall_key_normalized)
 
     hm_universal_source = _first_non_empty(entry.get("hm_universal"), entry.get("hm_cctbx_universal"))
     hm_short = _first_non_empty(entry.get("hm_short"), entry.get("hm_full"), entry.get("hm_extended"), hm_universal_source)
@@ -420,8 +420,9 @@ def _normalize_entry(hall_key: str, raw_entry: Any) -> Dict[str, Any]:
     normalized["ita_number"] = _first_non_empty(entry.get("ita_number"), entry.get("it_number"))
     normalized["it_number"] = _first_non_empty(entry.get("it_number"), entry.get("ita_number"))
     normalized["hall"] = hall_symbol
-    normalized["hall_entry_key"] = hall_entry_key
-    normalized["hall_entry"] = hall_symbol
+    # Match the dataset convention: hall_entry is the normalized lookup key
+    # (e.g. "p_1") and hall (+ markups) carries the display symbol ("P 1").
+    normalized["hall_entry"] = hall_key_normalized
     normalized["hall_latex"] = hall_latex
     normalized["hall_html"] = hall_html
     normalized["hall_unicode"] = hall_unicode
@@ -574,7 +575,7 @@ def attach_hall_aliases(data: Dict[str, Dict[str, Any]]) -> None:
             seen.add(alias_key)
 
             alias_entry = by_key_or_entry.get(alias_key) or {}
-            alias_plain = _first_non_empty(alias_entry.get("hall_entry"), alias_key)
+            alias_plain = _first_non_empty(alias_entry.get("hall"), alias_key)
             alias_latex = _first_non_empty(alias_entry.get("hall_latex"))
             alias_html = _first_non_empty(alias_entry.get("hall_html"), alias_entry.get("hall_unicode"), alias_plain)
             alias_unicode = _first_non_empty(alias_entry.get("hall_unicode"), alias_plain)
@@ -880,6 +881,77 @@ def load_cell_commensurator_data() -> Dict[str, Dict[str, Any]]:
     return result
 
 
+def load_std_setting_transform_data() -> Dict[str, Dict[str, Any]]:
+    """Hall-entry keyed exact transforms to the IT-standard Hall setting.
+
+    Reads ``hall_to_it_std_transform`` whose embedded affine map follows the
+    convention ``x_setting = matrix * x_std + vector`` (standard -> setting).
+    """
+    transformations = _load_transformations_payload()
+    result: Dict[str, Dict[str, Any]] = {}
+    for row in _unwrap_data_list(transformations, "transformations_per_hm_entry"):
+        hall_key = str(row.get("hall_entry") or "").strip()
+        payload = row.get("hall_to_it_std_transform")
+        if not hall_key or not isinstance(payload, dict) or hall_key in result:
+            continue
+        affine = payload.get("affine_transformation")
+        if not isinstance(affine, dict):
+            continue
+        result[hall_key] = {
+            "matrix": affine.get("matrix"),
+            "vector": affine.get("vector"),
+            "to_hall_entry": _first_non_empty(payload.get("to_hall_entry"), payload.get("to_hall")),
+        }
+    if not result:
+        _log("hall_to_it_std_transform data not found; Setting Transformations section will be empty")
+    return result
+
+
+def build_setting_transforms(
+    related_settings: Dict[str, List[Dict[str, Any]]],
+    std_transform_data: Dict[str, Dict[str, Any]],
+) -> Dict[str, List[Dict[str, Any]]]:
+    """For each setting, the composed exact transform to every sibling setting.
+
+    Siblings are the other Hall settings sharing the same ITA number (taken
+    from ``related_settings``). The current setting is omitted from its own
+    list. Each item carries the target setting's labels plus the composed
+    ``x_target = P * x_source + p`` transform.
+    """
+    result: Dict[str, List[Dict[str, Any]]] = {}
+    for hall_key, siblings in related_settings.items():
+        source_std = std_transform_data.get(hall_key)
+        items: List[Dict[str, Any]] = []
+        for sibling in siblings:
+            target_key = sibling.get("hall_key")
+            if not target_key or target_key == hall_key:
+                continue
+            transform = _compose_setting_transform(source_std, std_transform_data.get(target_key))
+            if transform is None:
+                continue
+            item = {
+                "hall_key": target_key,
+                "hall_entry": sibling.get("hall_entry"),
+                "hall_latex": sibling.get("hall_latex"),
+                "hall_html": sibling.get("hall_html"),
+                "hall_unicode": sibling.get("hall_unicode"),
+                "hm_short": sibling.get("hm_short"),
+                "hm_short_latex": sibling.get("hm_short_latex"),
+                "hm_short_html": sibling.get("hm_short_html"),
+                "hm_short_unicode": sibling.get("hm_short_unicode"),
+                "setting": sibling.get("setting"),
+                "qualifier": sibling.get("qualifier"),
+                "is_reference_setting": bool(sibling.get("is_reference_setting")),
+            }
+            item.update(transform)
+            items.append(item)
+        if items:
+            result[hall_key] = items
+    if not result:
+        _log("No sibling setting transforms could be composed; Setting Transformations section will be empty")
+    return result
+
+
 def choose_standard_setting(entries: List[Dict[str, Any]]) -> Dict[str, Any] | None:
     if not entries:
         return None
@@ -937,6 +1009,7 @@ def build_related_settings(
                     "hall_html": item.get("hall_html"),
                     "hall_unicode": item.get("hall_unicode"),
                     "qualifier": item.get("qualifier"),
+                    "setting": item.get("setting"),
                     "hm_short": _first_non_empty(item.get("hm_short"), item.get("hm_full"), item.get("hm_universal")),
                     "hm_short_latex": item.get("hm_short_latex"),
                     "hm_short_html": _first_non_empty(item.get("hm_short_html"), item.get("hm_full_html"), item.get("hm_short")),
@@ -1063,6 +1136,85 @@ def _format_affine_expression(row: List[Any]) -> str:
         else:
             expr = f"{expr} - {_fraction_to_text(abs(shift))}"
     return expr
+
+
+def _matrix3_fractions(matrix: Any) -> List[List[Fraction]] | None:
+    if not isinstance(matrix, list) or len(matrix) < 3:
+        return None
+    rows: List[List[Fraction]] = []
+    for raw_row in matrix[:3]:
+        if not isinstance(raw_row, list) or len(raw_row) < 3:
+            return None
+        rows.append([_parse_fraction(value) for value in raw_row[:3]])
+    return rows
+
+
+def _vector3_fractions(vector: Any) -> List[Fraction]:
+    values = vector[:3] if isinstance(vector, list) else []
+    out = [_parse_fraction(value) for value in values]
+    while len(out) < 3:
+        out.append(Fraction(0))
+    return out
+
+
+def _matrix3_inverse(matrix: List[List[Fraction]]) -> List[List[Fraction]] | None:
+    (a, b, c), (d, e, f), (g, h, i) = matrix
+    det = a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g)
+    if det == 0:
+        return None
+    cof = [
+        [(e * i - f * h), -(b * i - c * h), (b * f - c * e)],
+        [-(d * i - f * g), (a * i - c * g), -(a * f - c * d)],
+        [(d * h - e * g), -(a * h - b * g), (a * e - b * d)],
+    ]
+    return [[cof[r][col] / det for col in range(3)] for r in range(3)]
+
+
+def _matrix3_matmul(left: List[List[Fraction]], right: List[List[Fraction]]) -> List[List[Fraction]]:
+    return [[sum(left[r][k] * right[k][col] for k in range(3)) for col in range(3)] for r in range(3)]
+
+
+def _matrix3_matvec(matrix: List[List[Fraction]], vector: List[Fraction]) -> List[Fraction]:
+    return [sum(matrix[r][k] * vector[k] for k in range(3)) for r in range(3)]
+
+
+def _compose_setting_transform(
+    source_std: Dict[str, Any] | None,
+    target_std: Dict[str, Any] | None,
+) -> Dict[str, Any] | None:
+    """Compose the exact transform from the source setting A to the target B.
+
+    Both inputs are the stored ``hall_to_it_std_transform`` records, whose
+    convention is ``x_setting = P * x_std + p`` (standard -> setting). The
+    composed transform satisfies ``x_B = P_AB * x_A + p_AB`` with
+    ``P_AB = P_B * P_A^-1`` and ``p_AB = p_B - P_AB * p_A``.
+    """
+    if not isinstance(source_std, dict) or not isinstance(target_std, dict):
+        return None
+    p_a = _matrix3_fractions(source_std.get("matrix"))
+    p_b = _matrix3_fractions(target_std.get("matrix"))
+    if p_a is None or p_b is None:
+        return None
+    p_a_inv = _matrix3_inverse(p_a)
+    if p_a_inv is None:
+        return None
+    matrix = _matrix3_matmul(p_b, p_a_inv)
+    shift_a = _vector3_fractions(source_std.get("vector"))
+    shift_b = _vector3_fractions(target_std.get("vector"))
+    shift = [shift_b[r] - val for r, val in enumerate(_matrix3_matvec(matrix, shift_a))]
+    matrix_text = [[_fraction_to_text(value) for value in row] for row in matrix]
+    shift_text = [_fraction_to_text(value) for value in shift]
+    algebraic = [
+        _format_affine_expression(matrix_text[r] + [shift_text[r]])
+        for r in range(3)
+    ]
+    return {
+        "transformation_matrix": matrix_text,
+        "origin_shift": shift_text,
+        "transformation_matrix_text": "; ".join(_format_vector_text(row) for row in matrix_text),
+        "origin_shift_text": _format_vector_text(shift_text),
+        "algebraic_xyz": algebraic,
+    }
 
 
 def _build_wyckoff_multiplicity_map(entry: Dict[str, Any] | None) -> Dict[str, str]:
@@ -1376,8 +1528,6 @@ def build_group_mappings(
 ) -> tuple[
     Dict[str, List[Dict[str, Any]]],
     Dict[str, List[Dict[str, Any]]],
-    Dict[str, List[Dict[str, Any]]],
-    Dict[str, List[Dict[str, Any]]],
 ]:
     outgoing: Dict[str, List[tuple[str, Dict[str, Any]]]] = {}
     incoming: Dict[str, List[tuple[str, Dict[str, Any]]]] = {}
@@ -1431,28 +1581,13 @@ def build_group_mappings(
 
     maximal_subgroup_mappings: Dict[str, List[Dict[str, Any]]] = {}
     minimal_supergroup_mappings: Dict[str, List[Dict[str, Any]]] = {}
-    normalizer_transformations: Dict[str, List[Dict[str, Any]]] = {}
-    klassengleiche_subgroup_relations: Dict[str, List[Dict[str, Any]]] = {}
 
+    # Same-ITA edges (relations to sibling Hall settings of the same space-group
+    # type) are intentionally not surfaced: index-1 edges are pure setting
+    # transforms and index>1 edges duplicate the dedicated isomorphic_subgroups
+    # dataset field already shown in the Isomorphic Subgroups section. They are
+    # only excluded here so they do not leak into maximal/minimal subgroups.
     for hall_key in data:
-        same_ita_edges = [
-            (target_hall, mapping)
-            for target_hall, mapping in outgoing.get(hall_key, [])
-            if same_ita(hall_key, target_hall)
-        ]
-        same_ita_edges.sort(key=lambda item: (item[1]["index"], item[0]))
-
-        normalizer_transformations[hall_key] = [
-            _mapping_with_target_metadata(target_hall, mapping, data)
-            for target_hall, mapping in same_ita_edges
-            if mapping["index"] == 1
-        ]
-        klassengleiche_subgroup_relations[hall_key] = [
-            _mapping_with_target_metadata(target_hall, mapping, data)
-            for target_hall, mapping in same_ita_edges
-            if mapping["index"] != 1
-        ]
-
         out_edges = dedupe_edges(
             [
                 (target_hall, mapping)
@@ -1502,8 +1637,6 @@ def build_group_mappings(
     return (
         maximal_subgroup_mappings,
         minimal_supergroup_mappings,
-        normalizer_transformations,
-        klassengleiche_subgroup_relations,
     )
 
 
@@ -1601,8 +1734,7 @@ def write_hall_pages(
     related_settings: Dict[str, List[Dict[str, Any]]],
     maximal_subgroup_mappings: Dict[str, List[Dict[str, Any]]],
     minimal_supergroup_mappings: Dict[str, List[Dict[str, Any]]],
-    normalizer_transformations: Dict[str, List[Dict[str, Any]]],
-    klassengleiche_subgroup_relations: Dict[str, List[Dict[str, Any]]],
+    setting_transforms: Dict[str, List[Dict[str, Any]]],
 ) -> None:
     HALL_ROOT.mkdir(parents=True, exist_ok=True)
     total = len(data)
@@ -1621,8 +1753,7 @@ def write_hall_pages(
         payload["related_settings"] = related_settings.get(hall_key, [])
         payload["maximal_subgroup_mappings"] = maximal_subgroup_mappings.get(hall_key, [])
         payload["minimal_supergroup_mappings"] = minimal_supergroup_mappings.get(hall_key, [])
-        payload["normalizer_transformations"] = normalizer_transformations.get(hall_key, [])
-        payload["klassengleiche_subgroup_relations"] = klassengleiche_subgroup_relations.get(hall_key, [])
+        payload["setting_transforms"] = setting_transforms.get(hall_key, [])
         raw_euclidian = euclidian_normalizer_data.get(hall_key) or {}
         if isinstance(raw_euclidian, dict):
             payload["euclidian_normalizer"] = raw_euclidian.get("euclidian_normalizer", raw_euclidian)
@@ -1696,13 +1827,15 @@ def main() -> None:
     _log(f"Built pointgroup nav rows ({len(pointgroup_nav)})")
     related_settings = build_related_settings(index_rows)
     _log(f"Built related settings map ({len(related_settings)} keys)")
+    std_setting_transform_data = load_std_setting_transform_data()
+    _log(f"Loaded IT-standard setting transforms for {len(std_setting_transform_data)} Hall entries")
+    setting_transforms = build_setting_transforms(related_settings, std_setting_transform_data)
+    _log(f"Built sibling-setting transform map ({len(setting_transforms)} keys)")
     (
         maximal_subgroup_mappings,
         minimal_supergroup_mappings,
-        normalizer_transformations,
-        klassengleiche_subgroup_relations,
     ) = build_group_mappings(data, barnighausen)
-    _log("Built subgroup/supergroup/normalizer relation maps")
+    _log("Built subgroup/supergroup relation maps")
 
     write_index_content(index_rows)
     write_index_data(index_rows)
@@ -1720,8 +1853,7 @@ def main() -> None:
         related_settings,
         maximal_subgroup_mappings,
         minimal_supergroup_mappings,
-        normalizer_transformations,
-        klassengleiche_subgroup_relations,
+        setting_transforms,
     )
     _log("Generation complete")
 

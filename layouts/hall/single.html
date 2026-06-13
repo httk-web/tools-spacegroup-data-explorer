@@ -68,6 +68,10 @@
                 {{ $label := "—" }}
                 {{ if .is_reference_setting }}
                   {{ $label = "ITA" }}
+                {{ else if .setting }}
+                  {{ $label = .setting }}
+                {{ else if .qualifier }}
+                  {{ $label = .qualifier }}
                 {{ else }}
                   {{ $hm := string (default (default "" .hm_universal) .universal_hm) }}
                   {{ $suffix := findRE "\\([^)]*\\)\\s*$" $hm 1 }}
@@ -82,6 +86,107 @@
             </div>
           {{ else }}
             <p class="note">No related Hall settings available.</p>
+          {{ end }}
+        </div>
+      </article>
+
+      <article class="detail-card panel section-wide" data-hide-when-settings="ita">
+        {{
+          partial "section_heading.html" (dict
+            "title" "Setting Transformations"
+            "id" "setting-transformations"
+            "toggle_key" "setting_transforms"
+            "doc_url" (index $docMap "hall_to_it_std_transform")
+            "info_general" "The exact change of basis and origin shift that takes fractional coordinates in the current Hall setting to a selected sibling setting of the same space-group number."
+            "info_context" "Pick a sibling setting to see the transform. It is composed via the IT-standard setting from the hall_to_it_std_transform field; equivalent descriptions related by a normalizer operation are not enumerated here."
+          )
+        }}
+        <div data-section-body="setting_transforms">
+          {{ $settingTransforms := .Params.setting_transforms }}
+          {{ if $settingTransforms }}
+            <div class="mapping-box" data-mapping-box>
+              <div class="mapping-select-wrap">
+                <label class="mapping-select-label" for="setting-transform-select">Target setting</label>
+                <select id="setting-transform-select" class="mapping-select" data-mapping-select aria-label="Select target setting">
+                  {{ range $idx, $item := $settingTransforms }}
+                    {{ $panelId := printf "setting-transform-panel-%d" $idx }}
+                    {{ $label := default $item.hall_key (default $item.setting $item.hall_unicode) }}
+                    <option
+                      value="{{ $panelId }}"
+                      data-target-id="{{ $panelId }}"
+                      data-is-reference-setting="true"
+                      {{ if eq $idx 0 }}selected{{ end }}
+                    >
+                      {{ $label }}{{ if $item.is_reference_setting }}  (ITA){{ end }}
+                    </option>
+                  {{ end }}
+                </select>
+              </div>
+              {{ range $idx, $item := $settingTransforms }}
+                <div
+                  class="mapping-panel"
+                  id="{{ printf "setting-transform-panel-%d" $idx }}"
+                  role="tabpanel"
+                  data-mapping-panel
+                  data-is-reference-setting="true"
+                  {{ if ne $idx 0 }}hidden{{ end }}
+                >
+                  <p class="note">
+                    Target setting:
+                    {{ if $item.hall_html }}
+                      <span>{{ $item.hall_html | safeHTML }}</span>
+                    {{ else if $item.hall_latex }}
+                      <span class="math-content">\({{ $item.hall_latex }}\)</span>
+                    {{ else }}
+                      <span>{{ partial "value.html" (default $item.hall_unicode $item.hall_key) }}</span>
+                    {{ end }}
+                    {{ with $item.setting }}<span class="table-aliases-muted"> ({{ . }})</span>{{ end }}
+                    <a
+                      class="mapping-tab-external-link"
+                      href="{{ printf "hall/%s/" $item.hall_key | relURL }}"
+                      aria-label="Open target spacegroup page"
+                      title="Open spacegroup page"
+                    >
+                      <img class="mapping-tab-external-icon" src="{{ "icons/Hicon_Pack_1/external-link.svg" | relURL }}" alt="" aria-hidden="true" />
+                    </a>
+                  </p>
+                  <p class="note">
+                    P={{ partial "value.html" $item.transformation_matrix_text }},
+                    p={{ partial "value.html" $item.origin_shift_text }}
+                    {{ partial "info_dot.html" (dict "general" "An affine transformation uses a 3x3 matrix P and shift vector p; a point with fractional coordinates x in the current setting has coordinates P*x + p in the target setting." "context" "Matrix rows and the shift vector are exact rational values.") }}
+                  </p>
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Component</th>
+                        <th>
+                          Algebraic Map
+                          {{ partial "info_dot.html" (dict "general" "Coordinate substitutions giving the target-setting coordinates in terms of the current-setting coordinates x, y, z." "context" "Derived from the matrix P and shift p shown above.") }}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {{ $axes := slice "x'" "y'" "z'" }}
+                      {{ range $axisIdx, $axisLabel := $axes }}
+                        <tr>
+                          <td>{{ $axisLabel }}</td>
+                          <td>
+                            {{ if and $item.algebraic_xyz (gt (len $item.algebraic_xyz) $axisIdx) }}
+                              {{ index $item.algebraic_xyz $axisIdx }}
+                            {{ else }}
+                              —
+                            {{ end }}
+                          </td>
+                        </tr>
+                      {{ end }}
+                    </tbody>
+                  </table>
+                </div>
+              {{ end }}
+              <p class="note">Showing transforms to all {{ len $settingTransforms }} sibling setting{{ if ne (len $settingTransforms) 1 }}s{{ end }}.</p>
+            </div>
+          {{ else }}
+            <p class="note">No sibling settings of the same space-group number.</p>
           {{ end }}
         </div>
       </article>
@@ -249,15 +354,21 @@
             <div class="metric metric-span-two">
               <label>
                 {{ partial "field_label.html" (dict "text" "Setting" "url" (index $docMap "setting_plaintext")) }}
+                <span aria-hidden="true"> - </span>
+                {{ partial "field_label.html" (dict "text" "annotation" "url" (index $docMap "setting")) }}
                 {{
                   partial "info_dot.html" (dict
-                    "general" "Setting text gives a human-readable description of axis/origin conventions for this Hall setting."
-                    "context" "Shown as Standard when the data carries no setting description."
+                    "general" "A human-readable description of the axis/origin conventions for this Hall setting (setting plaintext), followed after a dash by the cctbx setting annotation (an origin-choice code, axis code, or basis-change qualifier)."
+                    "context" "Shown as (Standard) when the data carries no plaintext description; the annotation suffix is omitted when the setting field is empty."
                   )
                 }}
               </label>
               {{ $settingText := default .Params.settings_plaintext .Params.setting_plaintext }}
-              <strong>{{ partial "value.html" (default "Standard" $settingText) }}</strong>
+              {{ $settingAnnotation := .Params.setting }}
+              <strong>
+                {{- partial "value.html" (default "(Standard)" $settingText) -}}
+                {{- if $settingAnnotation }} - {{ partial "value.html" $settingAnnotation }}{{ end -}}
+              </strong>
             </div>
             <div class="metric">
               <label>
@@ -294,7 +405,7 @@
                 {{ else if $hallSymbolLatex }}
                   <span class="math-content">\({{ $hallSymbolLatex }}\)</span>
                 {{ else }}
-                  <span>{{ partial "value.html" (default .Params.hall_entry .Params.hall_key) }}</span>
+                  <span>{{ partial "value.html" (default .Params.hall .Params.hall_key) }}</span>
                 {{ end }}
               </strong>
               {{ if $hallAliases }}
@@ -468,16 +579,6 @@
                 )
               }}:
               {{ partial "value.html" .Params.hm_cctbx_universal }}
-            </p>
-            <p class="note">
-              {{ partial "field_label.html" (dict "text" "Setting annotation" "url" (index $docMap "setting")) }}
-              {{
-                partial "info_dot.html" (dict
-                  "general" "The setting annotation extracted from the universal cctbx Hermann-Mauguin symbol, such as an origin-choice code, axis code, or basis-change qualifier."
-                  "context" "Empty when the universal symbol carries no setting annotation."
-                )
-              }}:
-              {{ partial "value.html" (default .Params.setting .Params.qualifier) }}
             </p>
             <p class="note">
               {{ partial "field_label.html" (dict "text" "Bravais type" "url" (index $docMap "bravais_type")) }}

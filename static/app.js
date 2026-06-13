@@ -90,6 +90,7 @@ const THEME_DARK = "dark";
 const THEME_TWILIGHT = "twilight";
 const THEME_LIGHT = "light";
 const ALT_SETTINGS_QUERY_KEY = "alt_settings";
+const SETTING_TRANSFORMS_QUERY_KEY = "setting_transforms";
 const IDENTITY_QUERY_KEY = "identity";
 const DETAILS_QUERY_KEY = "details";
 const POINTGROUP_NAV_QUERY_KEY = "pointgroup_nav";
@@ -184,12 +185,13 @@ const aliasesMarkupField = (row, base, kind) => {
 const normalizeRow = (row) => {
   const normalized = { ...row };
 
-  normalized.hall_entry_key = firstNonEmpty(row.hall_entry_key, row.hall_entry, row.hall_key);
-  normalized.hall = firstNonEmpty(row.hall, row.hall_symbol, normalized.hall_entry_key);
-  normalized.hall_entry = firstNonEmpty(row.hall_entry_display, normalized.hall, normalized.hall_entry_key);
-  normalized.hall_html = firstNonEmpty(markupField(row, "hall", "html"), row.hall_html, row.hall_unicode, normalized.hall, normalized.hall_entry_key);
-  normalized.hall_latex = firstNonEmpty(markupField(row, "hall", "latex"), row.hall_latex, normalized.hall, normalized.hall_entry_key);
-  normalized.hall_unicode = firstNonEmpty(markupField(row, "hall", "unicode"), row.hall_unicode, normalized.hall, normalized.hall_entry_key);
+  // hall_entry is the normalized lookup key (matching the dataset); hall and
+  // its markups carry the display symbol.
+  normalized.hall_entry = firstNonEmpty(row.hall_entry, row.hall_key);
+  normalized.hall = firstNonEmpty(row.hall, row.hall_symbol, normalized.hall_entry);
+  normalized.hall_html = firstNonEmpty(markupField(row, "hall", "html"), row.hall_html, row.hall_unicode, normalized.hall, normalized.hall_entry);
+  normalized.hall_latex = firstNonEmpty(markupField(row, "hall", "latex"), row.hall_latex, normalized.hall, normalized.hall_entry);
+  normalized.hall_unicode = firstNonEmpty(markupField(row, "hall", "unicode"), row.hall_unicode, normalized.hall, normalized.hall_entry);
   normalized.hall_aliases = firstNonEmpty(row.hall_aliases);
   normalized.hall_aliases_latex = firstNonEmpty(aliasesMarkupField(row, "hall", "latex"), row.hall_aliases_latex);
   normalized.hall_aliases_html = firstNonEmpty(aliasesMarkupField(row, "hall", "html"), row.hall_aliases_html, row.hall_alias_html);
@@ -387,6 +389,7 @@ let activeDataset = inferDatasetFromContext();
 let themeMode = getThemeFromUrl() || THEME_TWILIGHT;
 let sectionState = {
   alt_settings: getSectionOpenFromUrl(ALT_SETTINGS_QUERY_KEY, true),
+  setting_transforms: getSectionOpenFromUrl(SETTING_TRANSFORMS_QUERY_KEY, true),
   identity: getSectionOpenFromUrl(IDENTITY_QUERY_KEY, true),
   details: getSectionOpenFromUrl(DETAILS_QUERY_KEY, true),
   pointgroup_nav: getSectionOpenFromUrl(POINTGROUP_NAV_QUERY_KEY, true),
@@ -403,6 +406,7 @@ let sectionState = {
 
 const SECTION_QUERY_KEYS = {
   alt_settings: ALT_SETTINGS_QUERY_KEY,
+  setting_transforms: SETTING_TRANSFORMS_QUERY_KEY,
   identity: IDENTITY_QUERY_KEY,
   details: DETAILS_QUERY_KEY,
   pointgroup_nav: POINTGROUP_NAV_QUERY_KEY,
@@ -640,7 +644,7 @@ const renderHallWithLatex = (row) => {
     ? renderInlineHtml(hallHtml)
     : hallLatex
       ? renderInlineLatex(hallLatex)
-      : escapeHtml(formatValue(row.hall_unicode || row.hall_entry || row.hall_key));
+      : escapeHtml(formatValue(row.hall_unicode || row.hall || row.hall_key));
   const aliasesHtml = getArrayValues(row.hall_aliases_html);
   const aliasesLatex = getArrayValues(row.hall_aliases_latex);
   const aliasesUnicode = getArrayValues(row.hall_aliases_unicode);
