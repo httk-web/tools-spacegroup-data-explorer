@@ -93,6 +93,7 @@ const ALT_SETTINGS_QUERY_KEY = "alt_settings";
 const SETTING_TRANSFORMS_QUERY_KEY = "setting_transforms";
 const IDENTITY_QUERY_KEY = "identity";
 const DETAILS_QUERY_KEY = "details";
+const HARKER_QUERY_KEY = "harker";
 const POINTGROUP_NAV_QUERY_KEY = "pointgroup_nav";
 const SYMOPS_QUERY_KEY = "symops";
 const WYCKOFF_QUERY_KEY = "wyckoff";
@@ -390,8 +391,9 @@ let themeMode = getThemeFromUrl() || THEME_TWILIGHT;
 let sectionState = {
   alt_settings: getSectionOpenFromUrl(ALT_SETTINGS_QUERY_KEY, true),
   setting_transforms: getSectionOpenFromUrl(SETTING_TRANSFORMS_QUERY_KEY, true),
+  harker: getSectionOpenFromUrl(HARKER_QUERY_KEY, true),
   identity: getSectionOpenFromUrl(IDENTITY_QUERY_KEY, true),
-  details: getSectionOpenFromUrl(DETAILS_QUERY_KEY, true),
+  details: getSectionOpenFromUrl(DETAILS_QUERY_KEY, false),
   pointgroup_nav: getSectionOpenFromUrl(POINTGROUP_NAV_QUERY_KEY, true),
   symops: getSectionOpenFromUrl(SYMOPS_QUERY_KEY, true),
   wyckoff: getSectionOpenFromUrl(WYCKOFF_QUERY_KEY, true),
@@ -407,6 +409,7 @@ let sectionState = {
 const SECTION_QUERY_KEYS = {
   alt_settings: ALT_SETTINGS_QUERY_KEY,
   setting_transforms: SETTING_TRANSFORMS_QUERY_KEY,
+  harker: HARKER_QUERY_KEY,
   identity: IDENTITY_QUERY_KEY,
   details: DETAILS_QUERY_KEY,
   pointgroup_nav: POINTGROUP_NAV_QUERY_KEY,

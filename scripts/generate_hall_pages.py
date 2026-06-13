@@ -504,14 +504,18 @@ def _normalize_entry(hall_key: str, raw_entry: Any) -> Dict[str, Any]:
         _first_non_empty(_markup(entry, "schoenflies", "html"), entry.get("schoenflies_html"), normalized["schoenflies"])
     )
     normalized["schoenflies_unicode"] = _first_non_empty(_markup(entry, "schoenflies", "unicode"), entry.get("schoenflies_unicode"), normalized["schoenflies"])
-    normalized["symops"] = _normalize_spacegroup_symops(entry)
+    normalized["symops"] = _normalize_spacegroup_symops(entry, "symops")
+    normalized["symops_mod_centering"] = _normalize_spacegroup_symops(entry, "symops_mod_centering")
 
     return normalized
 
 
-def _normalize_spacegroup_symops(entry: Dict[str, Any]) -> List[Dict[str, Any]]:
-    raw_symops = entry.get("symops")
-    raw_xyz = entry.get("symops_xyz")
+def _normalize_spacegroup_symops(entry: Dict[str, Any], field: str = "symops") -> List[Dict[str, Any]]:
+    raw_symops = entry.get(field)
+    # The parallel ``*_xyz`` lists were removed from the dataset; xyz now lives
+    # inside each operation's affine_transformation and is hoisted by
+    # ``_normalize_op``. The xyz_list fallback is kept only for stale inputs.
+    raw_xyz = entry.get(f"{field}_xyz")
 
     symops = raw_symops if isinstance(raw_symops, list) else []
     xyz_list = raw_xyz if isinstance(raw_xyz, list) else []

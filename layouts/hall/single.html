@@ -90,107 +90,6 @@
         </div>
       </article>
 
-      <article class="detail-card panel section-wide" data-hide-when-settings="ita">
-        {{
-          partial "section_heading.html" (dict
-            "title" "Setting Transformations"
-            "id" "setting-transformations"
-            "toggle_key" "setting_transforms"
-            "doc_url" (index $docMap "hall_to_it_std_transform")
-            "info_general" "The exact change of basis and origin shift that takes fractional coordinates in the current Hall setting to a selected sibling setting of the same space-group number."
-            "info_context" "Pick a sibling setting to see the transform. It is composed via the IT-standard setting from the hall_to_it_std_transform field; equivalent descriptions related by a normalizer operation are not enumerated here."
-          )
-        }}
-        <div data-section-body="setting_transforms">
-          {{ $settingTransforms := .Params.setting_transforms }}
-          {{ if $settingTransforms }}
-            <div class="mapping-box" data-mapping-box>
-              <div class="mapping-select-wrap">
-                <label class="mapping-select-label" for="setting-transform-select">Target setting</label>
-                <select id="setting-transform-select" class="mapping-select" data-mapping-select aria-label="Select target setting">
-                  {{ range $idx, $item := $settingTransforms }}
-                    {{ $panelId := printf "setting-transform-panel-%d" $idx }}
-                    {{ $label := default $item.hall_key (default $item.setting $item.hall_unicode) }}
-                    <option
-                      value="{{ $panelId }}"
-                      data-target-id="{{ $panelId }}"
-                      data-is-reference-setting="true"
-                      {{ if eq $idx 0 }}selected{{ end }}
-                    >
-                      {{ $label }}{{ if $item.is_reference_setting }}  (ITA){{ end }}
-                    </option>
-                  {{ end }}
-                </select>
-              </div>
-              {{ range $idx, $item := $settingTransforms }}
-                <div
-                  class="mapping-panel"
-                  id="{{ printf "setting-transform-panel-%d" $idx }}"
-                  role="tabpanel"
-                  data-mapping-panel
-                  data-is-reference-setting="true"
-                  {{ if ne $idx 0 }}hidden{{ end }}
-                >
-                  <p class="note">
-                    Target setting:
-                    {{ if $item.hall_html }}
-                      <span>{{ $item.hall_html | safeHTML }}</span>
-                    {{ else if $item.hall_latex }}
-                      <span class="math-content">\({{ $item.hall_latex }}\)</span>
-                    {{ else }}
-                      <span>{{ partial "value.html" (default $item.hall_unicode $item.hall_key) }}</span>
-                    {{ end }}
-                    {{ with $item.setting }}<span class="table-aliases-muted"> ({{ . }})</span>{{ end }}
-                    <a
-                      class="mapping-tab-external-link"
-                      href="{{ printf "hall/%s/" $item.hall_key | relURL }}"
-                      aria-label="Open target spacegroup page"
-                      title="Open spacegroup page"
-                    >
-                      <img class="mapping-tab-external-icon" src="{{ "icons/Hicon_Pack_1/external-link.svg" | relURL }}" alt="" aria-hidden="true" />
-                    </a>
-                  </p>
-                  <p class="note">
-                    P={{ partial "value.html" $item.transformation_matrix_text }},
-                    p={{ partial "value.html" $item.origin_shift_text }}
-                    {{ partial "info_dot.html" (dict "general" "An affine transformation uses a 3x3 matrix P and shift vector p; a point with fractional coordinates x in the current setting has coordinates P*x + p in the target setting." "context" "Matrix rows and the shift vector are exact rational values.") }}
-                  </p>
-                  <table class="data-table">
-                    <thead>
-                      <tr>
-                        <th>Component</th>
-                        <th>
-                          Algebraic Map
-                          {{ partial "info_dot.html" (dict "general" "Coordinate substitutions giving the target-setting coordinates in terms of the current-setting coordinates x, y, z." "context" "Derived from the matrix P and shift p shown above.") }}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {{ $axes := slice "x'" "y'" "z'" }}
-                      {{ range $axisIdx, $axisLabel := $axes }}
-                        <tr>
-                          <td>{{ $axisLabel }}</td>
-                          <td>
-                            {{ if and $item.algebraic_xyz (gt (len $item.algebraic_xyz) $axisIdx) }}
-                              {{ index $item.algebraic_xyz $axisIdx }}
-                            {{ else }}
-                              —
-                            {{ end }}
-                          </td>
-                        </tr>
-                      {{ end }}
-                    </tbody>
-                  </table>
-                </div>
-              {{ end }}
-              <p class="note">Showing transforms to all {{ len $settingTransforms }} sibling setting{{ if ne (len $settingTransforms) 1 }}s{{ end }}.</p>
-            </div>
-          {{ else }}
-            <p class="note">No sibling settings of the same space-group number.</p>
-          {{ end }}
-        </div>
-      </article>
-
       <article class="detail-card panel section-wide">
         <div class="detail-card-head">
           <button class="section-toggle-btn" type="button" data-section-toggle="identity" aria-expanded="true" aria-label="Collapse section">&#9662;</button>
@@ -706,39 +605,6 @@
               {{ end }}
             </p>
           </div>
-          {{ $harker := .Params.harker_planes }}
-          {{ if $harker }}
-            <div class="mapping-box">
-              <p class="note">
-                {{ partial "field_label.html" (dict "text" "Harker planes" "url" (index $docMap "harker_planes")) }}
-                {{
-                  partial "info_dot.html" (dict
-                    "general" "Harker planes are the planes in a Patterson map onto which symmetry-related interatomic vectors accumulate."
-                  )
-                }}
-              </p>
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>algebraic</th>
-                    <th>normal</th>
-                    <th>point</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {{ range $idx, $plane := $harker }}
-                    <tr>
-                      <td>{{ add $idx 1 }}</td>
-                      <td>{{ partial "value.html" $plane.algebraic }}</td>
-                      <td>{{ partial "value.html" (delimit $plane.normal ", ") }}</td>
-                      <td>{{ partial "value.html" (delimit $plane.point ", ") }}</td>
-                    </tr>
-                  {{ end }}
-                </tbody>
-              </table>
-            </div>
-          {{ end }}
           {{ $seminvariants := .Params.structure_seminvariants }}
           {{ if $seminvariants }}
             <div class="mapping-box">
@@ -782,20 +648,29 @@
             "toggle_key" "symops"
             "doc_url" $docSymops
             "info_general" "Symmetry operations describe coordinate transformations that leave the crystal invariant."
-            "info_context" "Rows are listed in page order and use xyz notation."
+            "info_context" "This table lists one operation per class modulo the centering translations. Apply every centering translation to every listed operation to recover the full set of operations."
           )
         }}
         <div data-section-body="symops">
           <div class="mapping-box">
-            {{ $symops := .Params.symops }}
+            {{ $symops := .Params.symops_mod_centering }}
             {{ if $symops }}
+              {{ $centeringTranslations := .Params.centering_translations_xyz }}
+              {{ if not $centeringTranslations }}
+                {{ $centeringTranslations = slice "0,0,0" }}
+              {{ end }}
+              <p class="note">
+                Symmetry operations modulo centering translations.
+                {{ partial "info_dot.html" (dict "general" "This reduced list keeps one symmetry operation for each operation class modulo the centering translations of the setting." "context" "Combine each listed operation with the centering translations shown in the xyz column header to recover the full operation list.") }}
+              </p>
               <table class="data-table">
                 <thead>
                   <tr>
                     <th>#</th>
                     <th>
-                      {{ partial "field_label.html" (dict "text" "xyz" "url" $docSymops) }}
-                      {{ partial "info_dot.html" (dict "general" "Coordinate-form operations express transformed x, y, z values." "context" "This column shows the exact x,y,z expression stored inside each operation's affine_transformation record.") }}
+                      {{ partial "field_label.html" (dict "text" "xyz mod centerings" "url" $docSymopsModCentering) }}
+                      <span class="table-header-subline">{{ partial "orbit.html" $centeringTranslations }}</span>
+                      {{ partial "info_dot.html" (dict "general" "Coordinate-form operations express transformed x, y, z values." "context" "The full operation list is recovered by combining each listed operation with the centering translations shown above, with coordinates understood modulo lattice translations.") }}
                     </th>
                     <th>
                       rot_type
@@ -818,7 +693,7 @@
                   {{ end }}
                 </tbody>
               </table>
-              <p class="note">Showing all {{ len $symops }} operations.</p>
+              <p class="note">Showing {{ len $symops }} operation{{ if ne (len $symops) 1 }}s{{ end }} modulo centering translations.</p>
             {{ else }}
               <p class="note">No symmetry operations in this entry.</p>
             {{ end }}
@@ -1193,17 +1068,27 @@
             <div class="normalizer-stack">
               <div class="mapping-box">
                 <p class="note">
-                  {{ partial "field_label.html" (dict "text" "Discrete Euclidean normalizer operations" "url" (index $docMap "euclidean_normalizer")) }}
-                  {{ partial "info_dot.html" (dict "general" "The finite Euclidean normalizer consists of metric-preserving affine operations that map the space group to itself in this setting." "context" "These rows use the same xyz-style fields as other operation tables in the explorer; continuous origin-shift freedoms are listed separately below.") }}
+                  {{ partial "field_label.html" (dict "text" "Discrete Euclidean normalizer operations modulo centering translations" "url" (index $docMap "euclidean_normalizer")) }}
+                  {{ partial "info_dot.html" (dict "general" "The finite Euclidean normalizer consists of metric-preserving affine operations that map the space group to itself in this setting." "context" "This reduced list keeps one operation per class modulo the centering translations; combine each listed operation with the centering translations shown in the xyz column header to recover the full set. Continuous origin-shift freedoms are listed separately below.") }}
                 </p>
                 {{ if $euclidian }}
-                  {{ $symops := $euclidian.symops }}
-                  {{ if $symops }}
+                  {{ $symopsModCentering := $euclidian.symops_mod_centering }}
+                  {{ if $symopsModCentering }}
+                    {{ $normalizerCenteringTranslations := $euclidian.centering_translations_xyz }}
+                    {{ if not $normalizerCenteringTranslations }}
+                      {{ $normalizerCenteringTranslations = .Params.centering_translations_xyz }}
+                    {{ end }}
+                    {{ if not $normalizerCenteringTranslations }}
+                      {{ $normalizerCenteringTranslations = slice "0,0,0" }}
+                    {{ end }}
                     <table class="data-table">
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>{{ partial "field_label.html" (dict "text" "xyz" "url" $docSymops) }}</th>
+                          <th>
+                            {{ partial "field_label.html" (dict "text" "xyz mod centerings" "url" $docSymopsModCentering) }}
+                            <span class="table-header-subline">{{ partial "orbit.html" $normalizerCenteringTranslations }}</span>
+                          </th>
                           <th>rot_type</th>
                           <th>sense</th>
                           <th>axis</th>
@@ -1215,7 +1100,7 @@
                         </tr>
                       </thead>
                       <tbody>
-                        {{ range $index, $op := $symops }}
+                        {{ range $index, $op := $symopsModCentering }}
                           <tr>
                             <td>{{ add $index 1 }}</td>
                             <td>{{ partial "value.html" $op.xyz }}</td>
@@ -1237,67 +1122,9 @@
                         {{ end }}
                       </tbody>
                     </table>
-                    <p class="note">Showing all {{ len $symops }} discrete Euclidean normalizer operations.</p>
+                    <p class="note">Showing {{ len $symopsModCentering }} Euclidean normalizer operation{{ if ne (len $symopsModCentering) 1 }}s{{ end }} modulo centering translations.</p>
                   {{ else }}
                     <p class="note">No discrete Euclidean normalizer operations available.</p>
-                  {{ end }}
-                  {{ $symopsModCentering := $euclidian.symops_mod_centering }}
-                  {{ if $symopsModCentering }}
-                    {{ $normalizerCenteringTranslations := $euclidian.centering_translations_xyz }}
-                    {{ if not $normalizerCenteringTranslations }}
-                      {{ $normalizerCenteringTranslations = .Params.centering_translations_xyz }}
-                    {{ end }}
-                    {{ if not $normalizerCenteringTranslations }}
-                      {{ $normalizerCenteringTranslations = slice "0,0,0" }}
-                    {{ end }}
-                    <div class="normalizer-subtable">
-                      <p class="note">
-                        Discrete Euclidean normalizer operations modulo centering translations.
-                        {{ partial "info_dot.html" (dict "general" "This reduced list keeps one Euclidean normalizer operation for each operation class modulo centering translations." "context" "Combine each listed operation with the centering translations shown in the xyz column header to recover the full centering-expanded operation list.") }}
-                      </p>
-                      <table class="data-table">
-                        <thead>
-                          <tr>
-                            <th>#</th>
-                            <th>
-                              {{ partial "field_label.html" (dict "text" "xyz mod centerings" "url" $docSymopsModCentering) }}
-                              <span class="table-header-subline">{{ partial "orbit.html" $normalizerCenteringTranslations }}</span>
-                            </th>
-                            <th>rot_type</th>
-                            <th>sense</th>
-                            <th>axis</th>
-                            <th>screw/glide</th>
-                            <th>origin_shift</th>
-                            <th>P det</th>
-                            <th>P</th>
-                            <th>p</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {{ range $index, $op := $symopsModCentering }}
-                            <tr>
-                              <td>{{ add $index 1 }}</td>
-                              <td>{{ partial "value.html" $op.xyz }}</td>
-                              <td>{{ partial "value.html" $op.rot_type }}</td>
-                              <td>{{ partial "value.html" $op.sense }}</td>
-                              <td>{{ partial "value.html" (delimit $op.axis ", ") }}</td>
-                              <td>{{ partial "value.html" $op.screw_glide }}</td>
-                              <td>{{ partial "value.html" $op.origin_shift }}</td>
-                              <td>{{ partial "value.html" $op.P_det }}</td>
-                              <td>
-                                {{ if $op.P }}
-                                  {{ range $rowIdx, $row := $op.P }}{{ if gt $rowIdx 0 }}; {{ end }}[{{ delimit $row ", " }}]{{ end }}
-                                {{ else }}
-                                  —
-                                {{ end }}
-                              </td>
-                              <td>{{ partial "value.html" (delimit $op.p ", ") }}</td>
-                            </tr>
-                          {{ end }}
-                        </tbody>
-                      </table>
-                      <p class="note">Showing {{ len $symopsModCentering }} Euclidean normalizer operation{{ if ne (len $symopsModCentering) 1 }}s{{ end }} modulo centering translations.</p>
-                    </div>
                   {{ end }}
                 {{ else }}
                   <p class="note">No discrete Euclidean normalizer data available.</p>
@@ -1519,6 +1346,150 @@
           {{ else }}
             <p class="note">No isomorphic subgroup data available.</p>
           {{ end }}
+        </div>
+      </article>
+
+      <article class="detail-card panel section-wide" data-hide-when-settings="ita">
+        {{
+          partial "section_heading.html" (dict
+            "title" "Setting Transformations"
+            "id" "setting-transformations"
+            "toggle_key" "setting_transforms"
+            "doc_url" (index $docMap "hall_to_it_std_transform")
+            "info_general" "The exact change of basis and origin shift that takes fractional coordinates in the current Hall setting to a selected sibling setting of the same space-group number."
+            "info_context" "Pick a sibling setting to see the transform. It is composed via the IT-standard setting from the hall_to_it_std_transform field; equivalent descriptions related by a normalizer operation are not enumerated here."
+          )
+        }}
+        <div data-section-body="setting_transforms">
+          {{ $settingTransforms := .Params.setting_transforms }}
+          {{ if $settingTransforms }}
+            <div class="mapping-box" data-mapping-box>
+              <div class="mapping-select-wrap">
+                <label class="mapping-select-label" for="setting-transform-select">Target setting</label>
+                <select id="setting-transform-select" class="mapping-select" data-mapping-select aria-label="Select target setting">
+                  {{ range $idx, $item := $settingTransforms }}
+                    {{ $panelId := printf "setting-transform-panel-%d" $idx }}
+                    {{ $label := default $item.hall_key (default $item.setting $item.hall_unicode) }}
+                    <option
+                      value="{{ $panelId }}"
+                      data-target-id="{{ $panelId }}"
+                      data-is-reference-setting="true"
+                      {{ if eq $idx 0 }}selected{{ end }}
+                    >
+                      {{ $label }}{{ if $item.is_reference_setting }}  (ITA){{ end }}
+                    </option>
+                  {{ end }}
+                </select>
+              </div>
+              {{ range $idx, $item := $settingTransforms }}
+                <div
+                  class="mapping-panel"
+                  id="{{ printf "setting-transform-panel-%d" $idx }}"
+                  role="tabpanel"
+                  data-mapping-panel
+                  data-is-reference-setting="true"
+                  {{ if ne $idx 0 }}hidden{{ end }}
+                >
+                  <p class="note">
+                    Target setting:
+                    {{ if $item.hall_html }}
+                      <span>{{ $item.hall_html | safeHTML }}</span>
+                    {{ else if $item.hall_latex }}
+                      <span class="math-content">\({{ $item.hall_latex }}\)</span>
+                    {{ else }}
+                      <span>{{ partial "value.html" (default $item.hall_unicode $item.hall_key) }}</span>
+                    {{ end }}
+                    {{ with $item.setting }}<span class="table-aliases-muted"> ({{ . }})</span>{{ end }}
+                    <a
+                      class="mapping-tab-external-link"
+                      href="{{ printf "hall/%s/" $item.hall_key | relURL }}"
+                      aria-label="Open target spacegroup page"
+                      title="Open spacegroup page"
+                    >
+                      <img class="mapping-tab-external-icon" src="{{ "icons/Hicon_Pack_1/external-link.svg" | relURL }}" alt="" aria-hidden="true" />
+                    </a>
+                  </p>
+                  <p class="note">
+                    P={{ partial "value.html" $item.transformation_matrix_text }},
+                    p={{ partial "value.html" $item.origin_shift_text }}
+                    {{ partial "info_dot.html" (dict "general" "An affine transformation uses a 3x3 matrix P and shift vector p; a point with fractional coordinates x in the current setting has coordinates P*x + p in the target setting." "context" "Matrix rows and the shift vector are exact rational values.") }}
+                  </p>
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Component</th>
+                        <th>
+                          Algebraic Map
+                          {{ partial "info_dot.html" (dict "general" "Coordinate substitutions giving the target-setting coordinates in terms of the current-setting coordinates x, y, z." "context" "Derived from the matrix P and shift p shown above.") }}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {{ $axes := slice "x'" "y'" "z'" }}
+                      {{ range $axisIdx, $axisLabel := $axes }}
+                        <tr>
+                          <td>{{ $axisLabel }}</td>
+                          <td>
+                            {{ if and $item.algebraic_xyz (gt (len $item.algebraic_xyz) $axisIdx) }}
+                              {{ index $item.algebraic_xyz $axisIdx }}
+                            {{ else }}
+                              —
+                            {{ end }}
+                          </td>
+                        </tr>
+                      {{ end }}
+                    </tbody>
+                  </table>
+                </div>
+              {{ end }}
+              <p class="note">Showing transforms to all {{ len $settingTransforms }} sibling setting{{ if ne (len $settingTransforms) 1 }}s{{ end }}.</p>
+            </div>
+          {{ else }}
+            <p class="note">No sibling settings of the same space-group number.</p>
+          {{ end }}
+        </div>
+      </article>
+
+      <article class="detail-card panel section-wide">
+        {{
+          partial "section_heading.html" (dict
+            "title" "Harker Planes"
+            "id" "harker-planes"
+            "toggle_key" "harker"
+            "doc_url" (index $docMap "harker_planes")
+            "info_general" "Harker planes are the planes in a Patterson map onto which symmetry-related interatomic vectors accumulate."
+            "info_context" "Each plane is given by its oriented normal, a point it passes through, and the algebraic form of the locus."
+          )
+        }}
+        <div data-section-body="harker">
+          <div class="mapping-box">
+            {{ $harker := .Params.harker_planes }}
+            {{ if $harker }}
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>algebraic</th>
+                    <th>normal</th>
+                    <th>point</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{ range $idx, $plane := $harker }}
+                    <tr>
+                      <td>{{ add $idx 1 }}</td>
+                      <td>{{ partial "value.html" $plane.algebraic }}</td>
+                      <td>{{ partial "value.html" (delimit $plane.normal ", ") }}</td>
+                      <td>{{ partial "value.html" (delimit $plane.point ", ") }}</td>
+                    </tr>
+                  {{ end }}
+                </tbody>
+              </table>
+              <p class="note">Showing all {{ len $harker }} Harker plane{{ if ne (len $harker) 1 }}s{{ end }}.</p>
+            {{ else }}
+              <p class="note">No Harker planes for this setting.</p>
+            {{ end }}
+          </div>
         </div>
       </article>
     </div>
