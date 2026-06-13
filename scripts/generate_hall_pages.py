@@ -63,8 +63,11 @@ INDEX_FIELDS = [
     "n_c",
     "it_coordinate_system_code",
     "n_c_aliases",
+    "setting",
     "setting_plaintext",
     "crystal_system",
+    "bravais_type",
+    "centring_type",
     "point_group",
     "laue_class",
     "qualifier",
@@ -193,6 +196,23 @@ def _normalize_op(raw: Any) -> Dict[str, Any]:
     return op
 
 
+def _centering_translations_xyz(entry: Dict[str, Any]) -> List[str] | None:
+    """Render structured ``centering_translations`` vectors as ``x,y,z`` strings.
+
+    The datasets store centering translations only as lists of exact fraction
+    strings; the former parallel ``centering_translations_xyz`` field was
+    removed from the generated data, so the display strings are derived here.
+    """
+    raw = entry.get("centering_translations") if isinstance(entry, dict) else None
+    if not isinstance(raw, list):
+        return None
+    rendered: List[str] = []
+    for vec in raw:
+        if isinstance(vec, list) and vec:
+            rendered.append(",".join(str(component) for component in vec))
+    return rendered or None
+
+
 def _normalize_ops_with_xyz(raw_ops: Any, raw_xyz: Any = None) -> List[Dict[str, Any]]:
     ops = raw_ops if isinstance(raw_ops, list) else []
     xyz_list = raw_xyz if isinstance(raw_xyz, list) else []
@@ -275,10 +295,9 @@ def _pick_dataset(payload: Any, *keys: str) -> Any:
     return {}
 
 
-def _extract_field_doc_urls(payload: Any) -> Dict[str, str]:
+def _payload_context(payload: Any) -> Dict[str, Any]:
     if not isinstance(payload, dict):
         return {}
-
     context = payload.get("@context")
     mappings: Dict[str, Any] = {}
     if isinstance(context, dict):
@@ -287,8 +306,22 @@ def _extract_field_doc_urls(payload: Any) -> Dict[str, str]:
         for item in context:
             if isinstance(item, dict):
                 mappings.update(item)
+    return mappings
+
+
+def _extract_field_doc_urls(payload: Any, dataset_keys: List[str] | None = None) -> Dict[str, str]:
+    """Collect field -> OPTIMADE property-definition URLs from a JSON-LD @context.
+
+    When ``dataset_keys`` is given, only the nested per-dataset contexts for
+    those keys are used. Datasets in one file can map the same field name to
+    different property definitions (e.g. ``symops`` for spacegroups vs
+    pointgroups), so callers building page-type-specific maps must select the
+    matching dataset context instead of flattening everything.
+    """
+    mappings = _payload_context(payload)
 
     urls: Dict[str, str] = {}
+
     def collect(mapping: Dict[str, Any]) -> None:
         for key, value in mapping.items():
             if isinstance(value, str) and value.startswith("http"):
@@ -301,7 +334,16 @@ def _extract_field_doc_urls(payload: Any) -> Dict[str, str]:
                 if isinstance(nested, dict):
                     collect(nested)
 
-    collect(mappings)
+    if dataset_keys is None:
+        collect(mappings)
+        return urls
+
+    for dataset_key in dataset_keys:
+        value = mappings.get(dataset_key)
+        if isinstance(value, dict):
+            nested = value.get("@context")
+            if isinstance(nested, dict):
+                collect(nested)
     return urls
 
 
@@ -428,6 +470,10 @@ def _normalize_entry(hall_key: str, raw_entry: Any) -> Dict[str, Any]:
     normalized["settings_plaintext"] = normalized["setting_plaintext"]
     normalized["qualifier"] = _first_non_empty(entry.get("qualifier"), normalized["setting"])
 
+    normalized["centering_translations_xyz"] = _first_non_empty(
+        entry.get("centering_translations_xyz"),
+        _centering_translations_xyz(entry),
+    )
     normalized["centering_translation_vector_count"] = _first_non_empty(
         entry.get("centering_translation_vector_count"),
         entry.get("n_centering_translations"),
@@ -604,8 +650,17 @@ def _normalize_pointgroup_entry(pointgroup_key: str, raw_entry: Any) -> Dict[str
     )
     normalized["schoenflies_unicode"] = _first_non_empty(_markup(entry, "schoenflies", "unicode"), entry.get("schoenflies_unicode"), normalized["schoenflies"])
 
-    symops = entry.get("symops")
-    normalized["symops"] = symops if isinstance(symops, list) else []
+    raw_symops = entry.get("symops") if isinstance(entry.get("symops"), list) else []
+    symops: List[Dict[str, Any]] = []
+    for raw_op in raw_symops:
+        if not isinstance(raw_op, dict):
+            continue
+        op = _normalize_op(raw_op)
+        det = op.get("P_det")
+        if op.get("is_proper") is None and isinstance(det, int):
+            op["is_proper"] = det > 0
+        symops.append(op)
+    normalized["symops"] = symops
 
     conjugacy = entry.get("conjugacy_classes")
     normalized["conjugacy_classes"] = conjugacy if isinstance(conjugacy, list) else []
@@ -776,7 +831,10 @@ def load_euclidian_normalizer_data() -> Dict[str, Dict[str, Any]]:
         if hall_key and isinstance(payload, dict) and hall_key not in result:
             normalized = _normalize_normalizer_payload(payload)
             normalized["centering_translations"] = _first_non_empty(row.get("centering_translations"))
-            normalized["centering_translations_xyz"] = _first_non_empty(row.get("centering_translations_xyz"))
+            normalized["centering_translations_xyz"] = _first_non_empty(
+                row.get("centering_translations_xyz"),
+                _centering_translations_xyz(row),
+            )
             result[hall_key] = normalized
     if not result:
         _log("Euclidean normalizer data not found; discrete Euclidean normalizer section will be empty")
@@ -1499,6 +1557,7 @@ title: "Pointgroup Data Explorer"
 def write_pointgroup_pages(
     pointgroup_data: Dict[str, Dict[str, Any]],
     pointgroup_nav: List[Dict[str, Any]],
+    field_doc_urls: Dict[str, str],
 ) -> None:
     POINTGROUP_ROOT.mkdir(parents=True, exist_ok=True)
     total = len(pointgroup_data)
@@ -1523,6 +1582,7 @@ def write_pointgroup_pages(
         }
         payload.update(entry)
         payload["pointgroup_nav"] = pointgroup_nav
+        payload["field_doc_urls"] = field_doc_urls
 
         json_text = json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True)
         (POINTGROUP_ROOT / f"{slug}.md").write_text(f"{json_text}\n", encoding="utf-8")
@@ -1601,8 +1661,17 @@ def write_hall_pages(
 def main() -> None:
     _log("Starting generation")
     symmetry_basics_payload = _load_json(SYMMETRY_BASICS_PATH)
-    field_doc_urls = _extract_field_doc_urls(symmetry_basics_payload)
-    _log(f"Loaded {len(field_doc_urls)} field documentation URLs from symmetry basics @context")
+    field_doc_urls = _extract_field_doc_urls(symmetry_basics_payload, ["spacegroups"])
+    # The transformations dataset carries its own JSON-LD @context with the
+    # OPTIMADE property-definition URLs for the normalizer/subgroup sections.
+    field_doc_urls.update(
+        _extract_field_doc_urls(_load_transformations_payload(), ["transformations_per_hm_entry"])
+    )
+    pointgroup_field_doc_urls = _extract_field_doc_urls(symmetry_basics_payload, ["pointgroups"])
+    _log(
+        f"Loaded {len(field_doc_urls)} spacegroup and {len(pointgroup_field_doc_urls)} pointgroup "
+        "field documentation URLs from dataset @context headers"
+    )
     data = load_data()
     _log(f"Loaded {len(data)} Hall entries")
     pointgroup_data = load_pointgroup_data()
@@ -1639,7 +1708,7 @@ def main() -> None:
     write_index_data(index_rows)
     write_pointgroup_index_content()
     write_pointgroup_index_data(pointgroup_index_rows)
-    write_pointgroup_pages(pointgroup_data, pointgroup_nav)
+    write_pointgroup_pages(pointgroup_data, pointgroup_nav, pointgroup_field_doc_urls)
     write_hall_pages(
         data,
         field_doc_urls,

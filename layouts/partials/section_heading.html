@@ -6,7 +6,11 @@
     <button class="section-toggle-btn" type="button" data-section-toggle="{{ $toggleKey }}" aria-expanded="true" aria-label="Collapse section">&#9662;</button>
   {{- end }}
   <h3 id="{{ $id }}" class="section-title">
-    <span>{{ $title }}</span>
+    {{- if .doc_url }}
+      <span>{{ partial "field_label.html" (dict "text" $title "url" .doc_url) }}</span>
+    {{- else }}
+      <span>{{ $title }}</span>
+    {{- end }}
     {{- with .info_general }}
       {{ partial "info_dot.html" (dict "general" . "context" $.info_context) }}
     {{- end }}

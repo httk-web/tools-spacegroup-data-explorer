@@ -1,4 +1,7 @@
 {{ define "main" }}
+  {{ $docMap := default (dict) .Params.field_doc_urls }}
+  {{ $docSymops := default "https://schemas.anyterial.se/defs/v0.1/properties/spacegroups/symops" (index $docMap "symops") }}
+  {{ $docSymopsModCentering := default "https://schemas.anyterial.se/defs/v0.1/properties/spacegroups/symops_mod_centering" (index $docMap "symops_mod_centering") }}
   <section id="detail-view" class="view is-active" aria-label="Spacegroup detail view">
     <div class="detail-header panel">
       <div class="detail-meta">
@@ -105,9 +108,6 @@
           </div>
         </div>
         <div data-section-body="identity">
-          {{ $docMap := .Params.field_doc_urls }}
-          {{ $docSymopsXYZ := default "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symmetry_operations_xyz" (index $docMap "symops_xyz") }}
-          {{ $docSymopsModCenteringXYZ := default "https://schemas.anyterial.se/defs/v0.1/properties/spacegroups/symops_mod_centering_xyz" (index $docMap "symops_mod_centering_xyz") }}
           {{ $docHall := default "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hall" (index $docMap "hall") }}
           {{ $docHMShort := default "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hermann_mauguin" (index $docMap "hm_short") }}
           {{ $docHMExtended := default "https://schemas.optimade.org/defs/v1.2/properties/optimade/structures/space_group_symbol_hermann_mauguin_extended" (index $docMap "hm_extended") }}
@@ -248,11 +248,11 @@
             </div>
             <div class="metric metric-span-two">
               <label>
-                Setting
+                {{ partial "field_label.html" (dict "text" "Setting" "url" (index $docMap "setting_plaintext")) }}
                 {{
                   partial "info_dot.html" (dict
                     "general" "Setting text gives a human-readable description of axis/origin conventions for this Hall setting."
-                    "context" "This field uses settings_plaintext when available."
+                    "context" "Shown as Standard when the data carries no setting description."
                   )
                 }}
               </label>
@@ -438,55 +438,238 @@
               {{ partial "value.html" $hmUnicode }}
             </p>
             <p class="note">
-              Setting key
+              {{ partial "field_label.html" (dict "text" "Standard short HM symbol" "url" (index $docMap "hm_short_std")) }}
               {{
                 partial "info_dot.html" (dict
-                  "general" "Setting keys are compact raw suffixes used to disambiguate variants that share a closely related base symbol."
+                  "general" "The ITA standard short Hermann-Mauguin symbol for the space-group type, independent of the setting shown on this page."
+                  "context" "It can differ from the setting-specific short symbol shown in the identity tiles."
+                )
+              }}:
+              {{ $stdShort := .Params.hm_short_std }}
+              {{ with .Params.hm_short_std_markup }}{{ $stdShort = default $stdShort (index . "unicode") }}{{ end }}
+              {{ partial "value.html" $stdShort }}
+            </p>
+            <p class="note">
+              {{ partial "field_label.html" (dict "text" "Standard full HM symbol" "url" (index $docMap "hm_full_std")) }}
+              {{
+                partial "info_dot.html" (dict
+                  "general" "The ITA standard full Hermann-Mauguin symbol for the space-group type, independent of the setting shown on this page."
+                )
+              }}:
+              {{ $stdFull := .Params.hm_full_std }}
+              {{ with .Params.hm_full_std_markup }}{{ $stdFull = default $stdFull (index . "unicode") }}{{ end }}
+              {{ partial "value.html" $stdFull }}
+            </p>
+            <p class="note">
+              {{ partial "field_label.html" (dict "text" "Universal cctbx HM symbol" "url" (index $docMap "hm_cctbx_universal")) }}
+              {{
+                partial "info_dot.html" (dict
+                  "general" "The universal Hermann-Mauguin symbol used by cctbx, which appends explicit setting annotations to the base symbol."
+                )
+              }}:
+              {{ partial "value.html" .Params.hm_cctbx_universal }}
+            </p>
+            <p class="note">
+              {{ partial "field_label.html" (dict "text" "Setting annotation" "url" (index $docMap "setting")) }}
+              {{
+                partial "info_dot.html" (dict
+                  "general" "The setting annotation extracted from the universal cctbx Hermann-Mauguin symbol, such as an origin-choice code, axis code, or basis-change qualifier."
+                  "context" "Empty when the universal symbol carries no setting annotation."
                 )
               }}:
               {{ partial "value.html" (default .Params.setting .Params.qualifier) }}
             </p>
             <p class="note">
-              Asymmetric unit
+              {{ partial "field_label.html" (dict "text" "Bravais type" "url" (index $docMap "bravais_type")) }}
+              {{
+                partial "info_dot.html" (dict
+                  "general" "The Bravais type of the translational lattice: a lower-case crystal-system letter followed by an upper-case centring symbol."
+                  "context" "Side-centred A, B, or C settings are normalized to the setting-independent S symbol for monoclinic and orthorhombic lattices."
+                )
+              }}:
+              {{ partial "value.html" .Params.bravais_type }}
+            </p>
+            <p class="note">
+              {{ partial "field_label.html" (dict "text" "Centring type" "url" (index $docMap "centring_type")) }}
+              {{
+                partial "info_dot.html" (dict
+                  "general" "The setting-dependent lattice centring symbol identifying primitive, face-centred, body-centred, rhombohedral, or hexagonal centring."
+                )
+              }}:
+              {{ partial "value.html" .Params.centring_type }}
+            </p>
+            <p class="note">
+              {{ partial "field_label.html" (dict "text" "Enantiomorphic counterpart IT number" "url" (index $docMap "it_number_enantiomorphic")) }}
+              {{
+                partial "info_dot.html" (dict
+                  "general" "For enantiomorphic space groups, the International Tables number of the mirror-image space-group type."
+                )
+              }}:
+              {{ partial "value.html" .Params.it_number_enantiomorphic }}
+            </p>
+            <p class="note">
+              {{ partial "field_label.html" (dict "text" "Spglib Hall symbol" "url" (index $docMap "spglib_hall")) }}
+              {{
+                partial "info_dot.html" (dict
+                  "general" "The Hall symbol for this setting as spelled by the spglib library; it denotes the same setting as the Hall symbol above but may differ in spelling conventions."
+                )
+              }}:
+              {{ partial "value.html" .Params.spglib_hall }}
+              &nbsp;&mdash;&nbsp;
+              {{ partial "field_label.html" (dict "text" "spglib Hall numbers" "url" (index $docMap "spglib_hall_numbers")) }}
+              {{
+                partial "info_dot.html" (dict
+                  "general" "Spglib enumerates 530 settings with Hall numbers 1 to 530; this lists every spglib Hall number whose Hall symbol matches this entry."
+                )
+              }}:
+              {{ partial "value.html" .Params.spglib_hall_numbers }}
+            </p>
+            <p class="note">
+              {{ partial "field_label.html" (dict "text" "Asymmetric unit" "url" (index $docMap "asu_str")) }}
               {{
                 partial "info_dot.html" (dict
                   "general" "The asymmetric unit is the smallest region that generates the full crystal under all symmetry operations."
-                  "context" "On this page, bounds are shown as compact coordinate intervals."
+                  "context" "This is the plain-string rendering; the underlying dataset also stores the structured plane-and-rule representation under the asu field. Bracketed conditions refine boundary ownership."
                 )
               }}:
-              {{ partial "value.html" .Params.asym_unit }}
+              {{ partial "value.html" (default .Params.asym_unit .Params.asu_str) }}
             </p>
             <p class="note">
-              Centering translation vectors
+              {{ partial "field_label.html" (dict "text" "Shape-only asymmetric unit" "url" (index $docMap "asu_shape_only_str")) }}
               {{
                 partial "info_dot.html" (dict
-                  "general" "Centering translation vectors are centering offsets applied to the conventional cell."
-                  "context" "This count comes from centering_translation_vector_count in the normalized payload."
+                  "general" "The geometric shape part of the asymmetric-unit restrictions, without the conditional boundary refinements."
+                )
+              }}:
+              {{ partial "value.html" .Params.asu_shape_only_str }}
+            </p>
+            <p class="note">
+              {{ partial "field_label.html" (dict "text" "Wyckoff sets" "url" (index $docMap "wyckoff_sets")) }}
+              {{
+                partial "info_dot.html" (dict
+                  "general" "Wyckoff sets group Wyckoff positions that are equivalent under the normalizer of the space group."
+                )
+              }}:
+              {{ $wyckoffSets := .Params.wyckoff_sets }}
+              {{ if $wyckoffSets }}
+                {{ range $idx, $set := $wyckoffSets }}{{ if gt $idx 0 }} {{ end }}{{ printf "{%s}" (delimit $set ", ") }}{{ end }}
+              {{ else }}
+                &mdash;
+              {{ end }}
+            </p>
+            <p class="note">
+              {{ partial "field_label.html" (dict "text" "Centering translations count" "url" (index $docMap "n_centering_translations")) }}
+              {{
+                partial "info_dot.html" (dict
+                  "general" "Number of centering translations in the conventional cell of this setting."
+                  "context" "It equals the length of the centering-translation list used in the Wyckoff and normalizer tables."
                 )
               }}:
               {{ partial "value.html" (default .Params.centering_translation_vector_count .Params.n_ltr) }}
             </p>
             <p class="note">
-              Point-group symmetry operations
+              {{ partial "field_label.html" (dict "text" "Point-group symop count" "url" (index $docMap "n_pointgroup_symops")) }}
               {{
                 partial "info_dot.html" (dict
-                  "general" "Point-group symmetry operations count the representative rotational/reflection operations."
-                  "context" "This value comes from pointgroup_symop_count (legacy alias n_smx)."
+                  "general" "Number of operations of the point group of this space group."
+                  "context" "It equals the number of representative operations, one per coset of the centering translations."
                 )
               }}:
               {{ partial "value.html" (default .Params.pointgroup_symop_count .Params.n_smx) }}
             </p>
             <p class="note">
-              Space-group symmetry operations
+              {{ partial "field_label.html" (dict "text" "Space-group symop count" "url" (index $docMap "n_symops")) }}
               {{
                 partial "info_dot.html" (dict
-                  "general" "Space-group symmetry operations count all operations listed for the setting."
-                  "context" "This value comes from symop_count (legacy alias order_z)."
+                  "general" "Number of symmetry operations in the finite operation list for this setting."
+                  "context" "It equals the length of the symmetry-operations table below."
                 )
               }}:
               {{ partial "value.html" (default .Params.symop_count .Params.order_z) }}
             </p>
+            <p class="note">
+              {{ partial "field_label.html" (dict "text" "FFT grid factors" "url" (index $docMap "cctbx_fft_grid_factors")) }}
+              {{
+                partial "info_dot.html" (dict
+                  "general" "Per-axis factors that an FFT grid dimension must be divisible by for symmetry-adapted sampling, derived from cctbx."
+                  "context" "Three variants are given: from the space-group translations, from the structure seminvariants, and refined against the Euclidean normalizer."
+                )
+              }}:
+              {{ $fft := .Params.cctbx_fft_grid_factors }}
+              {{ if $fft }}
+                space group [{{ delimit (index $fft "space_group") ", " }}];
+                seminvariant [{{ delimit (index $fft "seminvariant") ", " }}];
+                euclidean [{{ delimit (index $fft "euclidean") ", " }}]
+              {{ else }}
+                &mdash;
+              {{ end }}
+            </p>
           </div>
+          {{ $harker := .Params.harker_planes }}
+          {{ if $harker }}
+            <div class="mapping-box">
+              <p class="note">
+                {{ partial "field_label.html" (dict "text" "Harker planes" "url" (index $docMap "harker_planes")) }}
+                {{
+                  partial "info_dot.html" (dict
+                    "general" "Harker planes are the planes in a Patterson map onto which symmetry-related interatomic vectors accumulate."
+                  )
+                }}
+              </p>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>algebraic</th>
+                    <th>normal</th>
+                    <th>point</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{ range $idx, $plane := $harker }}
+                    <tr>
+                      <td>{{ add $idx 1 }}</td>
+                      <td>{{ partial "value.html" $plane.algebraic }}</td>
+                      <td>{{ partial "value.html" (delimit $plane.normal ", ") }}</td>
+                      <td>{{ partial "value.html" (delimit $plane.point ", ") }}</td>
+                    </tr>
+                  {{ end }}
+                </tbody>
+              </table>
+            </div>
+          {{ end }}
+          {{ $seminvariants := .Params.structure_seminvariants }}
+          {{ if $seminvariants }}
+            <div class="mapping-box">
+              <p class="note">
+                {{ partial "field_label.html" (dict "text" "Structure seminvariants" "url" (index $docMap "structure_seminvariants")) }}
+                {{
+                  partial "info_dot.html" (dict
+                    "general" "Structure-seminvariant vectors and moduli describe origin shifts that leave the phase relations of the structure invariant."
+                    "context" "A modulus of 0 marks a continuously allowed shift direction."
+                  )
+                }}
+              </p>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>vector</th>
+                    <th>modulus</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{ range $idx, $sv := $seminvariants }}
+                    <tr>
+                      <td>{{ add $idx 1 }}</td>
+                      <td>{{ partial "value.html" (delimit $sv.vector ", ") }}</td>
+                      <td>{{ partial "value.html" $sv.modulus }}</td>
+                    </tr>
+                  {{ end }}
+                </tbody>
+              </table>
+            </div>
+          {{ end }}
         </div>
       </article>
 
@@ -496,6 +679,7 @@
             "title" "Symmetry Operations"
             "id" "symmetry-operations"
             "toggle_key" "symops"
+            "doc_url" $docSymops
             "info_general" "Symmetry operations describe coordinate transformations that leave the crystal invariant."
             "info_context" "Rows are listed in page order and use xyz notation."
           )
@@ -509,8 +693,8 @@
                   <tr>
                     <th>#</th>
                     <th>
-                      {{ partial "field_label.html" (dict "text" "xyz" "url" $docSymopsXYZ) }}
-                      {{ partial "info_dot.html" (dict "general" "Coordinate-form operations express transformed x, y, z values." "context" "This column uses the exact textual xyz form stored for each operation.") }}
+                      {{ partial "field_label.html" (dict "text" "xyz" "url" $docSymops) }}
+                      {{ partial "info_dot.html" (dict "general" "Coordinate-form operations express transformed x, y, z values." "context" "This column shows the exact x,y,z expression stored inside each operation's affine_transformation record.") }}
                     </th>
                     <th>
                       rot_type
@@ -547,6 +731,7 @@
             "title" "Wyckoff Positions"
             "id" "wyckoff-positions"
             "toggle_key" "wyckoff"
+            "doc_url" (index $docMap "wyckoff")
             "info_general" "Wyckoff positions partition symmetry-equivalent sites by multiplicity and site symmetry in a given space group."
             "info_context" "The table lists each orbit modulo centering translations. Apply every centering translation to every listed reduced coordinate to recover the full orbit."
           )
@@ -613,6 +798,7 @@
             "title" "Maximal Subgroups"
             "id" "maximal-subgroups"
             "toggle_key" "max_subgroups"
+            "doc_url" (index $docMap "baernighausen")
             "info_general" "A maximal subgroup is a proper subgroup with no intermediate subgroup between it and the parent group."
             "info_context" "Buttons use the format HM #ITA (index): HM is the target Hermann-Mauguin symbol, #ITA is its ITA number, and index is the subgroup index."
           )
@@ -753,6 +939,7 @@
             "title" "Minimal Supergroups"
             "id" "minimal-supergroups"
             "toggle_key" "min_supergroups"
+            "doc_url" (index $docMap "baernighausen")
             "info_general" "A minimal supergroup is a smallest proper supergroup above the current group with no intermediate supergroup."
             "info_context" "Buttons use the same HM #ITA (index) format used for maximal subgroups, now interpreted for upward relations."
           )
@@ -905,8 +1092,8 @@
             <div class="normalizer-stack">
               <div class="mapping-box">
                 <p class="note">
-                  Discrete Euclidean normalizer operations
-                  {{ partial "info_dot.html" (dict "general" "Discrete normalizer operations are isolated symmetry-compatible transformations." "context" "These rows use the same xyz-style fields as other operation tables in the explorer.") }}
+                  {{ partial "field_label.html" (dict "text" "Discrete Euclidean normalizer operations" "url" (index $docMap "euclidean_normalizer")) }}
+                  {{ partial "info_dot.html" (dict "general" "The finite Euclidean normalizer consists of metric-preserving affine operations that map the space group to itself in this setting." "context" "These rows use the same xyz-style fields as other operation tables in the explorer; continuous origin-shift freedoms are listed separately below.") }}
                 </p>
                 {{ if $euclidian }}
                   {{ $symops := $euclidian.symops }}
@@ -915,7 +1102,7 @@
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>{{ partial "field_label.html" (dict "text" "xyz" "url" $docSymopsXYZ) }}</th>
+                          <th>{{ partial "field_label.html" (dict "text" "xyz" "url" $docSymops) }}</th>
                           <th>rot_type</th>
                           <th>sense</th>
                           <th>axis</th>
@@ -972,7 +1159,7 @@
                           <tr>
                             <th>#</th>
                             <th>
-                              {{ partial "field_label.html" (dict "text" "xyz mod centerings" "url" $docSymopsModCenteringXYZ) }}
+                              {{ partial "field_label.html" (dict "text" "xyz mod centerings" "url" $docSymopsModCentering) }}
                               <span class="table-header-subline">{{ partial "orbit.html" $normalizerCenteringTranslations }}</span>
                             </th>
                             <th>rot_type</th>
@@ -1018,16 +1205,18 @@
 
               <div class="mapping-box normalizer-inner-box">
                 <p class="note">
-                  Nontrivial discrete affine normalizer operations (coset representatives modulo the space group)
-                  {{ partial "info_dot.html" (dict "general" "Discrete affine normalizer operations include affine self-maps compatible with the current group." "context" "These rows use the same xyz-style fields as other operation tables in the explorer.") }}
+                  {{ partial "field_label.html" (dict "text" "Nontrivial discrete affine normalizer operations (coset representatives modulo the space group)" "url" (index $docMap "affine_normalizer")) }}
+                  {{ partial "info_dot.html" (dict "general" "Affine normalizer coset representatives generated from bounded unimodular integer linear parts; each row represents one equivalence class modulo the space group." "context" "This is a finite bounded representative table, not the complete infinite affine normalizer. Each row lists the crystal systems for which its linear part is compatible with a crystallographic metric.") }}
                 </p>
                 {{ if $affine }}
                   <p class="mapping-meta">
-                    n_ops={{ partial "value.html" $affine.n_ops }};
+                    n_symops={{ partial "value.html" (default $affine.n_symops $affine.n_ops) }};
                     n_linear_parts={{ partial "value.html" $affine.n_linear_parts }};
                     n_coset_representatives={{ partial "value.html" $affine.n_coset_representatives }};
                     n_raw_candidates={{ partial "value.html" $affine.n_raw_candidates }};
-                    n_unique_candidates={{ partial "value.html" $affine.n_unique_candidates }}.
+                    n_unique_candidates={{ partial "value.html" $affine.n_unique_candidates }};
+                    candidate_set={{ partial "value.html" $affine.candidate_set }}{{ with $affine.bounds }}; bounds: det_abs={{ partial "value.html" .det_abs }}, max_abs_linear_entry={{ partial "value.html" .max_abs_linear_entry }}{{ end }}.
+                    {{ partial "info_dot.html" (dict "general" "n_symops counts the listed representatives after metric-compatibility filtering and equals the table length; n_coset_representatives counts representatives before that filter; the raw and unique candidate counts describe the bounded search and the candidate sets themselves are not stored." "context" "candidate_set and bounds identify the finite linear candidate set used to generate the table.") }}
                   </p>
                   {{ $symops := $affine.symops }}
                   {{ if $symops }}
@@ -1035,7 +1224,7 @@
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>{{ partial "field_label.html" (dict "text" "xyz" "url" $docSymopsXYZ) }}</th>
+                          <th>{{ partial "field_label.html" (dict "text" "xyz" "url" $docSymops) }}</th>
                           <th>compatible systems</th>
                           <th>P det</th>
                           <th>P orthogonal</th>
@@ -1075,8 +1264,8 @@
               {{ if $continuous }}
                 <div class="mapping-box normalizer-inner-box">
                   <p class="note">
-                    Continuous normalizer operations
-                    {{ partial "info_dot.html" (dict "general" "Continuous normalizer components form parameterized families of compatible transformations." "context" "When available, we show the basis vectors used to describe that continuous subspace.") }}
+                    {{ partial "field_label.html" (dict "text" "Continuous normalizer origin shifts" "url" (index $docMap "continuous_normalizer")) }}
+                    {{ partial "info_dot.html" (dict "general" "The continuous part of the normalizer is the subspace of continuous origin shifts, described by its dimension and exact fractional basis vectors rather than by enumerating operations." "context" "Each basis vector spans one continuously allowed origin-shift direction for this setting.") }}
                   </p>
                   {{ $basis := $continuous.basis_vectors }}
                   {{ if and $basis (gt (len $basis) 0) }}
@@ -1114,6 +1303,7 @@
             "title" "Isomorphic Subgroups"
             "id" "isomorphic-subgroups"
             "toggle_key" "k_subgroups"
+            "doc_url" (index $docMap "isomorphic_subgroups")
             "info_general" "Isomorphic subgroup relations describe transformations into commensurate cells of the same space group."
             "info_context" "Dropdown entries are labeled as No. N (k), where N is the list number and k is the index, typically |det(P)| for transformation matrix P."
           )

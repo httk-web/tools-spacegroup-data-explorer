@@ -72,7 +72,6 @@ const POINTGROUP_INDEX_DATA_PATH = "data/pointgroup_index.json.gz";
 const DATASET_SPACEGROUPS = "spacegroups";
 const DATASET_POINTGROUPS = "pointgroups";
 const FIELD_DOC_URLS = {
-  symops_xyz: "https://schemas.anyterial.se/defs/v0.1/properties/spacegroups/symops_xyz",
   hall: "https://schemas.anyterial.se/defs/v0.1/properties/spacegroups/hall",
   hm_entry: "https://schemas.anyterial.se/defs/v0.1/properties/spacegroups/hm_entry",
   hm_short: "https://schemas.anyterial.se/defs/v0.1/properties/spacegroups/hm_short",

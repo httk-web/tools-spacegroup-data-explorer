@@ -1,4 +1,5 @@
 {{ define "main" }}
+  {{ $docMap := default (dict) .Params.field_doc_urls }}
   <section id="detail-view" class="view is-active" aria-label="Pointgroup detail view">
     <div class="detail-grid">
       <article class="detail-card panel section-wide">
@@ -43,10 +44,10 @@
           <div class="identity-grid">
             <div class="metric">
               <label>
-                Hermann-Mauguin Symbol
+                {{ partial "field_label.html" (dict "text" "Hermann-Mauguin Symbol" "url" (index $docMap "hm_symbol")) }}
                 {{
                   partial "info_dot.html" (dict
-                    "general" "Hermann-Mauguin notation gives a compact symbolic description of symmetry elements."
+                    "general" "The Hermann-Mauguin point-group symbol, one of the 32 crystallographic point-group symbols, used as the key for this record."
                     "context" "For point groups, this is the primary symbol used across tables and URL slugs in this explorer."
                   )
                 }}
@@ -55,11 +56,11 @@
             </div>
             <div class="metric">
               <label>
-                Schoenflies Symbol
+                {{ partial "field_label.html" (dict "text" "Schoenflies Symbol" "url" (index $docMap "schoenflies")) }}
                 {{
                   partial "info_dot.html" (dict
-                    "general" "Schoenflies notation is another standard symmetry-label system, common in molecular and spectroscopic contexts."
-                    "context" "It is shown in its unicode-friendly display form."
+                    "general" "The Schoenflies symbol for the crystallographic point group, one of the 32 point-group symbols in Schoenflies notation."
+                    "context" "It is shown in its unicode-friendly display form. The symbol S6 is used for the group also known as C3i."
                   )
                 }}
               </label>
@@ -74,10 +75,10 @@
             </div>
             <div class="metric">
               <label>
-                Crystal System
+                {{ partial "field_label.html" (dict "text" "Crystal System" "url" (index $docMap "crystal_system")) }}
                 {{
                   partial "info_dot.html" (dict
-                    "general" "Crystal systems group point groups by broad geometric symmetry families."
+                    "general" "Crystal systems group point groups by broad geometric symmetry families, using the conventional crystallographic system names."
                     "context" "This is the same crystal-system bucket used by pointgroup index searching and sorting."
                   )
                 }}
@@ -86,10 +87,10 @@
             </div>
             <div class="metric">
               <label>
-                Laue Class
+                {{ partial "field_label.html" (dict "text" "Laue Class" "url" (index $docMap "laue_class")) }}
                 {{
                   partial "info_dot.html" (dict
-                    "general" "Laue classes capture diffraction-equivalent symmetry behavior."
+                    "general" "The Laue class groups point groups that become equivalent when inversion symmetry is included, capturing diffraction-equivalent behavior."
                   )
                 }}
               </label>
@@ -97,10 +98,10 @@
             </div>
             <div class="metric">
               <label>
-                Group Order
+                {{ partial "field_label.html" (dict "text" "Group Order" "url" (index $docMap "order")) }}
                 {{
                   partial "info_dot.html" (dict
-                    "general" "Group order is the total number of distinct symmetry operations in the finite point group."
+                    "general" "Group order is the total number of distinct symmetry operations in the finite point group; it equals the length of the symmetry-operations table below."
                     "context" "This numeric order is reused in the pointgroup index table and preserved here for reference."
                   )
                 }}
@@ -109,11 +110,11 @@
             </div>
             <div class="metric">
               <label>
-                Conjugacy Classes
+                {{ partial "field_label.html" (dict "text" "Conjugacy Classes" "url" (index $docMap "n_conjugacy_classes")) }}
                 {{
                   partial "info_dot.html" (dict
                     "general" "Conjugacy classes partition group elements that are equivalent under internal symmetry relabeling."
-                    "context" "This count is the total number of classes shown in the dedicated table below."
+                    "context" "This count equals the number of classes shown in the dedicated table below."
                   )
                 }}
               </label>
@@ -121,7 +122,7 @@
             </div>
             <div class="metric metric-span-two">
               <label>
-                Centrosymmetric
+                {{ partial "field_label.html" (dict "text" "Centrosymmetric" "url" (index $docMap "is_centrosymmetric")) }}
                 {{
                   partial "info_dot.html" (dict
                     "general" "A centrosymmetric group contains inversion symmetry about a center."
@@ -140,6 +141,7 @@
             "title" "Symmetry Operations"
             "id" "symmetry-operations"
             "toggle_key" "symops"
+            "doc_url" (index $docMap "symops")
             "info_general" "Symmetry operations are coordinate transformations that leave the object unchanged."
             "info_context" "Rows list operation metadata in page order using the same short labels shown in the table."
           )
@@ -157,12 +159,12 @@
                       {{ partial "info_dot.html" (dict "general" "xyz notation shows how coordinates are transformed by an operation." "context" "This text is displayed directly from each operation entry.") }}
                     </th>
                     <th>
-                      type
-                      {{ partial "info_dot.html" (dict "general" "Operation type classifies the symmetry action, such as rotation or reflection." "context" "This column keeps the short type labels shown in the table.") }}
+                      rot_type
+                      {{ partial "info_dot.html" (dict "general" "The crystallographic operation-type label for the linear part, such as 1, -1, 2, m, -3, 4, -4, 6, or -6." "context" "Negative labels denote rotoinversions; m denotes a mirror plane.") }}
                     </th>
                     <th>
                       proper
-                      {{ partial "info_dot.html" (dict "general" "Proper operations preserve orientation, while improper operations reverse it." "context" "The column is rendered as Yes/No from the is_proper boolean field.") }}
+                      {{ partial "info_dot.html" (dict "general" "Proper operations preserve orientation, while improper operations reverse it." "context" "Derived from the sign of the determinant of the operation's matrix part.") }}
                     </th>
                     <th>
                       axis
@@ -179,7 +181,7 @@
                     <tr>
                       <td>{{ add $index 1 }}</td>
                       <td>{{ partial "value.html" $op.xyz }}</td>
-                      <td>{{ partial "value.html" $op.type }}</td>
+                      <td>{{ partial "value.html" $op.rot_type }}</td>
                       <td>{{ if $op.is_proper }}Yes{{ else }}No{{ end }}</td>
                       <td>{{ partial "value.html" (delimit $op.axis ", ") }}</td>
                       <td>{{ partial "value.html" $op.sense }}</td>
@@ -201,6 +203,7 @@
             "title" "Conjugacy Classes"
             "id" "conjugacy-classes"
             "toggle_key" "conjugacy"
+            "doc_url" (index $docMap "conjugacy_classes")
             "info_general" "Conjugacy classes group operations that are equivalent under change of basis inside the same group."
             "info_context" "Each row provides representative operations and member listings for one class."
           )
@@ -226,7 +229,7 @@
                     </th>
                     <th>
                       Operation Type
-                      {{ partial "info_dot.html" (dict "general" "Operation type describes the symmetry action category for a class." "context" "Type text mirrors the stored op_type field.") }}
+                      {{ partial "info_dot.html" (dict "general" "The signed integer rotation-type code of the representative operation: 1, 2, 3, 4, 6 for proper rotations and the negated value for rotoinversions." "context" "-1 is the inversion and -2 denotes a mirror plane.") }}
                     </th>
                     <th>
                       Axis
@@ -273,6 +276,7 @@
             "title" "Character Table (Real)"
             "id" "character-table-real"
             "toggle_key" "char_real"
+            "doc_url" (index $docMap "character_table_real")
             "info_general" "A character table summarizes traces of representation matrices over each conjugacy class and is central in symmetry-based analysis."
             "info_context" "This real table lists irreducible representations with common basis hints."
           )
@@ -312,8 +316,10 @@
                 </thead>
                 <tbody>
                   {{ range $rows }}
+                    {{ $label := .label }}
+                    {{ with .label_markup }}{{ $label = default $label (index . "unicode") }}{{ end }}
                     <tr>
-                      <td>{{ partial "value.html" (default .label .label_unicode) }}</td>
+                      <td>{{ partial "value.html" $label }}</td>
                       <td>{{ partial "value.html" .dimension }}</td>
                       <td>{{ partial "value.html" .characters }}</td>
                       <td>{{ partial "value.html" .basis_linear }}</td>
@@ -337,6 +343,7 @@
             "title" "Character Table (Complex)"
             "id" "character-table-complex"
             "toggle_key" "char_complex"
+            "doc_url" (index $docMap "character_table_complex")
             "info_general" "Complex character tables extend representation analysis using complex-valued irreducible representations."
             "info_context" "This table includes each complex irrep and its Frobenius-Schur indicator."
           )
@@ -368,10 +375,28 @@
                 </thead>
                 <tbody>
                   {{ range $rows }}
+                    {{ $label := .label }}
+                    {{ with .label_markup }}{{ $label = default $label (index . "unicode") }}{{ end }}
+                    {{ $chars := slice }}
+                    {{ range .characters }}
+                      {{ if reflect.IsMap . }}
+                        {{ $re := printf "%v" (index . "re") }}
+                        {{ $im := printf "%v" (index . "im") }}
+                        {{ if eq $im "0" }}
+                          {{ $chars = $chars | append $re }}
+                        {{ else if hasPrefix $im "-" }}
+                          {{ $chars = $chars | append (printf "%s%si" $re $im) }}
+                        {{ else }}
+                          {{ $chars = $chars | append (printf "%s+%si" $re $im) }}
+                        {{ end }}
+                      {{ else }}
+                        {{ $chars = $chars | append (printf "%v" .) }}
+                      {{ end }}
+                    {{ end }}
                     <tr>
-                      <td>{{ partial "value.html" (default .label .label_unicode) }}</td>
+                      <td>{{ partial "value.html" $label }}</td>
                       <td>{{ partial "value.html" .dimension }}</td>
-                      <td>{{ partial "value.html" .characters }}</td>
+                      <td>{{ delimit $chars ", " }}</td>
                       <td>{{ partial "value.html" .frobenius_schur_indicator }}</td>
                     </tr>
                   {{ end }}
